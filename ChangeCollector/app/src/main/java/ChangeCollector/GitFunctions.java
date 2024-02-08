@@ -152,9 +152,9 @@ public class GitFunctions {
     // @param file : the file to be blamed
     // @param line : the line to be blamed
     public String[] blame(String project_dir, String file, int lineBlame, int lineFix) {
-        String[] cid_set = new String[2]; // [0] old cid, [1] new cid
-        String cid1; // new
-        String cid2; // old
+        String[] bic_bbic_cid_set = new String[2]; // [0] old cid, [1] new cid
+        String bic_cid; // new
+        String bbic_cid; // old
         int exit_code = -1;
         try {
             ProcessBuilder blame_builder = new ProcessBuilder("git", "-C", project_dir, "blame", "-C", "-C", "-f", "-l",
@@ -168,7 +168,7 @@ public class GitFunctions {
                 str_builder.append(l);
                 str_builder.append(System.lineSeparator());
             }
-            cid1 = str_builder.toString().split(" ")[0].strip(); // new cid
+            bic_cid = str_builder.toString().split(" ")[0].strip(); // new cid
             exit_code = p.waitFor();
             if (exit_code != 0) {
                 App.logger.error(
@@ -177,7 +177,7 @@ public class GitFunctions {
                 return null;
             }
             ProcessBuilder parse_builder = new ProcessBuilder("git", "-C", project_dir, "rev-parse",
-                    String.format("%s~1", cid1));
+                    String.format("%s~1", bic_cid));
             parse_builder.directory(new File(project_dir));
             p = parse_builder.start();
             reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -186,7 +186,7 @@ public class GitFunctions {
                 str_builder.append(l);
                 str_builder.append(System.lineSeparator());
             }
-            cid2 = str_builder.toString().split(" ")[0].strip(); // old cid
+            bbic_cid = str_builder.toString().split(" ")[0].strip(); // old cid
             exit_code = p.waitFor();
             if (exit_code != 0) {
                 App.logger.error(
@@ -198,9 +198,9 @@ public class GitFunctions {
             App.logger.error(App.ANSI_RED + "[ERROR] > Exception : " + e.getMessage() + App.ANSI_RESET);
             return null;
         }
-        cid_set[0] = cid2;
-        cid_set[1] = cid1;
-        return cid_set;
+        bic_bbic_cid_set[0] = bbic_cid;
+        bic_bbic_cid_set[1] = bic_cid;
+        return bic_bbic_cid_set;
     }
 
     public String blame(String project_dir, String file, int lineBlame, int lineFix, String bic) {
