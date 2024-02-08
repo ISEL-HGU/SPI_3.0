@@ -117,13 +117,13 @@ public class Extractor {
 
             while ((line = reader.readLine()) != null) {
                 String[] token = line.split("\\s+");
-                RevCommit commitBIC = walk.parseCommit(repository.resolve(token[0]));
-                RevCommit commitBBIC = walk.parseCommit(repository.resolve(token[1]));
+                RevCommit commitBIC = walk.parseCommit(repository.resolve(token[1]));
+                RevCommit commitBBIC = walk.parseCommit(repository.resolve(token[0]));
                 String pathBIC = token[2];
                 String pathBBIC = token[3];
 
-                String file_information = token[0] + " " + pathBIC + "\n";
-                String file_information_before = token[1] + " " + pathBBIC + "\n";
+                String file_information = token[1] + " " + pathBIC + "\n";
+                String file_information_before = token[0] + " " + pathBBIC + "\n";
 
                 writer.write(file_information);
                 writer.write(file_information_before);
