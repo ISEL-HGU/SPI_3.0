@@ -67,7 +67,7 @@ public class App {
         defects4j_id = properties.getProperty("defects4j_id"); // defects4j bug id
         hash_id = properties.getProperty("hash_id"); // hash id of the current execution
 
-	if (hash_id == null || hash_id.equals("")) {
+        if (hash_id == null || hash_id.equals("")) {
 	    hash_id = String.valueOf(System.currentTimeMillis());
 	}
 
@@ -262,12 +262,12 @@ public class App {
     }
 
     public void run(Properties properties) {
-	initProperties(properties);
+        initProperties(properties);
 
         // clean output directory
         if (doClean) {
        	    cleanOutputDir();
-	}
+        }
 
         // clone repository
         if (!mode.equals("defects4j") && !mode.equals("poolminer") && !gitFunctions.clone(git_url, workspace_dir)) {
@@ -285,17 +285,17 @@ public class App {
         // MODE 1 : collect change vector between current commit and before of a single
         // source code file
         if (mode.equals("github")) {
-	    githubChangeCollect();
+            githubChangeCollect();
         }
         // MODE 2 : collect change vector between current commit and before from a
         // Defects4J bug
         else if (mode.equals("defects4j")) {
-	    defects4jChangeCollect();
+            defects4jChangeCollect();
         }
         // MODE 3 : collect change vectors from given inputs of bic and bfc file
         // and write gumtree_vector.csv on output
         else if (mode.equals("poolminer")) {
-	    poolminerChangeCollect();
+            poolminerChangeCollect();
         } else {
             logger.fatal(ANSI_RED + "[fatal] > Invalid mode" + ANSI_RESET);
             System.exit(1);
