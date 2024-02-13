@@ -95,7 +95,7 @@ public class App {
         }
     }
 
-    private void githubChangeCollect() {
+    private void githubChangeCollect(Properties properties, String repo_git) {
         // STEP 1 : extract source code differences between current commit and before
         int lineFix = Integer.parseInt(properties.getProperty("lineFix"));
         int lineBlame = Integer.parseInt(properties.getProperty("lineBlame"));
@@ -250,7 +250,7 @@ public class App {
         logger.info(ANSI_GREEN + "[info] > Successfully extracted change vector" + ANSI_RESET);
     }
 
-    private void poolminerChangeCollect() {
+    private void poolminerChangeCollect(Properties properties) {
         String target = properties.getProperty("output_dir");
         String commit_file_path = properties.getProperty("set_file_path");
         String result_file_path = target + "/gumtree_vector.csv";
@@ -285,7 +285,7 @@ public class App {
         // MODE 1 : collect change vector between current commit and before of a single
         // source code file
         if (mode.equals("github")) {
-            githubChangeCollect();
+            githubChangeCollect(properties, repo_git);
         }
         // MODE 2 : collect change vector between current commit and before from a
         // Defects4J bug
@@ -295,7 +295,7 @@ public class App {
         // MODE 3 : collect change vectors from given inputs of bic and bfc file
         // and write gumtree_vector.csv on output
         else if (mode.equals("poolminer")) {
-            poolminerChangeCollect();
+            poolminerChangeCollect(properties);
         } else {
             logger.fatal(ANSI_RED + "[fatal] > Invalid mode" + ANSI_RESET);
             System.exit(1);
