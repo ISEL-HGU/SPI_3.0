@@ -262,6 +262,10 @@ public class App {
     }
 
     public void run(Properties properties) {
+	gitFunctions = new GitFunctions;
+	extractor = new Extractor;
+	implemental = new Implemental;
+	    
         initProperties(properties);
 
         // clean output directory
