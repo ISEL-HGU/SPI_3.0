@@ -10,5 +10,6 @@ Use issues to report bug or share idea.
 
 Use Projects as TODO lists.
 
-Do unit testing for all methods
+Do unit testing for all methods.
 
+Commit messages must follow the according [format](https://udacity.github.io/git-styleguide/).
