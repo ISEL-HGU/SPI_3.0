@@ -250,17 +250,6 @@ public class App {
         logger.info(ANSI_GREEN + "[info] > Successfully extracted change vector" + ANSI_RESET);
     }
 
-    private void poolminerChangeCollect(Properties properties) {
-        String target = properties.getProperty("output_dir");
-        String commit_file_path = properties.getProperty("set_file_path");
-        String result_file_path = target + "/gumtree_vector.csv";
-        PoolMiner poolMiner = new PoolMiner(commit_file_path, hash_id, target, result_file_path);
-        if (!poolMiner.run()) {
-            logger.error(ANSI_RED + "[error] > Failed to run PoolMiner" + ANSI_RESET);
-            System.exit(1);
-        }
-    }
-
     public void run(Properties properties) {
 	gitFunctions = new GitFunctions();
 	extractor = new Extractor();
@@ -274,7 +263,7 @@ public class App {
         }
 
         // clone repository
-        if (!mode.equals("defects4j") && !mode.equals("poolminer") && !gitFunctions.clone(git_url, workspace_dir)) {
+        if (!mode.equals("defects4j") && !gitFunctions.clone(git_url, workspace_dir)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to clone " + git_url + ANSI_RESET);
             System.exit(1);
         }
@@ -296,11 +285,7 @@ public class App {
         else if (mode.equals("defects4j")) {
             defects4jChangeCollect();
         }
-        // MODE 3 : collect change vectors from given inputs of bic and bfc file
-        // and write gumtree_vector.csv on output
-        else if (mode.equals("poolminer")) {
-            poolminerChangeCollect(properties);
-        } else {
+        else {
             logger.fatal(ANSI_RED + "[fatal] > Invalid mode" + ANSI_RESET);
             System.exit(1);
         }
