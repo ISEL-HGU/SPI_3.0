@@ -251,9 +251,10 @@ public class App {
     }
 
     public void run(Properties properties) {
-	gitFunctions = new GitFunctions();
-	extractor = new Extractor();
-	implemental = new Implemental();
+
+        gitFunctions = new GitFunctions();
+        extractor = new Extractor();
+        implemental = new Implemental();
 	    
         initProperties(properties);
 
@@ -302,9 +303,7 @@ public class App {
         try {
             properties.load(new FileInputStream(path));
         } catch (Exception e) {
-            logger.fatal(
-                    ANSI_RED + "[fatal] > failed to load properties for launching ChangeCollector due to Exception : "
-                            + e.getMessage());
+            logger.fatal(ANSI_RED + "[fatal] > failed to load properties for launching ChangeCollector due to Exception : " + e.getMessage());
             return null;
         }
         return properties;
