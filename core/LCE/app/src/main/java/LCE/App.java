@@ -62,10 +62,10 @@ public class App {
      * @param properties
      */
     public void run(Properties properties) {
+
         String spi_path = properties.getProperty("SPI.dir"); // path for SimilarPatchIdentifier project
 
         Extractor extractor = new Extractor(properties); // Extractor for extracting candidate source codes
-        GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
         // initiate extractor with properties
         appLogger.trace(ANSI_BLUE + "[status] > running executor..." + ANSI_RESET);
@@ -75,12 +75,14 @@ public class App {
         appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
 
         // preprocess the results from extractor before next step
-        List<String[]> preprocessed = preprocess(result);
+        List<String[]> stringListofCommitFile = commaSeperatedLinetoStringArray(result);
         appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
 
-        // variable init
+        // Pool Directory and Candidate Directory set
         String pool_dir = properties.getProperty("pool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
+
+        GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
         // setup for git loader to load source from git
         gitLoader.set(pool_dir, candidates_dir); // argv
@@ -104,10 +106,9 @@ public class App {
 
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
-        // retreive candidate source codes from each git repositories extracted as
-        // similar patch cases up to given limit (default : 10)
+        // retreive candidate source codes from each git repositories
         int counter = 0;
-        for (String[] line : preprocessed) {
+        for (String[] line : stringListofCommitFile) {
             gitLoader.getCounter(counter);
 
             String git_url = line[4];
@@ -117,13 +118,13 @@ public class App {
             String filepath_after = line[3];
             String d4j_name = properties.getProperty("d4j_project_name");
             int d4j_num = Integer.parseInt(properties.getProperty("d4j_project_num"));
+
             appLogger.trace(ANSI_GREEN + "[candidate metadata] > filepath after : " + filepath_after
-                    + ", git repository url : "
-                    + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num")
-                    + ANSI_RESET);
+                    + ", git repository url : " + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
 
             gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4j_name, d4j_num);
             gitLoader.run();
+
             try {
                 if (gitLoader.load()) {
                     appLogger.trace(ANSI_GREEN + "[status] > gitLoader load success" + ANSI_RESET);
@@ -135,9 +136,11 @@ public class App {
             }
             counter++;
         }
+
         appLogger.trace(ANSI_GREEN + "[status] > gitLoader done" + ANSI_RESET);
         appLogger.info(ANSI_YELLOW + "==========================================================" + ANSI_RESET);
         appLogger.info(ANSI_YELLOW + "[status] > App done" + ANSI_RESET);
+        
         System.exit(0);
     }
 
@@ -148,7 +151,7 @@ public class App {
      * @param result The input list of strings to be processed.
      * @return A list of string arrays obtained by splitting each line.
      */
-    public List<String[]> preprocess(List<String> result) {
+    public List<String[]> commaSeperatedLinetoStringArray(List<String> result) {
         List<String[]> result_split = new ArrayList<>();
         try {
             for (String line : result) {
