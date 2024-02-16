@@ -12,7 +12,11 @@ import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
 
 /**
- * LCS/App.java
+ * App.java is java file to selecte top candidates that have high LCS score on BBIC to BIC GumTree Difference of given bug and provided pool
+ * 
+ * Given bug's GumTree diff of BBIC and BIC came from Change Collector
+ * Provided pool is in compoenent/LCE
+ * You can refer https://github.com/ISEL-HGU/SPI_Helper to make pool
  */
 public class App {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -28,8 +32,10 @@ public class App {
     static Logger appLogger = LogManager.getLogger(App.class.getName());
 
     /**
-     * Read Properties file and run
-     * @param args
+     * Initializes and runs the application, loading properties from the default or specified file.
+     * Exits with a fatal error if properties are not found.
+     *
+     * @param args Command-line arguments (optional file path for properties).
      */
     public static void main(String[] args) {
         Configurator.setLevel(App.class, Level.TRACE);
@@ -136,11 +142,13 @@ public class App {
     }
 
     /**
-     * get result from extractor and split with ","
-     * @param result
-     * @return result_split
+     * Preprocesses a list of strings by splitting each comma-separated line
+     * into an array of five elements. Returns a list of string arrays.
+     *
+     * @param result The input list of strings to be processed.
+     * @return A list of string arrays obtained by splitting each line.
      */
-    private List<String[]> preprocess(List<String> result) {
+    public List<String[]> preprocess(List<String> result) {
         List<String[]> result_split = new ArrayList<>();
         try {
             for (String line : result) {
@@ -161,9 +169,14 @@ public class App {
     }
 
     /**
-     * load lce.properties
-     * @param path
-     * @return properties
+     * Loads properties from the specified file path.
+     *
+     * This method attempts to load properties from a file located at the given path.
+     * It logs the loading process and returns the loaded properties if successful.
+     * In case of any exception during the process, it logs a fatal error and returns null.
+     *
+     * @param path The file path to load properties from.
+     * @return A {@code Properties} object containing the loaded properties, or null if an error occurs.
      */
     public Properties loadProperties(String path) {
         try {
