@@ -6,6 +6,12 @@ package LCE;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+
 class AppTest {
     @Test
     void testApp() {
@@ -14,4 +20,50 @@ class AppTest {
         LCS lcs = new LCS();
         assertArrayEquals(new int[] { 1, 3, 1 }, lcs.LongestCommonSubsequenceofIntegerArray(target, tester));
     }
+
+    @Test
+    void testPreprocess() {
+        // Arrange
+        App app = new App();
+        List<String> inputList = Arrays.asList("1,John,Doe,30,Male", "2,Jane,Smith,25,Female");
+
+        // Act
+        List<String[]> result = app.preprocess(inputList);
+
+        // Assert
+        assertEquals(2, result.size());
+
+        assertArrayEquals(new String[] { "1", "John", "Doe", "30", "Male" }, result.get(0));
+        assertArrayEquals(new String[] { "2", "Jane", "Smith", "25", "Female" }, result.get(1));
+    }
+
+    @Test
+    void testLoadProperties() {
+        // Arrange
+        App app = new App();
+        String testFilePath = "test.properties";
+
+        // Create a temporary properties file for testing
+        try (FileWriter fileWriter = new FileWriter(testFilePath)) {
+            fileWriter.write("key1=value1\nkey2=value2");
+        } catch (Exception e) {
+            fail("Failed to create a test properties file.");
+        }
+
+        // Act
+        Properties loadedProperties = app.loadProperties(testFilePath);
+
+        // Assert
+        assertNotNull(loadedProperties, "Loaded properties should not be null.");
+        assertEquals("value1", loadedProperties.getProperty("key1"), "Incorrect value for key1");
+        assertEquals("value2", loadedProperties.getProperty("key2"), "Incorrect value for key2");
+
+        // Clean up - delete the temporary properties file
+        File testFile = new File(testFilePath);
+        if (!testFile.delete()) {
+            System.out.println("Warning: Test properties file deletion failed.");
+        }
+    }
+
+
 }
