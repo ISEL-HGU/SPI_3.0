@@ -9,17 +9,22 @@ package LCE;
 public class LCS {
 
     /**
-     * Calculates the Longest Common Subsequence (LCS) of two integer arrays.
+     * Calculates the length of the Longest Common Subsequence (LCS) between two integer arrays.
+     *
+     * This method uses dynamic programming to build a table that represents the length
+     * of the LCS at each position in the arrays.
      * 
-     * @param poolVector vector from the given pool
-     * @param givenBugVector vector from Change Collector
-     * @return An array representing the Longest Common Subsequence
+     * Calcuate LCS score using givenBugVector to poolVector
+     *
+     * @param poolVector The first integer array.
+     * @param givenBugVector The second integer array.
+     * @return A 2D array representing the LCS length table.
      */
-    public int[] LongestCommonSubsequenceofIntegerArray(int[] poolVector, int[] givenBugVector) {
-        // 1. get length of the subsequence with general bottom-up LCS algorithm
-        int i = 0;
+    private int[][] calculateLCSLength(int[] poolVector, int[] givenBugVector) {
+
         int[][] dpTable = new int[poolVector.length + 1][givenBugVector.length + 1];
-        for (i = 1; i <= poolVector.length; i++) {
+
+        for (int i = 1; i <= poolVector.length; i++) {
             for (int j = 1; j <= givenBugVector.length; j++) {
                 if (poolVector[i - 1] == givenBugVector[j - 1]) {
                     dpTable[i][j] = dpTable[i - 1][j - 1] + 1;
@@ -28,11 +33,27 @@ public class LCS {
                 }
             }
         }
-        // 2. get subseqeunce of two integer array
+
+        return dpTable;
+    }
+
+    /**
+     * Retrieves the Longest Common Subsequence (LCS) between two integer arrays.
+     *
+     * This method uses the LCS length table obtained from the dynamic programming
+     * approach to reconstruct the LCS as an array of integers.
+     *
+     * @param poolVector The first integer array.
+     * @param givenBugVector The second integer array.
+     * @param dpTable The LCS length table obtained from calculateLCSLength method.
+     * @return The LCS as an array.
+     */
+    private int[] retrieveLCS(int[] poolVector, int[] givenBugVector, int[][] dpTable) {
         int x = poolVector.length;
         int y = givenBugVector.length;
-        int[] subSequence = new int[dpTable[poolVector.length][givenBugVector.length]]; 
+        int[] subSequence = new int[dpTable[poolVector.length][givenBugVector.length]];
         int index = 0;
+
         while (x != 0 && y != 0) {
             if (poolVector[x - 1] == givenBugVector[y - 1]) {
                 subSequence[index] = poolVector[x - 1];
@@ -45,7 +66,20 @@ public class LCS {
                 y--;
             }
         }
+
         return subSequence;
+    }
+
+    /**
+     * Calculates the Longest Common Subsequence (LCS) between two integer arrays.
+     *
+     * @param poolVector The first integer array.
+     * @param givenBugVector The second integer array.
+     * @return The LCS as an array.
+     */
+    public int[] LongestCommonSubsequenceofIntegerArray(int[] poolVector, int[] givenBugVector) {
+        int[][] dpTable = calculateLCSLength(poolVector, givenBugVector);
+        return retrieveLCS(poolVector, givenBugVector, dpTable);
     }
 
     /**
@@ -69,58 +103,81 @@ public class LCS {
     }
 
     /**
-     * Calculates the similarity score between two integer arrays using a heuristic approach.
+     * Calculates the count of incorrect vectors in the pool for each element in the DP table.
      *
-     * The method calculates the similarity score by considering the Longest Common Subsequence (LCS)
-     * between the given 'poolVector' and 'givenBugVector'. It uses a heuristic approach to give weight
-     * according to the incorrect vectors in the 'poolVector'.
-     *
-     * @param poolVector The vector representing a pool of items.
-     * @param givenBugVector The vector representing a specific set of items (e.g., a bug vector).
-     * @return A similarity score between 0 and 1, where 1 indicates high similarity.
+     * @param poolVector The pool vector.
+     * @param subSequence The dynamic programming table obtained from LCS.
+     * @return An array representing the count of incorrect vectors for each element in the DP table.
      */
-    public float ScoreSimilarity(int[] poolVector, int[] givenBugVector) {
-
-        float score = 1; 
-        int sum = 0;
-
-        // Obtain the DP table by finding the Longest Common Subsequence
-        int[] dpTable = Backtrack(LongestCommonSubsequenceofIntegerArray(poolVector, givenBugVector));
-
-        // Array to store the count of incorrect vectors in the pool
-        int[] sigma = new int[ dpTable.length + 1];
+    private int[] calculateSigma(int[] poolVector, int[] subSequence) {
         
+        // Array to store the count of incorrect vectors in the pool
+        int[] sigma = new int[subSequence.length + 1];
+
         // Variable to keep track of the current position in the pool vector
         int trigger = 0;
 
-         // Calculate the count of incorrect vectors in the pool for each element in the DP table
-        for (int i = 0; i < dpTable.length; i++) {
+        // Calculate the count of incorrect vectors in the pool for each element in the DP table
+        for (int i = 0; i < subSequence.length; i++) {
             sigma[i] = 0;
             for (int j = trigger; j < poolVector.length; j++) {
-                if (poolVector[j] != dpTable[i]) {
+                if (poolVector[j] != subSequence[i]) {
                     sigma[i]++;
                 } else {
                     trigger = j + 1;
                     break;
                 }
             }
-            if (i + 1 == dpTable.length) {
+            if (i + 1 == subSequence.length) {
                 sigma[i + 1] = poolVector.length - trigger;
             }
         }
 
-         // Calculate the total count of incorrect vectors in the pool
+        return sigma;
+    }
+
+    /**
+     * Calculates the total count of incorrect vectors in the pool.
+     *
+     * @param sigma An array representing the count of incorrect vectors for each element in the DP table.
+     * @return The total count of incorrect vectors in the pool.
+     */
+    private int calculateTotalIncorrectVectors(int[] sigma) {
+        int incorrectVectorCount = 0;
+
         for (int i = 1; i < sigma.length - 1; i++) {
-            sum += sigma[i];
+            incorrectVectorCount += sigma[i];
         }
 
-         //heuristic to give weight according to the incorrect vectors
-        if (poolVector.length !=  dpTable.length)
-            score = 1 - (float) sum / (poolVector.length -  dpTable.length);
+        return incorrectVectorCount;
+    }
+
+    /**
+     * Calculates the similarity score between two integer arrays using a heuristic approach.
+     *
+     * @param poolVector The pool vector.
+     * @param givenBugVector The given bug vector.
+     * @return A similarity score between 0 and 1, where 1 indicates high similarity.
+     */
+    public float ScoreSimilarity(int[] poolVector, int[] givenBugVector) {
+
+        float score = 1;
+        int[] subSequence = Backtrack(LongestCommonSubsequenceofIntegerArray(poolVector, givenBugVector));
+
+        // Calculate the count of incorrect vectors in the pool for each element in the DP table
+        int[] sigma = calculateSigma(poolVector, subSequence);
+
+        // Calculate the total count of incorrect vectors in the pool
+        int incorrectVectorCount = calculateTotalIncorrectVectors(sigma);
+
+        // Heuristic to give weight according to the incorrect vectors
+        if (poolVector.length != subSequence.length)
+            score = 1 - (float) incorrectVectorCount / (poolVector.length - subSequence.length);
 
         // Adjust the score based on the length of the DP table
-        score = score * ((float)  dpTable.length / givenBugVector.length);
+        score = score * ((float) subSequence.length / givenBugVector.length);
 
         return score;
     }
+
 }
