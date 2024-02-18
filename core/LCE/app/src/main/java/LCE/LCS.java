@@ -153,11 +153,15 @@ public class LCS {
     }
 
     /**
-     * Calculates the similarity score between two integer arrays using a heuristic approach.
-     *
+     * Calculates the similarity score between two integer arrays. 
+     * 
+     * The score is then adjusted based on the heuristic to give weight according to the count of incorrect vectors. 
+     * If the lengths of the pool vector and the subsequence are not equal, the score is adjusted to reflect the ratio of incorrect vectors to the difference in lengths.
+     * The score is further adjusted based on the ratio of the length of the subsequence to the length of the givenBugVector.
+     * 
      * @param poolVector The pool vector.
      * @param givenBugVector The given bug vector.
-     * @return A similarity score between 0 and 1, where 1 indicates high similarity.
+     * @return A similarity score between 0 and 1, where approaching 1 indicates higher similarity.
      */
     public float ScoreSimilarity(int[] poolVector, int[] givenBugVector) {
 

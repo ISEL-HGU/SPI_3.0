@@ -28,7 +28,7 @@ class AppTest {
         List<String> inputList = Arrays.asList("1,John,Doe,30,Male", "2,Jane,Smith,25,Female");
 
         // Act
-        List<String[]> result = app.commaSeperatedLinetoStringArray(inputList);
+        List<String[]> result = app.commaSeperatedLineToStringArray(inputList);
 
         // Assert
         assertEquals(2, result.size());

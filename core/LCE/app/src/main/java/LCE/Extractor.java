@@ -52,7 +52,7 @@ public class Extractor {
         
         try {
             // Read gumtree_vector.csv file and convert to int[][]
-            int[][] storedPoolArray = Convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(gumtree_vector_path));
+            int[][] storedPoolArray = convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(gumtree_vector_path));
             
             findEmptyLines(storedPoolArray, indexListToRemove);
             findExtraLongLines(storedPoolArray, indexListToRemove, threshold);
@@ -69,7 +69,7 @@ public class Extractor {
             extractionLogger.trace(App.ANSI_BLUE + "[status] index_list_to_remove size : " + indexListToRemove.size() + App.ANSI_RESET);
             extractionLogger.trace(App.ANSI_BLUE + "[status] cleaned meta pool list size = " + cleaned_meta_pool_list.size() + App.ANSI_RESET);
 
-            int[][] vector_array = Convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(target_vector_path));
+            int[][] vector_array = convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(target_vector_path));
             
             float[] sim_score_array = new float[regressed_pool_array.length];
 
@@ -174,7 +174,7 @@ public class Extractor {
      * @param list
      * @return int[][] array
      */
-    private int[][] Convert2DStringArrayListTo2DIntArray(List<List<String>> list) {
+    private int[][] convert2DStringArrayListTo2DIntArray(List<List<String>> list) {
         int[][] array = new int[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             array[i] = Array2Int(list.get(i).toArray(new String[list.get(i).size()]));

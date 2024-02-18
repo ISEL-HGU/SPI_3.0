@@ -12,11 +12,11 @@ import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
 
 /**
- * App.java is java file to selecte top candidates that have high LCS score on BBIC to BIC GumTree Difference of given bug and provided pool
+ * App.java is java file to select top candidates that have high LCS scores on BBIC to BIC GumTree Difference of given bug and provided pool
  * 
- * Given bug's GumTree diff of BBIC and BIC came from Change Collector
- * Provided pool is in compoenent/LCE
- * You can refer https://github.com/ISEL-HGU/SPI_Helper to make pool
+ * The GumTree diff between BBIC and BIC of the given bug is the output of ChangeCollector
+ * Provided pool is in component/LCE
+ * You can refer to https://github.com/ISEL-HGU/SPI_Helper to make pool
  */
 public class App {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -75,7 +75,7 @@ public class App {
         appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
 
         // preprocess the results from extractor before next step
-        List<String[]> stringListofCommitFile = commaSeperatedLinetoStringArray(result);
+        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(result);
         appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
 
         // Pool Directory and Candidate Directory set
@@ -151,7 +151,7 @@ public class App {
      * @param result The input list of strings to be processed.
      * @return A list of string arrays obtained by splitting each line.
      */
-    public List<String[]> commaSeperatedLinetoStringArray(List<String> result) {
+    public List<String[]> commaSeperatedLineToStringArray(List<String> result) {
         List<String[]> result_split = new ArrayList<>();
         try {
             for (String line : result) {
@@ -179,7 +179,7 @@ public class App {
      * In case of any exception during the process, it logs a fatal error and returns null.
      *
      * @param path The file path to load properties from.
-     * @return A {@code Properties} object containing the loaded properties, or null if an error occurs.
+     * @return A {@code Properties} object that contains the loaded properties, or null if an error occurs.
      */
     public Properties loadProperties(String path) {
         try {
