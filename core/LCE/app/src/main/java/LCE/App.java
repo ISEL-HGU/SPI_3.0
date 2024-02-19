@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.logging.log4j.*;
-import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configurator;
 
 /**
- * LCS/App.java
+ * App.java is java file to select top candidates that have high LCS scores on BBIC to BIC GumTree Difference of given bug and provided pool
+ * 
+ * The GumTree diff between BBIC and BIC of the given bug is the output of ChangeCollector
+ * Provided pool is in component/LCE
+ * You can refer to https://github.com/ISEL-HGU/SPI_Helper to make pool
  */
 public class App {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -29,8 +32,10 @@ public class App {
     static Logger appLogger = LogManager.getLogger(App.class.getName());
 
     /**
-     * Read Properties file and run
-     * @param args
+     * Initializes and runs the application, loading properties from the default or specified file.
+     * Exits with a fatal error if properties are not found.
+     *
+     * @param args Command-line arguments (optional file path for properties).
      */
     public static void main(String[] args) {
         Configurator.setLevel(App.class, Level.TRACE);
@@ -57,10 +62,10 @@ public class App {
      * @param properties
      */
     public void run(Properties properties) {
+
         String spi_path = properties.getProperty("SPI.dir"); // path for SimilarPatchIdentifier project
 
         Extractor extractor = new Extractor(properties); // Extractor for extracting candidate source codes
-        GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
         // initiate extractor with properties
         appLogger.trace(ANSI_BLUE + "[status] > running executor..." + ANSI_RESET);
@@ -70,12 +75,14 @@ public class App {
         appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
 
         // preprocess the results from extractor before next step
-        List<String[]> preprocessed = preprocess(result);
+        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(result);
         appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
 
-        // variable init
+        // Pool Directory and Candidate Directory set
         String pool_dir = properties.getProperty("pool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
+
+        GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
         // setup for git loader to load source from git
         gitLoader.set(pool_dir, candidates_dir); // argv
@@ -99,10 +106,9 @@ public class App {
 
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
-        // retreive candidate source codes from each git repositories extracted as
-        // similar patch cases up to given limit (default : 10)
+        // retreive candidate source codes from each git repositories
         int counter = 0;
-        for (String[] line : preprocessed) {
+        for (String[] line : stringListofCommitFile) {
             gitLoader.getCounter(counter);
 
             String git_url = line[4];
@@ -112,13 +118,13 @@ public class App {
             String filepath_after = line[3];
             String d4j_name = properties.getProperty("d4j_project_name");
             int d4j_num = Integer.parseInt(properties.getProperty("d4j_project_num"));
+
             appLogger.trace(ANSI_GREEN + "[candidate metadata] > filepath after : " + filepath_after
-                    + ", git repository url : "
-                    + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num")
-                    + ANSI_RESET);
+                    + ", git repository url : " + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
 
             gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4j_name, d4j_num);
             gitLoader.run();
+
             try {
                 if (gitLoader.load()) {
                     appLogger.trace(ANSI_GREEN + "[status] > gitLoader load success" + ANSI_RESET);
@@ -130,18 +136,22 @@ public class App {
             }
             counter++;
         }
+
         appLogger.trace(ANSI_GREEN + "[status] > gitLoader done" + ANSI_RESET);
         appLogger.info(ANSI_YELLOW + "==========================================================" + ANSI_RESET);
         appLogger.info(ANSI_YELLOW + "[status] > App done" + ANSI_RESET);
+        
         System.exit(0);
     }
 
     /**
-     * get result from extractor and split with ","
-     * @param result
-     * @return result_split
+     * Preprocesses a list of strings by splitting each comma-separated line
+     * into an array of five elements. Returns a list of string arrays.
+     *
+     * @param result The input list of strings to be processed.
+     * @return A list of string arrays obtained by splitting each line.
      */
-    private List<String[]> preprocess(List<String> result) {
+    public List<String[]> commaSeperatedLineToStringArray(List<String> result) {
         List<String[]> result_split = new ArrayList<>();
         try {
             for (String line : result) {
@@ -162,9 +172,14 @@ public class App {
     }
 
     /**
-     * load lce.properties
-     * @param path
-     * @return properties
+     * Loads properties from the specified file path.
+     *
+     * This method attempts to load properties from a file located at the given path.
+     * It logs the loading process and returns the loaded properties if successful.
+     * In case of any exception during the process, it logs a fatal error and returns null.
+     *
+     * @param path The file path to load properties from.
+     * @return A {@code Properties} object that contains the loaded properties, or null if an error occurs.
      */
     public Properties loadProperties(String path) {
         try {
