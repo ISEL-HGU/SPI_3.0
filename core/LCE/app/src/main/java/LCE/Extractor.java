@@ -9,7 +9,6 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Iterator;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -23,7 +22,7 @@ public class Extractor {
 
     private List<String> source_files;
     private int[] max_N_index_list;
-    private List<List<String>> meta_pool_list = new ArrayList<>();
+    private List<List<String>> storedCommitList = new ArrayList<>();
     private List<List<String>> cleaned_meta_pool_list = new ArrayList<>();
     private int nummax;
     private int threshold;
@@ -40,47 +39,37 @@ public class Extractor {
         lcs = new LCS();
         gumtree_vector_path = argv.getProperty("pool_file.dir"); // gumtree vector path
         commit_file_path = argv.getProperty("meta_pool_file.dir"); // commit file path
-        //System.out.println(commit_file_path);
         target_vector_path = argv.getProperty("target_vector.dir"); // target dir
         nummax = argv.getProperty("candidate_number").equals("") ? 10
                 : Integer.parseInt(argv.getProperty("candidate_number")); // nummax
         threshold = argv.getProperty("threshold").equals("") ? 1000
                 : Integer.parseInt(argv.getProperty("threshold")); // threshold
     }
-
-    // public void config(String pool_dir, String vector_dir, String meta_pool_dir, String result_dir) {
-    //     this.gumtree_vector_path = pool_dir;
-    //     this.target_vector_path = vector_dir;
-    //     this.commit_file_path = meta_pool_dir;
-    // }
     
     public void run() {
 
-        Vector<Integer> index_list_to_remove = new Vector<Integer>();
+        Vector<Integer> indexListToRemove = new Vector<Integer>();
         
         try {
             // Read gumtree_vector.csv file and convert to int[][]
-            List<List<String>> pool_array_str = CSV2ArrayList(gumtree_vector_path);
-            int[][] pool_array = ArrayList2Int2D(pool_array_str);
+            int[][] storedPoolArray = convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(gumtree_vector_path));
             
-            // remove empty lines
-            find_empty_lines(pool_array, index_list_to_remove);
+            findEmptyLines(storedPoolArray, indexListToRemove);
+            findExtraLongLines(storedPoolArray, indexListToRemove, threshold);
 
-            // remove lines with extra long vectors over threshold
-            find_extra_long_lines(pool_array, index_list_to_remove, threshold);
+            int[][] regressed_pool_array = syncPoolWithIndexListToRemove(storedPoolArray, indexListToRemove);
 
-            meta_pool_list = CSV2ArrayList(commit_file_path);
-            int[][] regressed_pool_array = sync_removal(pool_array, index_list_to_remove);
-            cleaned_meta_pool_list = sync_removal(meta_pool_list, index_list_to_remove);
+            storedCommitList = ReadCSVto2DStringArrayList(commit_file_path);
+            cleaned_meta_pool_list = syncPoolWithIndexListToRemove(storedCommitList, indexListToRemove);
 
             
-            extractionLogger.trace(App.ANSI_BLUE + "[status] original pool array size = " + pool_array.length + App.ANSI_RESET);
-            extractionLogger.trace(App.ANSI_BLUE + "[status] meta pool list size = " + meta_pool_list.size() + App.ANSI_RESET);
+            extractionLogger.trace(App.ANSI_BLUE + "[status] original pool array size = " + storedPoolArray.length + App.ANSI_RESET);
+            extractionLogger.trace(App.ANSI_BLUE + "[status] meta pool list size = " + storedCommitList.size() + App.ANSI_RESET);
             extractionLogger.trace(App.ANSI_BLUE + "[status] cleaned pool array size = " + regressed_pool_array.length + App.ANSI_RESET);
-            extractionLogger.trace(App.ANSI_BLUE + "[status] index_list_to_remove size : " + index_list_to_remove.size() + App.ANSI_RESET);
+            extractionLogger.trace(App.ANSI_BLUE + "[status] index_list_to_remove size : " + indexListToRemove.size() + App.ANSI_RESET);
             extractionLogger.trace(App.ANSI_BLUE + "[status] cleaned meta pool list size = " + cleaned_meta_pool_list.size() + App.ANSI_RESET);
 
-            int[][] vector_array = ArrayList2Int2D(CSV2ArrayList(target_vector_path));
+            int[][] vector_array = convert2DStringArrayListTo2DIntArray(ReadCSVto2DStringArrayList(target_vector_path));
             
             float[] sim_score_array = new float[regressed_pool_array.length];
 
@@ -110,12 +99,20 @@ public class Extractor {
      * @return List<String> source_files
      */
     public List<String> extract() {
+
         source_files = new ArrayList<>();
+
         for (int i = 0; i < max_N_index_list.length; i++) {
-            source_files.add(combine(cleaned_meta_pool_list.get(max_N_index_list[i])));
+            source_files.add(combineStringListToCommaSeperatedLine(cleaned_meta_pool_list.get(max_N_index_list[i])));
             // print the result
+            /* example: [result] 113471d6457b4afa2523afc74b40be09935292d0,1925a50d860b7b8f8422f1c2f251d0ea11def736,
+                runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
+                runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
+                https://github.com/apache/beam.git,BEAM
+            */
             extractionLogger.trace(App.ANSI_BLUE + "[result] " + source_files.get(i) + App.ANSI_RESET);
         }
+
         return source_files;
     }
 
@@ -125,7 +122,8 @@ public class Extractor {
      * @return List<List<String>> records
      * @throws FileNotFoundException
      */
-    private List<List<String>> CSV2ArrayList(String filename) throws FileNotFoundException {
+    private List<List<String>> ReadCSVto2DStringArrayList(String filename) throws FileNotFoundException {
+
         List<List<String>> records = new ArrayList<>();
         try (Scanner scanner = new Scanner(new File(filename));) {
             while (scanner.hasNextLine()) {
@@ -176,7 +174,7 @@ public class Extractor {
      * @param list
      * @return int[][] array
      */
-    private int[][] ArrayList2Int2D(List<List<String>> list) {
+    private int[][] convert2DStringArrayListTo2DIntArray(List<List<String>> list) {
         int[][] array = new int[list.size()][];
         for (int i = 0; i < list.size(); i++) {
             array[i] = Array2Int(list.get(i).toArray(new String[list.get(i).size()]));
@@ -184,38 +182,36 @@ public class Extractor {
         return array;
     }
 
-    private String combine(List<String> list) {
-        String combined = "";
+    private String combineStringListToCommaSeperatedLine(List<String> list) {
+        String combinedLine = "";
         for (int i = 0; i < list.size(); i++) {
-            combined += list.get(i) + ",";
+            combinedLine += list.get(i) + ",";
         }
         // remove last comma of combined
-        combined = combined.substring(0, combined.length() - 1);
-        return combined;
+        combinedLine = combinedLine.substring(0, combinedLine.length() - 1);
+        return combinedLine;
     }
 
     // locate and remove lines with vector size over given threshold
-    private void find_extra_long_lines(int[][] pool, Vector<Integer> index_list, int threshold) {
-        List<int[]> new_pool = new ArrayList<int[]>();
-        for (int i = 0; i < pool.length; i++) {
-            if (pool[i].length <= threshold) {
-                new_pool.add(pool[i]);
-            } else {
+    private void findExtraLongLines(int[][] poolArray, Vector<Integer> index_list, int threshold) {
+
+        for (int i = 0; i < poolArray.length; i++) {
+            if (poolArray[i].length > threshold) {
                 index_list.add(i);
             }
         }
+
     }
 
     // locate and remove empty lines in pool
-    private void find_empty_lines(int[][] pool, Vector<Integer> index_list) {
-        List<int[]> new_pool = new ArrayList<>();
-        for (int i = 0; i < pool.length; i++) {
-            if (pool[i].length != 0) {
-                new_pool.add(pool[i]);
-            } else {
-                index_list.add(i);
+    private void findEmptyLines(int[][] poolArray, Vector<Integer> indexListToRemove) {
+        
+        for (int i = 0; i < poolArray.length; i++) {
+            if (poolArray[i].length == 0) {
+                indexListToRemove.add(i);
             }
         }
+
     }
 
     /**
@@ -224,19 +220,21 @@ public class Extractor {
      * @param index_list
      * @return synced_meta_pool
      */
-    private List<List<String>> sync_removal(List<List<String>> meta_pool, Vector<Integer> index_list) {
+    private List<List<String>> syncPoolWithIndexListToRemove(List<List<String>> meta_pool, Vector<Integer> index_list) {
+        
         List<List<String>> synced_meta_pool = new ArrayList<>();
         for (int i = 0; i < meta_pool.size(); i++) {
             if (!index_list.contains(i)) {
                 synced_meta_pool.add(meta_pool.get(i));
             } else {
-                extractionLogger.trace("[debug] index " + i + " is removed"); // DEBUG
+                extractionLogger.trace("[debug] index " + i + " is removed"); // TODO:Need to Remove
             }
         }
         return synced_meta_pool;
     }
     
-    private int[][] sync_removal(int[][] pool_array, Vector<Integer> index_list) {
+    private int[][] syncPoolWithIndexListToRemove(int[][] pool_array, Vector<Integer> index_list) {
+
         int[][] new_pool_array = new int[pool_array.length - index_list.size()][];
         int j = 0;
         for (int i = 0; i < pool_array.length; i++) {
@@ -245,28 +243,9 @@ public class Extractor {
                 j++;
             }
         }
+        
         return new_pool_array;
     }
-
-    // LEGACY
-    // find index of top N max values in array and return index list
-    // private int[] indexesOfTopElements(float[] orig, int nummax) {
-    //     float[] copy = Arrays.copyOf(orig, orig.length);
-    //     Arrays.sort(copy);
-    //     float[] honey = Arrays.copyOfRange(copy, copy.length - nummax, copy.length);
-    //     int[] result = new int[nummax];
-    //     int resultPos = 0;
-    //     for (int i = 0; i < orig.length; i++) {
-    //         float onTrial = orig[i];
-    //         int index = Arrays.binarySearch(honey, onTrial);
-    //         if (index < 0)
-    //             continue;
-    //         if (resultPos < nummax)
-    //             result[resultPos++] = i;
-    //     }
-    //     return result;
-    // }
-
     
     /**
      * count number of each similarity score
@@ -309,10 +288,10 @@ public class Extractor {
         int[] result = new int[nummax];
         int resultPos = 0;
         float targetScore = 0;
-        Set keySet = map.keySet();
-        Iterator keyIterator = keySet.iterator();
+        Iterator<Float> keyIterator = map.keySet().iterator();
         Float[] scores = new Float[map.keySet().size()];
         int scorePos = 0;
+
         while(keyIterator.hasNext()){
             scores[scorePos] = (float) keyIterator.next();
             scorePos++;
@@ -320,6 +299,7 @@ public class Extractor {
         scorePos = 0;
         // sort from highest to lowsest
         Arrays.sort(scores, Collections.reverseOrder());
+
         while (resultPos < nummax) {
             int leftCandNum = nummax - resultPos;
             // if there is no more similarity score, then break
