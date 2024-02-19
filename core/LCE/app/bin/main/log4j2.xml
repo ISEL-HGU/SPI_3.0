@@ -1,6 +1,6 @@
 <Configuration status="info">
 	<Properties>
-		<Property name="projectRoot">/home/newwin0189/SPI</Property>
+		<Property name="projectRoot">/home/newwin0189/SPI_3.0</Property>
 	</Properties>
 
 	<Appenders>

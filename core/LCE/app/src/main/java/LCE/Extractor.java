@@ -1,6 +1,5 @@
 package LCE;
 
-
 import java.util.Comparator;
 import java.util.TreeMap;
 import java.io.File;
@@ -15,6 +14,12 @@ import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
 import java.util.Collections;
 
+/**
+ * The Extractor class is responsible for extracting candidate source codes based on
+ * similarity scores and other specified criteria.
+ * It reads input files, processes the data, and provides an interface to extract
+ * relevant information.
+ */
 public class Extractor {
     LCS lcs;
     private String gumtreeVectorPath;
@@ -29,12 +34,12 @@ public class Extractor {
     private int threshold;
 
     static Logger extractionLogger = LogManager.getLogger(Extractor.class.getName());
-
     public Extractor() {}
 
     /**
-     * Initalize using lce.properties file
-     * @param argv 
+     * Constructor for the Extractor class, initialized using the provided properties.
+     *
+     * @param argv Properties containing configuration details for the Extractor.
      */
     public Extractor(Properties argv) {
         super();
@@ -49,6 +54,11 @@ public class Extractor {
                 : Integer.parseInt(argv.getProperty("threshold")); // threshold
     }
     
+
+    /**
+     * Runs the extraction process, including reading files, processing data, and calculating
+     * similarity scores to identify candidate patches.
+     */
     public void run() {
 
         Vector<Integer> indexListToRemove = new Vector<Integer>();
@@ -96,8 +106,9 @@ public class Extractor {
 
 
     /**
-     * 
-     * @return List<String> source_files
+     * Extracts information from the processed data and returns a list of source files
+     *
+     * @return List<String> source_files List of source files meeting the extraction criteria.
      */
     public List<String> extract() {
 
@@ -118,10 +129,11 @@ public class Extractor {
     }
 
     /**
-     * convert csv file contects to arraylist
-     * @param filename
-     * @return List<List<String>> records
-     * @throws FileNotFoundException
+     * Reads the contents of a CSV file and converts them into a List of Lists of Strings.
+     *
+     * @param filename The name of the CSV file to be read.
+     * @return List<List<String>> A list containing records, where each record is represented as a list of strings.
+     * @throws FileNotFoundException If the specified file is not found.
      */
     private List<List<String>> ReadCSVto2DStringArrayList(String filename) throws FileNotFoundException {
 
@@ -139,10 +151,10 @@ public class Extractor {
     }
 
     /**
-     * Get a record from a line
-     * split using "," 
-     * @param line
-     * @return List<String>
+     * Extracts individual values from a line by splitting it using a comma (",") delimiter.
+     *
+     * @param line The input line to be split.
+     * @return List<String> A list containing individual values extracted from the input line.
      */
     private List<String> splitLine(String line) {
         List<String> values = new ArrayList<String>();
@@ -156,9 +168,10 @@ public class Extractor {
     }
 
     /**
-     * convert String array to int array
-     * @param array
-     * @return intArray
+     * Converts a String array to an int array.
+     *
+     * @param array The String array to be converted.
+     * @return int[] An array of integers converted from the input String array.
      */
     private int[] Array2Int(String[] array) {
         int[] converted = new int[array.length];
@@ -171,9 +184,10 @@ public class Extractor {
     }
 
     /**
-     * convert List<List<String>> list to int[][] array
-     * @param list
-     * @return int[][] array
+     * Converts a List of Lists of Strings to a 2D int array.
+     *
+     * @param list The input list to be converted.
+     * @return int[][] A 2D array of integers converted from the input list.
      */
     private int[][] convert2DStringArrayListTo2DIntArray(List<List<String>> list) {
         int[][] array = new int[list.size()][];
@@ -183,6 +197,12 @@ public class Extractor {
         return array;
     }
 
+    /**
+     * Combines a list of strings into a comma-separated line.
+     *
+     * @param list The list of strings to be combined.
+     * @return String A comma-separated line containing the combined strings.
+     */
     private String combineStringListToCommaSeperatedLine(List<String> list) {
         String combinedLine = "";
         for (int i = 0; i < list.size(); i++) {
@@ -193,7 +213,13 @@ public class Extractor {
         return combinedLine;
     }
 
-    // locate and remove lines with vector size over given threshold
+    /**
+     * Locates and removes lines in the pool array with a vector size over the given threshold.
+     *
+     * @param poolArray       The pool array containing vectors.
+     * @param indexList       The list to store indices of lines to be removed.
+     * @param threshold       The threshold for vector size beyond which lines will be removed.
+     */
     private void findExtraLongLines(int[][] poolArray, Vector<Integer> indexList, int threshold) {
 
         for (int i = 0; i < poolArray.length; i++) {
@@ -204,7 +230,12 @@ public class Extractor {
 
     }
 
-    // locate and remove empty lines in pool
+   /**
+     * Locates and removes empty lines in the pool array.
+     *
+     * @param poolArray           The pool array containing vectors.
+     * @param indexListToRemove   The list to store indices of empty lines to be removed.
+     */
     private void findEmptyLines(int[][] poolArray, Vector<Integer> indexListToRemove) {
         
         for (int i = 0; i < poolArray.length; i++) {
@@ -216,10 +247,11 @@ public class Extractor {
     }
 
     /**
-     * 
-     * @param cleanedCommitList
-     * @param indexListToRemove
-     * @return synced_meta_pool
+     * Synchronizes the cleaned commit list with the index list of lines to be removed.
+     *
+     * @param cleanedCommitList   The cleaned commit list to be synchronized.
+     * @param indexListToRemove   The list containing indices of lines to be removed.
+     * @return List<List<String>> The synchronized meta pool after removing specified lines.
      */
     private List<List<String>> syncPoolWithIndexListToRemove(List<List<String>> cleanedCommitList, Vector<Integer> indexListToRemove) {
         
@@ -234,6 +266,13 @@ public class Extractor {
         return synced_meta_pool;
     }
     
+    /**
+     * Synchronizes the pool array with the index list of lines to be removed.
+     *
+     * @param cleanedGumTreeArray The cleaned pool array to be synchronized.
+     * @param indexListToRemove   The list containing indices of lines to be removed.
+     * @return int[][] The synchronized pool array after removing specified lines.
+     */
     private int[][] syncPoolWithIndexListToRemove(int[][] cleanedGumTreeArray, Vector<Integer> indexListToRemove) {
 
         int[][] new_pool_array = new int[cleanedGumTreeArray.length - indexListToRemove.size()][];
@@ -249,9 +288,10 @@ public class Extractor {
     }
     
     /**
-     * count number of each similarity score
-     * @param orig
-     * @return HashMap<Float, Integer> result
+     * Counts the number of occurrences of each similarity score and maps them to the corresponding indices.
+     *
+     * @param orig Array of similarity scores.
+     * @return HashMap<Float, ArrayList<Integer>> Resulting map of similarity scores to indices.
      */
     public HashMap<Float, ArrayList<Integer> > makeMapScoreToIndex(float[] orig) {
 
@@ -279,7 +319,15 @@ public class Extractor {
     }
 
     /**
+     * Identifies the indices of candidate patches based on similarity scores.
+     *
+     * If the number of left candidates is limited, 
+     * The algorithm considers the vector length first and goes with the index 
      * 
+     * @param simScoreMap Map of similarity scores to corresponding indices.
+     * @param nummax      Maximum number of candidate patches to identify.
+     * @param storedPoolArray Array containing the original pool of source code.
+     * @return int[] Array of indices representing the identified candidate patches.
      */
     public int[] indexOfCandidatePatches(HashMap<Float, ArrayList<Integer> > simScoreMap, int nummax, int[][] storedPoolArray) {
         
