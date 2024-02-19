@@ -15,13 +15,13 @@ public class LCSTest {
         int[] array1 = {1, 2, 3, 4, 5};
         int[] array2 = {2, 4, 5, 6};
         int[] expectedLCS = {5, 4, 2};
-        assertArrayEquals(expectedLCS, lcs.longestCommonSubsequenceofIntegerArray(array1, array2));
+        assertArrayEquals(expectedLCS, lcs.longestCommonSubsequenceOfIntegerArray(array1, array2));
 
         // Test case 2: Arrays with no common subsequence
         int[] array3 = {1, 2, 3};
         int[] array4 = {4, 5, 6};
         int[] expectedEmptyLCS = {};
-        assertArrayEquals(expectedEmptyLCS, lcs.longestCommonSubsequenceofIntegerArray(array3, array4));
+        assertArrayEquals(expectedEmptyLCS, lcs.longestCommonSubsequenceOfIntegerArray(array3, array4));
     }
 
     @Test

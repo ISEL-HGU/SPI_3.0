@@ -77,7 +77,7 @@ public class LCS {
      * @param givenBugVector The second integer array.
      * @return The LCS as an array.
      */
-    public int[] longestCommonSubsequenceofIntegerArray(int[] poolVector, int[] givenBugVector) {
+    public int[] longestCommonSubsequenceOfIntegerArray(int[] poolVector, int[] givenBugVector) {
         int[][] dpTable = calculateLCSLength(poolVector, givenBugVector);
         return retrieveLCS(poolVector, givenBugVector, dpTable);
     }
@@ -166,7 +166,7 @@ public class LCS {
     public float scoreSimilarity(int[] poolVector, int[] givenBugVector) {
 
         float score = 1;
-        int[] subSequence = backtrack(longestCommonSubsequenceofIntegerArray(poolVector, givenBugVector));
+        int[] subSequence = backtrack(longestCommonSubsequenceOfIntegerArray(poolVector, givenBugVector));
 
         // Calculate the count of incorrect vectors in the pool for each element in the DP table
         int[] sigma = calculateSigma(poolVector, subSequence);

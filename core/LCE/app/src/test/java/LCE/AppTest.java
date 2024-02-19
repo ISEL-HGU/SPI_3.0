@@ -18,7 +18,7 @@ class AppTest {
         int[] target = new int[] { 1, 3, 5, 1, 6 };
         int[] tester = new int[] { 1, 5, 3, 1, 4 };
         LCS lcs = new LCS();
-        assertArrayEquals(new int[] { 1, 3, 1 }, lcs.longestCommonSubsequenceofIntegerArray(target, tester));
+        assertArrayEquals(new int[] { 1, 3, 1 }, lcs.longestCommonSubsequenceOfIntegerArray(target, tester));
     }
 
     @Test
