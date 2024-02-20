@@ -3,14 +3,16 @@ package LCE;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.io.IOException;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import org.apache.commons.io.FileUtils;
-import java.util.ArrayList;
+
+
+import java.nio.file.Files;
 
 public class GitLoader {
     private int counter = -1;
@@ -60,8 +62,8 @@ public class GitLoader {
         this.d4jProjectNum = d4jNum;
     }
 
-    public void set(String path, String candidateDir) {
-        this.resultDir = path;
+    public void set(String resultDir, String candidateDir) {
+        this.resultDir = resultDir;
         this.candidateDir = candidateDir;
         if (resultDir != null && candidateDir != null) {
             set = true;
@@ -115,6 +117,9 @@ public class GitLoader {
      */
     private boolean clone(String directory) {
         try {
+            if ( checkDirExists(directory) ) { //already exists
+                return true;
+            }
             gitLogger.trace(App.ANSI_BLUE + "[status] > cloning start" + App.ANSI_RESET);
             ProcessBuilder pb = new ProcessBuilder();
             pb.directory(new File(resultDir));
@@ -179,7 +184,7 @@ public class GitLoader {
     }
 
     public boolean load() {
-        String path = resultDir + "/" + name + "_" + counter;
+        String path = resultDir + "/" + name; //Naming
         try {
             if (set) {
                 gitLogger.trace(App.ANSI_BLUE + "[status] > cloning to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
@@ -197,78 +202,6 @@ public class GitLoader {
             gitLogger.error(App.ANSI_RED + "[error] > " + e.getMessage() + App.ANSI_RESET);
             return false;
         }
-    }
-
-    // get list of commit hashes from a git repository which certain file has been
-    // changed
-    // @param path : path of git repository
-    // @param file : file to check
-    private ArrayList<String> extractCid() {
-        String repoPath = resultDir + name + "_" + counter;
-        gitLogger.trace(App.ANSI_BLUE + "[status] > getting log of " + App.ANSI_YELLOW + repoPath + App.ANSI_RESET
-                + " with " + App.ANSI_YELLOW + filename + App.ANSI_RESET);
-        ArrayList<String> hashes = new ArrayList<>();
-        try {
-            ProcessBuilder pb = new ProcessBuilder();
-            pb.directory(new File(repoPath));
-            pb.command("git", "log", "--pretty=format:%H", filename);
-            Process process = pb.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                hashes.add(line);
-            }
-            process.waitFor();
-            process.destroy();
-        } catch (Exception e) {
-            gitLogger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
-            return null;
-        }
-        return hashes;
-    }
-
-    // find the commit hash just before given cid
-    // cid_before is the commit hash just before bug was induced
-    // cid_after is the commit hash just after bug was induced
-    // cid_fixed should be the commit hash which fixed the bug
-    public String traverse(String BIC) {
-        String FIC = "";
-        try {
-            ArrayList<String> commitHashList = extractCid();
-            if (commitHashList == null) {
-                gitLogger.error(App.ANSI_RED + "[error] > git log failed" + App.ANSI_RESET);
-            }
-            int index = commitHashList.indexOf(BIC);
-            if (index == -1) {
-                gitLogger.error(App.ANSI_RED + "[error] > given hash commit id not found" + App.ANSI_RESET);
-            } else if (index == 0) {
-                gitLogger.error(App.ANSI_RED + "[error] > buggy commit hash id is the latest" + App.ANSI_RESET);
-            } else
-                FIC = commitHashList.get(index - 1);
-        } catch (Exception e) {
-            gitLogger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
-        }
-        return FIC;
-    }
-
-    public String revTraverse(String FIC) {
-        String BIC = "";
-        try {
-            ArrayList<String> commitHashList = extractCid();
-            if (commitHashList == null) {
-                gitLogger.error(App.ANSI_RED + "[error] > git log failed" + App.ANSI_RESET);
-            }
-            int index = commitHashList.indexOf(FIC);
-            if (index == -1) {
-                gitLogger.error(App.ANSI_RED + "[error] > given hash commit id not found" + App.ANSI_RESET);
-            } else if (index == commitHashList.size() - 1) {
-                gitLogger.error(App.ANSI_RED + "[error] > fixed commit hash id is the oldest" + App.ANSI_RESET);
-            } else
-                BIC = commitHashList.get(index + 1);
-        } catch (Exception e) {
-            gitLogger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
-        }
-        return BIC;
     }
 
     public boolean copy(String path1, String path2) {
@@ -291,7 +224,7 @@ public class GitLoader {
         }
     }
 
-    public void clean2Directories() {
+    public void cleanCandidateAndResultDir() {
         try {
             File dir = new File(resultDir);
             File dir2 = new File(candidateDir);
@@ -305,4 +238,17 @@ public class GitLoader {
             gitLogger.error(App.ANSI_RED + "[error] > IOException : " + e.getMessage() + App.ANSI_RESET);
         }
     }
+
+    private boolean checkDirExists(String directoryPath) {
+
+        Path path = Paths.get(directoryPath);
+
+        if (Files.exists(path) && Files.isDirectory(path)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
+
