@@ -93,7 +93,7 @@ public class App {
         // gitignore files
         if (doClean) {
             appLogger.trace(ANSI_BLUE + "[status] > cleaning result and candidate directory" + ANSI_RESET);
-            gitLoader.purge();
+            gitLoader.clean2Directories();
             appLogger.trace(ANSI_GREEN + "[status] > cleaning done" + ANSI_RESET);
             appLogger.trace(ANSI_BLUE + "[status] > copying gitignore file to result directory and candidate directory"
                     + ANSI_RESET);
@@ -123,7 +123,7 @@ public class App {
                     + ", git repository url : " + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
 
             gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4j_name, d4j_num);
-            gitLoader.run();
+            gitLoader.logGitCloneStatus();
 
             try {
                 if (gitLoader.load()) {

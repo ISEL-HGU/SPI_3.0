@@ -11,69 +11,59 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import org.apache.commons.io.FileUtils;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GitLoader {
     private int counter = -1;
     private String url; // git url
     private String name; // git repo name
-    private String cid_before; // commit id before
-    private String cid_after; // commit id after
-    private String filepath_before; // file path before
-    private String filepath_after; // file path (after)
+    private String BIC; // bug inducing commit
+    private String FIC; // fix inducing commit
+    private String filepathBefore; // file path before
+    private String filepathAfter; // file path (after)
     private String filename; // file name
-    private String result_dir; // result dir
-    private String candidate_dir; // candidate dir
+    private String resultDir; // result dir
+    private String candidateDir; // candidate dir
     private boolean set; // if result dir exist
 
     static Logger gitLogger = LogManager.getLogger(GitLoader.class.getName());
     // d4j
-    private String d4j_project_name; // d4j project name
-    private int d4j_project_num; // d4j project num
+    private String d4jProjectName; // d4j project name
+    private int d4jProjectNum; // d4j project num
 
     public GitLoader() {
         Configurator.setLevel(GitLoader.class, Level.TRACE);
         this.url = "";
         this.name = "";
-        this.cid_before = "";
-        this.cid_after = "";
-        this.filepath_before = "";
-        this.filepath_after = "";
+        this.BIC = "";
+        this.FIC = "";
+        this.filepathBefore = "";
+        this.filepathAfter = "";
         this.filename = "";
-        this.result_dir = "";
-        this.candidate_dir = "";
+        this.resultDir = "";
+        this.candidateDir = "";
         this.set = false;
-        this.d4j_project_name = "";
-        this.d4j_project_num = -1;
+        this.d4jProjectName = "";
+        this.d4jProjectNum = -1;
     }
 
-    /**
-     * set url, name, cid_before, cid_after, filepath_before, filepath_after, filename, d4j_project_name, d4j_project_num
-     * @param url
-     * @param cid_before
-     * @param cid_after
-     * @param filepath_before
-     * @param filepath_after
-     * @param d4j_name
-     * @param d4j_num
-     */
-    public void config(String url, String cid_before, String cid_after, String filepath_before, String filepath_after,
-            String d4j_name, int d4j_num) {
+
+    public void config(String url, String BIC, String FIC, String filepathBefore, String filepathAfter,
+            String d4jName, int d4jNum) {
         this.url = url;
-        this.name = get_repo_name_from_url(url);
-        this.cid_before = cid_before;
-        this.cid_after = cid_after;
-        this.filepath_before = filepath_before;
-        this.filepath_after = filepath_after;
-        this.filename = get_file_name_from_path(filepath_before);
-        this.d4j_project_name = d4j_name;
-        this.d4j_project_num = d4j_num;
+        this.name = getRepoNameFromUrl(url);
+        this.BIC = BIC;
+        this.FIC = FIC;
+        this.filepathBefore = filepathBefore;
+        this.filepathAfter = filepathAfter;
+        this.filename = getFileNameFromPath(filepathBefore);
+        this.d4jProjectName = d4jName;
+        this.d4jProjectNum = d4jNum;
     }
 
-    public void set(String path, String candidate_dir) {
-        this.result_dir = path;
-        this.candidate_dir = candidate_dir;
-        if (result_dir != null && candidate_dir != null) {
+    public void set(String path, String candidateDir) {
+        this.resultDir = path;
+        this.candidateDir = candidateDir;
+        if (resultDir != null && candidateDir != null) {
             set = true;
         }
     }
@@ -81,19 +71,19 @@ public class GitLoader {
     /**
      * print log
      */
-    public void run() { // [TODO] 이름 바꾸기 (로그만 찍는데 run은 너무 거창함)
+    public void logGitCloneStatus() { 
         gitLogger
                 .trace(App.ANSI_YELLOW + "==========================================================" + App.ANSI_RESET);
         gitLogger
                 .trace(App.ANSI_BLUE + "[info #" + counter + "] > git clone " + App.ANSI_YELLOW + url + App.ANSI_RESET);
-        print_debug_info();
+        printDebugInfo();
     }
 
     public void getCounter(int counter) {
         this.counter = counter;
     }
 
-    private String get_repo_name_from_url(String url) {
+    private String getRepoNameFromUrl(String url) {
         String[] url_split = url.split("/");
         for (String split : url_split) {
             if (split.contains(".git")) {
@@ -103,19 +93,19 @@ public class GitLoader {
         return url_split[url_split.length - 1];
     }
 
-    private String get_file_name_from_path(String path) {
-        String[] path_split = path.split("/");
-        return path_split[path_split.length - 1];
+    private String getFileNameFromPath(String pathPath) {
+        String[] splittedPatchPath = pathPath.split("/");
+        return splittedPatchPath[splittedPatchPath.length - 1];
     }
 
-    private void print_debug_info() {
+    private void printDebugInfo() {
         gitLogger.trace(App.ANSI_BLUE + "[info] > url : " + App.ANSI_YELLOW + url + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > repo_name : " + App.ANSI_YELLOW + name + App.ANSI_RESET);
-        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_before : " + App.ANSI_YELLOW + cid_before + App.ANSI_RESET);
-        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_after : " + App.ANSI_YELLOW + cid_after + App.ANSI_RESET);
+        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_before : " + App.ANSI_YELLOW + BIC + App.ANSI_RESET);
+        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_after : " + App.ANSI_YELLOW + FIC + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > file_name : " + App.ANSI_YELLOW + filename + App.ANSI_RESET);
-        gitLogger.trace(App.ANSI_BLUE + "[info] > result_dir : " + App.ANSI_YELLOW + result_dir + App.ANSI_RESET);
-        gitLogger.trace(App.ANSI_BLUE + "[info] > candidate_dir : " + App.ANSI_YELLOW + candidate_dir + App.ANSI_RESET);
+        gitLogger.trace(App.ANSI_BLUE + "[info] > result_dir : " + App.ANSI_YELLOW + resultDir + App.ANSI_RESET);
+        gitLogger.trace(App.ANSI_BLUE + "[info] > candidate_dir : " + App.ANSI_YELLOW + candidateDir + App.ANSI_RESET);
     }
 
     /**
@@ -127,7 +117,7 @@ public class GitLoader {
         try {
             gitLogger.trace(App.ANSI_BLUE + "[status] > cloning start" + App.ANSI_RESET);
             ProcessBuilder pb = new ProcessBuilder();
-            pb.directory(new File(result_dir));
+            pb.directory(new File(resultDir));
             pb.command("git", "clone", url, directory);
             Process p = pb.start();
             p.waitFor();
@@ -146,10 +136,10 @@ public class GitLoader {
      * @return 
      */
     private boolean checkout(String directory) {
-        String cid1 = cid_before; // possible bug inducing commit
-        String cid2 = cid_after; // possible fix inducing commit
+        String cid1 = BIC; // possible bug inducing commit
+        String cid2 = FIC; // possible fix inducing commit
         try {
-            String project = d4j_project_name + "-" + d4j_project_num;
+            String project = d4jProjectName + "-" + d4jProjectNum;
             gitLogger.trace(App.ANSI_BLUE + "[status] > git checkout cid before : " + App.ANSI_YELLOW + cid1
                     + App.ANSI_RESET);
             ProcessBuilder pb = new ProcessBuilder();
@@ -158,8 +148,8 @@ public class GitLoader {
             Process p = pb.start();
             p.waitFor();
             gitLogger.trace(App.ANSI_GREEN + "[status] > git checkout success" + App.ANSI_RESET);
-            if (!!copy(result_dir + "/" + name + "_" + counter + "/" + filepath_before,
-                    candidate_dir + "/" + project + "_rank-" + counter + "_old.java"))
+            if (!!copy(resultDir + "/" + name + "_" + counter + "/" + filepathBefore,
+                    candidateDir + "/" + project + "_rank-" + counter + "_old.java"))
                 gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
             else {
                 gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
@@ -174,8 +164,8 @@ public class GitLoader {
             p = pb.start();
             p.waitFor();
             gitLogger.trace(App.ANSI_GREEN + "[status] > git checkout success" + App.ANSI_RESET);
-            if (copy(result_dir + "/" + name + "_" + counter + "/" + filepath_after,
-                    candidate_dir + "/" + project + "_rank-" + counter + "_new.java"))
+            if (copy(resultDir + "/" + name + "_" + counter + "/" + filepathAfter,
+                    candidateDir + "/" + project + "_rank-" + counter + "_new.java"))
                 gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
             else {
                 gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
@@ -189,8 +179,7 @@ public class GitLoader {
     }
 
     public boolean load() {
-        String path = result_dir + "/" + name + "_" + counter;
-        String t_cid_after = null;
+        String path = resultDir + "/" + name + "_" + counter;
         try {
             if (set) {
                 gitLogger.trace(App.ANSI_BLUE + "[status] > cloning to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
@@ -214,14 +203,14 @@ public class GitLoader {
     // changed
     // @param path : path of git repository
     // @param file : file to check
-    private ArrayList<String> extract_cid() {
-        String repo_path = result_dir + name + "_" + counter;
-        gitLogger.trace(App.ANSI_BLUE + "[status] > getting log of " + App.ANSI_YELLOW + repo_path + App.ANSI_RESET
+    private ArrayList<String> extractCid() {
+        String repoPath = resultDir + name + "_" + counter;
+        gitLogger.trace(App.ANSI_BLUE + "[status] > getting log of " + App.ANSI_YELLOW + repoPath + App.ANSI_RESET
                 + " with " + App.ANSI_YELLOW + filename + App.ANSI_RESET);
         ArrayList<String> hashes = new ArrayList<>();
         try {
             ProcessBuilder pb = new ProcessBuilder();
-            pb.directory(new File(repo_path));
+            pb.directory(new File(repoPath));
             pb.command("git", "log", "--pretty=format:%H", filename);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -242,44 +231,44 @@ public class GitLoader {
     // cid_before is the commit hash just before bug was induced
     // cid_after is the commit hash just after bug was induced
     // cid_fixed should be the commit hash which fixed the bug
-    public String traverse(String cid_buggy) {
-        String cid_fixed = "";
+    public String traverse(String BIC) {
+        String FIC = "";
         try {
-            ArrayList<String> hash_list = extract_cid();
-            if (hash_list == null) {
+            ArrayList<String> commitHashList = extractCid();
+            if (commitHashList == null) {
                 gitLogger.error(App.ANSI_RED + "[error] > git log failed" + App.ANSI_RESET);
             }
-            int index = hash_list.indexOf(cid_buggy);
+            int index = commitHashList.indexOf(BIC);
             if (index == -1) {
                 gitLogger.error(App.ANSI_RED + "[error] > given hash commit id not found" + App.ANSI_RESET);
             } else if (index == 0) {
                 gitLogger.error(App.ANSI_RED + "[error] > buggy commit hash id is the latest" + App.ANSI_RESET);
             } else
-                cid_fixed = hash_list.get(index - 1);
+                FIC = commitHashList.get(index - 1);
         } catch (Exception e) {
             gitLogger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
         }
-        return cid_fixed;
+        return FIC;
     }
 
-    public String rev_traverse(String cid_fixed) {
-        String cid_buggy = "";
+    public String revTraverse(String FIC) {
+        String BIC = "";
         try {
-            ArrayList<String> hash_list = extract_cid();
-            if (hash_list == null) {
+            ArrayList<String> commitHashList = extractCid();
+            if (commitHashList == null) {
                 gitLogger.error(App.ANSI_RED + "[error] > git log failed" + App.ANSI_RESET);
             }
-            int index = hash_list.indexOf(cid_fixed);
+            int index = commitHashList.indexOf(FIC);
             if (index == -1) {
                 gitLogger.error(App.ANSI_RED + "[error] > given hash commit id not found" + App.ANSI_RESET);
-            } else if (index == hash_list.size() - 1) {
+            } else if (index == commitHashList.size() - 1) {
                 gitLogger.error(App.ANSI_RED + "[error] > fixed commit hash id is the oldest" + App.ANSI_RESET);
             } else
-                cid_buggy = hash_list.get(index + 1);
+                BIC = commitHashList.get(index + 1);
         } catch (Exception e) {
             gitLogger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
         }
-        return cid_buggy;
+        return BIC;
     }
 
     public boolean copy(String path1, String path2) {
@@ -302,10 +291,10 @@ public class GitLoader {
         }
     }
 
-    public void purge() {
+    public void clean2Directories() {
         try {
-            File dir = new File(result_dir);
-            File dir2 = new File(candidate_dir);
+            File dir = new File(resultDir);
+            File dir2 = new File(candidateDir);
             if (!dir.exists())
                 dir.mkdir();
             if (!dir2.exists())
