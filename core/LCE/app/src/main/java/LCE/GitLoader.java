@@ -8,10 +8,7 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
-
 import org.apache.commons.io.FileUtils;
-
-
 import java.nio.file.Files;
 
 public class GitLoader {
@@ -115,7 +112,7 @@ public class GitLoader {
      * @param directory
      * @return boolean
      */
-    private boolean clone(String directory) {
+    public boolean clone(String directory) {
         try {
             if ( checkDirExists(directory) ) { //already exists
                 return true;
@@ -134,64 +131,74 @@ public class GitLoader {
         }
     }
 
-    /**
-     * Using git checkout -f, go to BIC and BFC
-     * And start with ProcessBuilder
-     * @param directory
-     * @return 
-     */
-    private boolean checkout(String directory) {
-        String cid1 = BIC; // possible bug inducing commit
-        String cid2 = FIC; // possible fix inducing commit
+    private boolean checkOutAndCopy(String directory, String cid, boolean oldFile) {
+
         try {
             String project = d4jProjectName + "-" + d4jProjectNum;
-            gitLogger.trace(App.ANSI_BLUE + "[status] > git checkout cid before : " + App.ANSI_YELLOW + cid1
+            gitLogger.trace(App.ANSI_BLUE + "[status] > git checkout cid before : " + App.ANSI_YELLOW + cid
                     + App.ANSI_RESET);
             ProcessBuilder pb = new ProcessBuilder();
             pb.directory(new File(directory));
-            pb.command("git", "checkout", "-f", cid1);
+            pb.command("git", "checkout", "-f", cid);
             Process p = pb.start();
             p.waitFor();
             gitLogger.trace(App.ANSI_GREEN + "[status] > git checkout success" + App.ANSI_RESET);
-            if (!!copy(resultDir + "/" + name + "_" + counter + "/" + filepathBefore,
-                    candidateDir + "/" + project + "_rank-" + counter + "_old.java"))
-                gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
-            else {
-                gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
-                return false;
+            
+            if (oldFile) {
+                if (copy(directory + "/" + filepathBefore,
+                        candidateDir + "/" + project + "_rank-" + counter + "_old.java"))
+                    return true;
+                else 
+                    return false;
+            } else {
+                if (copy(directory + "/" + filepathAfter,
+                        candidateDir + "/" + project + "_rank-" + counter + "_new.java"))
+                    return true;
+                else
+                    return false;
             }
 
-            gitLogger.trace(App.ANSI_BLUE + "[status] > git checkout cid after : " + App.ANSI_YELLOW + cid2
-                    + App.ANSI_RESET);
-            pb = new ProcessBuilder();
-            pb.directory(new File(directory));
-            pb.command("git", "checkout", "-f", cid2);
-            p = pb.start();
-            p.waitFor();
-            gitLogger.trace(App.ANSI_GREEN + "[status] > git checkout success" + App.ANSI_RESET);
-            if (copy(resultDir + "/" + name + "_" + counter + "/" + filepathAfter,
-                    candidateDir + "/" + project + "_rank-" + counter + "_new.java"))
-                gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
-            else {
-                gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
-                return false;
-            }
-            return true;
+
         } catch (Exception e) {
             gitLogger.error(App.ANSI_RED + "[error] > " + e.getMessage() + App.ANSI_RESET);
             return false;
         }
     }
 
+    /**
+     * Using git checkout -f, go to BIC and BFC
+     * And start with ProcessBuilder
+     * @param directory
+     * @return 
+     */
+    public boolean checkOut(String directory) {
+
+        if (checkOutAndCopy(directory, BIC, true)) {
+            gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
+        } else {
+            gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
+            return false;
+        }
+
+        if (checkOutAndCopy(directory, FIC, false)){
+            gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
+        } else {
+            gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean load() {
-        String path = resultDir + "/" + name; //Naming
+        String path = resultDir + "/" + name; 
         try {
             if (set) {
                 gitLogger.trace(App.ANSI_BLUE + "[status] > cloning to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
                 if (!clone(path))
                     return false;
                 gitLogger.trace(App.ANSI_BLUE + "[status] > checkout to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
-                if (!checkout(path))
+                if (!checkOut(path))
                     return false;
                 gitLogger.trace(App.ANSI_GREEN + "[status] > loading done" + App.ANSI_RESET);
                 return true;
@@ -204,6 +211,7 @@ public class GitLoader {
         }
     }
 
+    
     public boolean copy(String path1, String path2) {
         File file = new File(path1);
         File file2 = new File(path2);
