@@ -29,6 +29,10 @@ public class GitLoader {
     private String d4jProjectName; // d4j project name
     private int d4jProjectNum; // d4j project num
 
+    /**
+     * The GitLoader class facilitates the loading and manipulation of Git repositories
+     * to extract Bug Inducing File and Fix Inducing File
+     */
     public GitLoader() {
         Configurator.setLevel(GitLoader.class, Level.TRACE);
         this.url = "";
@@ -45,7 +49,17 @@ public class GitLoader {
         this.d4jProjectNum = -1;
     }
 
-
+    /**
+     * Configures the GitLoader with necessary information
+     *
+     * @param url             The URL of the Git repository.
+     * @param BIC             The commit ID associated with a bug-inducing commit.
+     * @param FIC             The commit ID associated with a fix-inducing commit.
+     * @param filepathBefore  The file path before the changes.
+     * @param filepathAfter   The file path after the changes.
+     * @param d4jName         The name of the Defects4J project.
+     * @param d4jNum          The number of the Defects4J project.
+     */
     public void config(String url, String BIC, String FIC, String filepathBefore, String filepathAfter,
             String d4jName, int d4jNum) {
         this.url = url;
@@ -59,6 +73,13 @@ public class GitLoader {
         this.d4jProjectNum = d4jNum;
     }
 
+    /**
+     * Sets the result and candidate directories for storing project results and
+     * candidate files respectively.
+     *
+     * @param resultDir     The path to the result directory.
+     * @param candidateDir  The path to the candidate directory.
+     */
     public void set(String resultDir, String candidateDir) {
         this.resultDir = resultDir;
         this.candidateDir = candidateDir;
@@ -68,7 +89,7 @@ public class GitLoader {
     }
 
     /**
-     * print log
+     * Logs the status of the Git clone operation, including the repository URL.
      */
     public void logGitCloneStatus() { 
         gitLogger
@@ -78,10 +99,21 @@ public class GitLoader {
         printDebugInfo();
     }
 
+    /**
+     * Sets the internal counter value for tracking candidate numbers
+     *
+     * @param counter The counter value to set.
+     */
     public void getCounter(int counter) {
         this.counter = counter;
     }
 
+    /**
+     * Extracts the repository name from a Git repository URL.
+     *
+     * @param url The Git repository URL.
+     * @return The repository name extracted from the URL.
+     */
     private String getRepoNameFromUrl(String url) {
         String[] url_split = url.split("/");
         for (String split : url_split) {
@@ -92,11 +124,20 @@ public class GitLoader {
         return url_split[url_split.length - 1];
     }
 
+    /**
+     * Extracts the file name from a given file path.
+     *
+     * @param filePath The file path.
+     * @return The file name extracted from the path.
+     */
     private String getFileNameFromPath(String pathPath) {
         String[] splittedPatchPath = pathPath.split("/");
         return splittedPatchPath[splittedPatchPath.length - 1];
     }
 
+    /**
+     * Prints debug information about the GitLoader configuration to the logging system.
+     */
     private void printDebugInfo() {
         gitLogger.trace(App.ANSI_BLUE + "[info] > url : " + App.ANSI_YELLOW + url + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > repo_name : " + App.ANSI_YELLOW + name + App.ANSI_RESET);
@@ -108,9 +149,10 @@ public class GitLoader {
     }
 
     /**
-     * For git clone
-     * @param directory
-     * @return boolean
+     * Clones the Git repository into the specified directory.
+     *
+     * @param directory The directory where the repository will be cloned.
+     * @return True if cloning is successful, false otherwise.
      */
     public boolean clone(String directory) {
         try {
@@ -131,6 +173,16 @@ public class GitLoader {
         }
     }
 
+    /**
+     * Checks out a specific commit (indicated by the commit ID) in the Git repository
+     * located in the given directory. Optionally, copies either the file before or after
+     * the changes based on the 'oldFile' parameter.
+     *
+     * @param directory The directory containing the Git repository.
+     * @param cid       The commit ID to check out.
+     * @param oldFile   Indicates whether to copy the file before changes (true) or after changes (false).
+     * @return True if the checkout and copy operations are successful, false otherwise.
+     */
     private boolean checkOutAndCopy(String directory, String cid, boolean oldFile) {
 
         try {
@@ -166,10 +218,11 @@ public class GitLoader {
     }
 
     /**
-     * Using git checkout -f, go to BIC and BFC
-     * And start with ProcessBuilder
-     * @param directory
-     * @return 
+     * Checks out specific commits (BIC and FIC) in the Git repository located in the given directory.
+     * Copies both the file before and after changes to candidate directories.
+     *
+     * @param directory The directory containing the Git repository.
+     * @return True if both checkout and copy operations are successful, false otherwise.
      */
     public boolean checkOut(String directory) {
 
@@ -190,6 +243,12 @@ public class GitLoader {
         return true;
     }
 
+    /**
+     * Loads the Git repository by cloning it to a specified directory, checking out specific commits,
+     * and copying relevant files to candidate directories.
+     *
+     * @return True if the loading process is successful, false otherwise.
+     */
     public boolean load() {
         String path = resultDir + "/" + name; 
         try {
@@ -211,7 +270,13 @@ public class GitLoader {
         }
     }
 
-    
+    /**
+     * Copies a file from one path to another.
+     *
+     * @param path1 The source file path.
+     * @param path2 The destination file path.
+     * @return True if the copy is successful, false otherwise.
+     */
     public boolean copy(String path1, String path2) {
         File file = new File(path1);
         File file2 = new File(path2);
@@ -232,6 +297,9 @@ public class GitLoader {
         }
     }
 
+     /**
+     * Cleans the candidate and result directories by removing all contents.
+     */
     public void cleanCandidateAndResultDir() {
         try {
             File dir = new File(resultDir);
@@ -247,6 +315,12 @@ public class GitLoader {
         }
     }
 
+    /**
+     * Checks if a directory exists at the specified path.
+     *
+     * @param directoryPath The path of the directory to check.
+     * @return True if the directory exists, false otherwise.
+     */
     private boolean checkDirExists(String directoryPath) {
 
         Path path = Paths.get(directoryPath);
