@@ -93,7 +93,7 @@ public class App {
         // gitignore files
         if (doClean) {
             appLogger.trace(ANSI_BLUE + "[status] > cleaning result and candidate directory" + ANSI_RESET);
-            gitLoader.purge();
+            gitLoader.cleanCandidateAndResultDir();
             appLogger.trace(ANSI_GREEN + "[status] > cleaning done" + ANSI_RESET);
             appLogger.trace(ANSI_BLUE + "[status] > copying gitignore file to result directory and candidate directory"
                     + ANSI_RESET);
@@ -116,14 +116,14 @@ public class App {
             String cid_after = line[1];
             String filepath_before = line[2];
             String filepath_after = line[3];
-            String d4j_name = properties.getProperty("d4j_project_name");
-            int d4j_num = Integer.parseInt(properties.getProperty("d4j_project_num"));
+            String d4jName = properties.getProperty("d4j_project_name");
+            int d4jNum = Integer.parseInt(properties.getProperty("d4j_project_num"));
 
             appLogger.trace(ANSI_GREEN + "[candidate metadata] > filepath after : " + filepath_after
-                    + ", git repository url : " + git_url + ", defects4j project : " + d4j_name + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
+                    + ", git repository url : " + git_url + ", defects4j project : " + d4jName + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
 
-            gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4j_name, d4j_num);
-            gitLoader.run();
+            gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4jName, d4jNum);
+            gitLoader.logGitCloneStatus();
 
             try {
                 if (gitLoader.load()) {
