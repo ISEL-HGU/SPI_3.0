@@ -45,7 +45,7 @@ public class GitLoaderTest {
                 "Closure", 14);
 
         gitLoader.set("/home/newwin0189/SPI_3.0/core/LCE/result", "/home/newwin0189/SPI_3.0/core/LCE/candidates");
-        boolean result = gitLoader.checkOut("/home/newwin0189/SPI_3.0/core/LCE/result/beam");
+        boolean result = gitLoader.checkout("/home/newwin0189/SPI_3.0/core/LCE/result/beam");
         assertTrue(result);
     }
 

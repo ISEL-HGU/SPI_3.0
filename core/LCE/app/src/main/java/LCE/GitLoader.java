@@ -183,7 +183,7 @@ public class GitLoader {
      * @param oldFile   Indicates whether to copy the file before changes (true) or after changes (false).
      * @return True if the checkout and copy operations are successful, false otherwise.
      */
-    private boolean checkOutAndCopy(String directory, String cid, boolean oldFile) {
+    private boolean checkoutAndCopy(String directory, String cid, boolean oldFile) {
 
         try {
             String project = d4jProjectName + "-" + d4jProjectNum;
@@ -224,16 +224,16 @@ public class GitLoader {
      * @param directory The directory containing the Git repository.
      * @return True if both checkout and copy operations are successful, false otherwise.
      */
-    public boolean checkOut(String directory) {
+    public boolean checkout(String directory) {
 
-        if (checkOutAndCopy(directory, BIC, true)) {
+        if (checkoutAndCopy(directory, BIC, true)) {
             gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
         } else {
             gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
             return false;
         }
 
-        if (checkOutAndCopy(directory, FIC, false)){
+        if (checkoutAndCopy(directory, FIC, false)){
             gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
         } else {
             gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
@@ -257,7 +257,7 @@ public class GitLoader {
                 if (!clone(path))
                     return false;
                 gitLogger.trace(App.ANSI_BLUE + "[status] > checkout to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
-                if (!checkOut(path))
+                if (!checkout(path))
                     return false;
                 gitLogger.trace(App.ANSI_GREEN + "[status] > loading done" + App.ANSI_RESET);
                 return true;
