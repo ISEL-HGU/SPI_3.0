@@ -51,7 +51,7 @@ public class App {
         app.run(properties);
     }
 
-    private void initProperties(Properties properties) {
+    public void initProperties(Properties properties) {
         project_root = properties.getProperty("project_root"); // the root directory of the project
         file_name = properties.getProperty("file_name"); // file name to extract change vector from
         commit_id = properties.getProperty("commit_id"); // commit id to extract change vector from
@@ -68,15 +68,15 @@ public class App {
         hash_id = properties.getProperty("hash_id"); // hash id of the current execution
 
         if (hash_id == null || hash_id.equals("")) {
-	    hash_id = String.valueOf(System.currentTimeMillis());
-	}
+            hash_id = String.valueOf(System.currentTimeMillis());
+        }
 
         // in case of hash id usage
         output_dir = String.format("%s/%s/%s", output_dir, hash_id, "outputs/ChangeCollector");
         workspace_dir = String.format("%s/%s", output_dir, hash_id);
     }
 
-    private void cleanOutputDir() {
+    public void cleanOutputDir() {
         logger.debug(ANSI_PURPLE + "[debug] > Cleaning output directory" + ANSI_RESET);
         try {
             FileUtils.deleteDirectory(new File(workspace_dir));
@@ -307,5 +307,77 @@ public class App {
             return null;
         }
         return properties;
+    }
+
+    public GitFunctions getGitFunctions() {
+        return gitFunctions;
+    }
+
+    public Extractor getExtractor() {
+        return extractor;
+    }
+
+    public Implemental getImplemental() {
+        return implemental;
+    }
+
+    public String getProjectRoot() {
+        return project_root;
+    }
+
+    public String getFileName() {
+        return file_name;
+    }
+
+    public String getCommitId() {
+        return commit_id;
+    }
+
+    public String getGitName() {
+        return git_name;
+    }
+
+    public String getGitUrl() {
+        return git_url;
+    }
+
+    public String getOutputDir() {
+        return output_dir;
+    }
+
+    public String getWorkspaceDir() {
+        return workspace_dir;
+    }
+
+    public boolean isDoClean() {
+        return doClean;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public String getJavaHome8() {
+        return java_home_8;
+    }
+
+    public String getDefects4jName() {
+        return defects4j_name;
+    }
+
+    public String getDefects4jId() {
+        return defects4j_id;
+    }
+
+    public String getHashId() {
+        return hash_id;
+    }
+
+    public void setOutputDir(String output_dir) {
+        this.output_dir = output_dir;
+    }
+
+    public void setWorkspaceDir(String workspace_dir) {
+        this.workspace_dir = workspace_dir;
     }
 }
