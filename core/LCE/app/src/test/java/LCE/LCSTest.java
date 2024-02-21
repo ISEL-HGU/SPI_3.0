@@ -15,13 +15,13 @@ public class LCSTest {
         int[] array1 = {1, 2, 3, 4, 5};
         int[] array2 = {2, 4, 5, 6};
         int[] expectedLCS = {5, 4, 2};
-        assertArrayEquals(expectedLCS, lcs.LongestCommonSubsequenceofIntegerArray(array1, array2));
+        assertArrayEquals(expectedLCS, lcs.longestCommonSubsequenceOfIntegerArray(array1, array2));
 
         // Test case 2: Arrays with no common subsequence
         int[] array3 = {1, 2, 3};
         int[] array4 = {4, 5, 6};
         int[] expectedEmptyLCS = {};
-        assertArrayEquals(expectedEmptyLCS, lcs.LongestCommonSubsequenceofIntegerArray(array3, array4));
+        assertArrayEquals(expectedEmptyLCS, lcs.longestCommonSubsequenceOfIntegerArray(array3, array4));
     }
 
     @Test
@@ -31,12 +31,12 @@ public class LCSTest {
         // Test case 1: Reverse array
         int[] dpTable = {1, 2, 3, 4};
         int[] expectedReversed = {4, 3, 2, 1};
-        assertArrayEquals(expectedReversed, lcs.Backtrack(dpTable));
+        assertArrayEquals(expectedReversed, lcs.backtrack(dpTable));
 
         // Test case 2: Empty array
         int[] emptyArray = {};
         int[] expectedEmptyArray = {};
-        assertArrayEquals(expectedEmptyArray, lcs.Backtrack(emptyArray));
+        assertArrayEquals(expectedEmptyArray, lcs.backtrack(emptyArray));
     }
 
     @Test
@@ -47,24 +47,24 @@ public class LCSTest {
         int[] array1 = {243,316,243,316,338,316,272,316,442,73,73,168,102};
         int[] array2 = {243,316,243,316,338,316,272,316,442,73,73,168,102};
         float expectedScore1 = 1;
-        assertEquals(expectedScore1, lcs.ScoreSimilarity(array1, array2));
+        assertEquals(expectedScore1, lcs.scoreSimilarity(array1, array2));
 
         // Test case 2: Arrays with no common subsequence
         int[] array3 = {1, 2, 3};
         int[] array4 = {4, 5, 6};
         float expectedScore2 = 0.0f;
-        assertEquals(expectedScore2, lcs.ScoreSimilarity(array3, array4));
+        assertEquals(expectedScore2, lcs.scoreSimilarity(array3, array4));
 
         
         int[] array5 = {243,316,243,316,338,316,272,316,442,73,73,168,102,597,613,612,522,602,542,613,612,670,612,535,597,613,612,522,602,542,613,612,560,564,607,675,591,526,552,525,612,612,526,546,615,613,607,612,607,526,613,612,670,612,535,613,612,607,607,607,607,552,580,676,612,612,677,607,612};
         int[] array6 = {243,316,243,316,338,316,272,316,442,73,73,168,102};
         float expectedScore3 = 1;
-        assertEquals(expectedScore3, lcs.ScoreSimilarity(array5, array6));
+        assertEquals(expectedScore3, lcs.scoreSimilarity(array5, array6));
 
         int[] array7 = {243,316,243,316,338,316,272,316,442,561,607,561,607,73,73,168,102,579,576,612,583,602,612,615,602,612,615,613,612,612,526,560,564,612,675,591,526,552,580,612,677,612,526,613,612,670,612,580,676,519,612,612,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,552,580,612,677,612,532,602,612,560,567,612,613,612,526,613,612,670,612,532,613,612,612,552,580,612,677,612,580,676,612,612,677,532,613,612,612,580,676,612,612,580,676,612,612,580,676,612,612,526,535,613,612,564,619,675,612,579,576,612,583,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,579,576,612,583,602,612,615,602,612,615,613,612,612,615,602,612,526,524,599,601,680,554,519,612,612,612,552,580,676,519,612,612,612,677,612,552,580,676,519,612,612,612,677,612,612,612};
         int[] array8 = {243,316,243,316,338,316,272,316,442,73,73,168,102};
         float expectedScore4 = (float) 1;
-        assertEquals(expectedScore4, lcs.ScoreSimilarity(array7, array8));
+        assertEquals(expectedScore4, lcs.scoreSimilarity(array7, array8));
 
     }
 }
