@@ -17,14 +17,22 @@ import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
+
+/**
+ * Utility class for Git-related functions.
+ */
 public class GitFunctions {
     public String name;
     public String project;
     public String projectDirectory;
     public String identifier;
 
-    // get commit id of head commit
-    // @param path : path of git repository
+    /**
+     * Retrieves the commit ID of the head commit in the specified Git repository.
+     *
+     * @param path Path of the Git repository.
+     * @return The commit ID of the head commit.
+     */
     public String extract_head_commit_id(String path) {
         String commit_id = null;
         try {
@@ -40,9 +48,13 @@ public class GitFunctions {
         return commit_id;
     }
 
-    // clone a git repository from url to path
-    // @param url : git repository url
-    // @param path : path to clone at
+    /**
+     * Clones a Git repository from a given URL to a specified path.
+     *
+     * @param url  Git repository URL.
+     * @param path Path to clone the repository.
+     * @return True if cloning is successful, false otherwise.
+     */
     public boolean clone(String url, String path) {
         String repo_name = get_repo_name_from_url(url);
         App.logger.info(App.ANSI_BLUE + "[status] > cloning " + App.ANSI_YELLOW + url + App.ANSI_RESET + " to "
@@ -68,8 +80,12 @@ public class GitFunctions {
         }
     }
 
-    // get list of whole commit ids of a git repository
-    // @param path : path of git repository
+    /**
+     * Retrieves a list of all commit IDs in the Git repository.
+     *
+     * @param repo_path Path of the Git repository.
+     * @return List of commit IDs.
+     */
     private ArrayList<String> log(String repo_path) {
         ArrayList<String> hashes = new ArrayList<>();
         try {
@@ -91,10 +107,13 @@ public class GitFunctions {
         return hashes;
     }
 
-    // get list of commit hashes from a git repository which certain file has been
-    // changed
-    // @param path : path of git repository
-    // @param file : file to check
+    /**
+     * Retrieves a list of commit IDs where a specific file has been changed.
+     *
+     * @param repo_path  Path of the Git repository.
+     * @param file_name  File to check.
+     * @return List of commit IDs.
+     */
     public ArrayList<String> log(String repo_path, String file_name) {
         App.logger.trace(App.ANSI_BLUE + "[status] > getting log of " + App.ANSI_YELLOW + repo_path + App.ANSI_RESET
                 + " with " + App.ANSI_YELLOW + file_name + App.ANSI_RESET);
@@ -133,8 +152,6 @@ public class GitFunctions {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 if (line.contains(".java")) {
-                    // App.logger.debug(App.ANSI_PURPLE + "[debug] > line : " + line +
-                    // App.ANSI_RESET);
                     files.add(line);
                 }
             }
@@ -146,11 +163,15 @@ public class GitFunctions {
         return files;
     }
 
-    // execute git blame on the file and line within project directory and collect
-    // old, new cid
-    // @param project_dir: the directory of the Defects4J bug
-    // @param file : the file to be blamed
-    // @param line : the line to be blamed
+    /**
+     * Checks out a specific commit and performs blame on a file and line within the project directory.
+     *
+     * @param project_dir Project directory.
+     * @param file        File to be blamed.
+     * @param lineBlame   Line number to be blamed.
+     * @param lineFix     Line number in the fixed version.
+     * @return Array containing old and new commit IDs.
+     */
     public String[] blame(String project_dir, String file, int lineBlame, int lineFix) {
         String[] bic_bbic_cid_set = new String[2]; // [0] old cid, [1] new cid
         String bic_cid; // new
@@ -203,6 +224,16 @@ public class GitFunctions {
         return bic_bbic_cid_set;
     }
 
+   /**
+     * Blames a file and line at a specific commit ID and retrieves the old commit ID.
+     *
+     * @param project_dir The directory of the project.
+     * @param file        The file to be blamed.
+     * @param lineBlame   The line to be blamed.
+     * @param lineFix     The line after fixing.
+     * @param bic         The Fix Inducing Commit ID.
+     * @return The old commit ID.
+     */
     public String blame(String project_dir, String file, int lineBlame, int lineFix, String bic) {
         String bbic = ""; // old
         int exit_code = -1;
@@ -228,8 +259,6 @@ public class GitFunctions {
             reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             str_builder = new StringBuilder();
             for (String l = reader.readLine(); l != null; l = reader.readLine()) {
-                // debug: print l
-                // App.logger.debug(App.ANSI_PURPLE + "[debug] > l = " + l + App.ANSI_RESET);
                 str_builder.append(l);
                 str_builder.append(System.lineSeparator());
             }
@@ -249,11 +278,16 @@ public class GitFunctions {
         return bbic;
     }
 
-    // extract source code differences between a commit id and before of a certain
-    // source file
-    // @param repo_git : path of git repository
-    // @param file_name : file name to check
-    // @param new_cid : Fix Inducing Commit ID
+    /**
+     * Extracts source code differences between a commit ID and the version before in a specific source file.
+     *
+     * @param repo_git   The path of the Git repository.
+     * @param file_name  The file name to check.
+     * @param new_cid    The Fix Inducing Commit ID.
+     * @param lineFix    The line after fixing.
+     * @param lineBlame  The line to be blamed.
+     * @return An array containing the old and new commit IDs, and the file names.
+     */
     public String[] extract_diff(String repo_git, String file_name, String new_cid, int lineFix, int lineBlame) {
         String repo_name = get_repo_name_from_url(repo_git);
         String old_cid = null;
@@ -271,14 +305,6 @@ public class GitFunctions {
                 return null;
             } else if (old_cid.equals(new_cid)) {
                 ArrayList<String> hashes = log(repo_git, file_name);
-                // debug : print hashes
-                // App.logger.debug(App.ANSI_PURPLE + "[debug] > printing hashes ... " +
-                // App.ANSI_RESET);
-                // for (String hash : hashes) {
-                // App.logger.debug(App.ANSI_PURPLE + "[debug] > hash = " + hash +
-                // App.ANSI_RESET);
-                // }
-                // find new_cid's index
                 int index = hashes.indexOf(new_cid);
                 if (index == -1) {
                     App.logger.error(App.ANSI_RED + "[ERROR] > Failed to find new_cid's index" + App.ANSI_RESET);
@@ -303,11 +329,15 @@ public class GitFunctions {
         return extract_diff(repo_git, file_name, new_cid, old_cid);
     }
 
-    // extract source code differences between two commit ids of a certain source
-    // @param repo_git : path of git repository
-    // @param file_name : file name to check
-    // @param new_cid : Fix Inducing Commit ID
-    // @param old_cid : Commit ID before Fix Inducing Commit ID
+    /**
+     * Extracts source code differences between two commit IDs of a specified source file.
+     *
+     * @param repo_git   Path of the Git repository.
+     * @param file_name  File name to check.
+     * @param new_cid    Fix Inducing Commit ID.
+     * @param old_cid    Commit ID before Fix Inducing Commit ID.
+     * @return Array containing commit IDs and file paths.
+     */
     public String[] extract_diff(String repo_git, String file_name, String new_cid, String old_cid) {
         String repo_name = get_repo_name_from_url(repo_git);
         App.logger.trace(App.ANSI_BLUE + "[status] > extracting diff from " + App.ANSI_YELLOW + repo_name
@@ -342,6 +372,7 @@ public class GitFunctions {
                 App.logger.error(App.ANSI_RED + "[error] > newHead is null" + App.ANSI_RESET);
                 return null;
             }
+
             DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
             diffFormatter.setRepository(repository);
             List<DiffEntry> entries = diffFormatter.scan(oldTreeIter, newTreeIter);
@@ -349,6 +380,7 @@ public class GitFunctions {
                 App.logger.error(App.ANSI_RED + "[error] > no diff found" + App.ANSI_RESET);
                 return null;
             }
+            
             for (DiffEntry entry : entries) {
                 String str_new = entry.getNewPath();
                 String str_old = entry.getOldPath();
@@ -384,7 +416,12 @@ public class GitFunctions {
         return result;
     }
 
-    // use globally for extracting repo name from url
+    /**
+     * Retrieves the repository name from a given Git repository URL.
+     *
+     * @param url Git repository URL.
+     * @return Repository name.
+     */
     public static String get_repo_name_from_url(String url) {
         String[] url_split = url.split("/");
         for (String split : url_split) {
@@ -395,7 +432,13 @@ public class GitFunctions {
         return url_split[url_split.length - 1];
     }
 
-    // check if given commit id is the initial commit or not
+    /**
+     * Checks if a given commit ID is the initial commit of a Git repository.
+     *
+     * @param repo_path Path of the Git repository.
+     * @param cid       Commit ID to check.
+     * @return True if the commit is the initial commit, false otherwise.
+     */
     public static boolean isInit(String repo_path, String cid) {
         try {
             Git git = Git.open(new File(repo_path));

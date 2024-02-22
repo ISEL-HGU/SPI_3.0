@@ -13,6 +13,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configurator;
 
+/**
+ * The main class for the ChangeCollector application that extracts change vectors from source code repositories or Defects4J bugs.
+ *
+ * This class provides functionality to collect change vectors based on various modes such as GitHub repositories or Defects4J bugs.
+ * It can collect change vectors between the current commit and the previous one for a single source code file or a Defects4J bug.
+ */
+
 public class App {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -45,12 +52,23 @@ public class App {
     private String defects4j_id;
     private String hash_id;
 
+
+    /**
+     * The main method that initializes the App instance, loads properties, and runs the ChangeCollector.
+     *
+     * @param args Command-line arguments. If provided, the first argument is treated as the properties file path.
+     */
     public static void main(String[] args) {
         App app = new App();
         Properties properties = args.length > 0 ? app.loadProperties(args[0]) : app.loadProperties();
         app.run(properties);
     }
 
+    /**
+     * Initializes the configuration parameters based on the provided properties.
+     *
+     * @param properties The properties containing configuration information.
+     */
     public void initProperties(Properties properties) {
         project_root = properties.getProperty("project_root"); // the root directory of the project
         file_name = properties.getProperty("file_name"); // file name to extract change vector from
@@ -76,6 +94,9 @@ public class App {
         workspace_dir = String.format("%s/%s", output_dir, hash_id);
     }
 
+    /**
+     * Cleans the output directory by deleting existing contents and creating necessary directories.
+     */
     public void cleanOutputDir() {
         logger.debug(ANSI_PURPLE + "[debug] > Cleaning output directory" + ANSI_RESET);
         try {
@@ -95,7 +116,14 @@ public class App {
         }
     }
 
+    /**
+     * Executes the change vector collection process for GitHub repositories, specifically for a single source code file.
+     *
+     * @param properties The properties containing configuration information.
+     * @param repoGit The local path to the GitHub repository.
+     */
     private void githubChangeCollect(Properties properties, String repo_git) {
+        
         // STEP 1 : extract source code differences between current commit and before
         int lineFix = Integer.parseInt(properties.getProperty("lineFix"));
         int lineBlame = Integer.parseInt(properties.getProperty("lineBlame"));
@@ -136,7 +164,6 @@ public class App {
                 + "_commit_file.csv for single file " + file_name + ANSI_RESET);
 
         // STEP 3 : extract change vector from diff and write it to a file
-
         String diff_path = output_dir + "/diff.txt";
         if (!extractor.extract_gumtree_log(repo_git, diff_path, output_dir)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract gumtree log" + ANSI_RESET);
@@ -156,6 +183,9 @@ public class App {
         logger.info(ANSI_GREEN + "[info] > Successfully extracted change vector" + ANSI_RESET);
     }
 
+    /**
+     * Executes the change vector collection process for Defects4J bugs.
+     */
     private void defects4jChangeCollect() {
         String[] cid_set = new String[2]; // [0] old cid [1] new cid
 
@@ -214,6 +244,8 @@ public class App {
             System.exit(1);
         }
         logger.info(ANSI_GREEN + "[info] > Extracted diff successfully" + ANSI_RESET);
+
+        //write new commit file
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     new File(output_dir, defects4j_name + "_commit_file.csv")));
@@ -250,6 +282,11 @@ public class App {
         logger.info(ANSI_GREEN + "[info] > Successfully extracted change vector" + ANSI_RESET);
     }
 
+    /**
+     * Runs the ChangeCollector application based on the provided properties.
+     *
+     * @param properties The properties containing configuration information.
+     */
     public void run(Properties properties) {
 
         gitFunctions = new GitFunctions();
@@ -294,10 +331,21 @@ public class App {
         System.exit(0);
     }
 
+    /**
+     * Loads properties from the default path "../cc.properties".
+     *
+     * @return The loaded properties.
+     */
     public Properties loadProperties() {
         return loadProperties("../cc.properties");
     }
 
+    /**
+     * Loads properties from the specified path.
+     *
+     * @param path The path to the properties file.
+     * @return The loaded properties.
+     */
     public Properties loadProperties(String path) {
         Properties properties = new Properties();
         try {

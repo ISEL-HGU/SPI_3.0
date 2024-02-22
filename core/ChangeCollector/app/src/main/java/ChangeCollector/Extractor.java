@@ -31,11 +31,25 @@ import com.github.gumtreediff.matchers.Matcher;
 import com.github.gumtreediff.matchers.Matchers;
 import com.github.gumtreediff.tree.Tree;
 
+/**
+ * The Extractor class provides methods for extracting GumTree logs and generating change vectors.
+ */
 public class Extractor {
 
     HashMap<String, Integer> map = new HashMap<>();
     ArrayList<Integer> AST_types = new ArrayList<>();
 
+        /**
+     * Extracts GumTree log from the specified Git repository for the given commit and file paths.
+     *
+     * @param repo_path   The path to the Git repository.
+     * @param bic         The commit ID for the "BIC" version.
+     * @param bbic        The commit ID for the "BBIC" version.
+     * @param bic_path    The file path for the "BIC" version.
+     * @param bbic_path   The file path for the "BBIC" version.
+     * @param output_dir  The output directory for storing the GumTree log.
+     * @return True if the extraction is successful, false otherwise.
+     */
     public boolean extract_gumtree_log(String repo_path, String bic, String bbic, String bic_path, String bbic_path,
             String output_dir) {
         App.logger.trace(App.ANSI_BLUE + "[status] > extracting gumtree log from " + App.ANSI_RESET + " to "
@@ -93,7 +107,14 @@ public class Extractor {
         return true;
     }
 
-    // extract gumtree log from diff line
+    /**
+     * Extracts GumTree log from the given diff file in the specified Git repository.
+     *
+     * @param repo_path   The path to the Git repository.
+     * @param diff_path   The path to the diff file.
+     * @param output_dir  The output directory for storing the GumTree log.
+     * @return True if the extraction is successful, false otherwise.
+     */
     public boolean extract_gumtree_log(String repo_path, String diff_path, String output_dir) {
         try {
             App.logger.trace(App.ANSI_BLUE + "[status] > extracting gumtree log from " + diff_path
@@ -157,6 +178,13 @@ public class Extractor {
         return true;
     }
 
+    /**
+     * Extracts change vectors from the GumTree log and writes them to a result file.
+     *
+     * @param gumtree_log   The path to the GumTree log file.
+     * @param result_file   The path to the result file.
+     * @return 0 if change vectors are extracted successfully, 1 if no change is detected, -1 on failure.
+     */
     public int extract_vector_pool(String gumtree_log, String result_file) {
         App.logger.trace(App.ANSI_BLUE + "[status] > extracting change vectors from " + gumtree_log
                 + App.ANSI_RESET + " to " + App.ANSI_BLUE + result_file + App.ANSI_RESET);
@@ -226,11 +254,27 @@ public class Extractor {
         return result;
     }
 
+    /**
+     * Extracts change vectors from the GumTree log and writes them to a result file.
+     *
+     * @param repo_name     The name of the Git repository.
+     * @param gumtree_log   The path to the GumTree log file.
+     * @param result_path   The directory path for storing the result file.
+     * @return 0 if change vectors are extracted successfully, 1 if no change is detected, -1 on failure.
+     */
     public int extract_vector(String repo_name, String gumtree_log, String result_path) {
         return extract_vector(repo_name, gumtree_log, result_path, false);
     }
 
-    // extract change vectors from gumtree log
+        /**
+     * Extracts change vectors from the GumTree log and writes them to a result file.
+     *
+     * @param repo_name     The name of the Git repository.
+     * @param gumtree_log   The path to the GumTree log file.
+     * @param result_path   The directory path for storing the result file.
+     * @param all_diffs     True to extract vectors for all diffs, false otherwise.
+     * @return 0 if change vectors are extracted successfully, 1 if no change is detected, -1 on failure.
+     */
     public int extract_vector(String repo_name, String gumtree_log, String result_path, boolean all_diffs) {
         App.logger.trace(App.ANSI_BLUE + "[status] > extracting change vectors from " + gumtree_log
                 + App.ANSI_RESET + " to " + App.ANSI_BLUE + result_path + App.ANSI_RESET);
@@ -253,14 +297,10 @@ public class Extractor {
             BufferedReader log_reader = new BufferedReader(new FileReader(gumtree));
 
             while ((line = log_reader.readLine()) != null && (!no_change || all_diffs)) {
-                // App.logger.debug(App.ANSI_PURPLE + "[debug] > reading each line ..." +
-                // App.ANSI_RESET);
                 StringTokenizer st = new StringTokenizer(line);
                 write_line = "";
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
-                    // App.logger.debug(App.ANSI_PURPLE + "[debug] > reading each token : " + token
-                    // + App.ANSI_RESET);
                     if (token.equals("[]")) {
                         no_change = true;
                     }
@@ -316,6 +356,18 @@ public class Extractor {
         return all_diffs ? 0 : result;
     }
 
+
+    /**
+     * Gets the source code from a Git repository for a specific commit and file.
+     *
+     * @param repo          The Git repository.
+     * @param sha           The commit SHA.
+     * @param file_path     The file path within the repository.
+     * @param file_name     The name of the file to be created.
+     * @param repo_name     The name of the Git repository.
+     * @param output        The output directory path.
+     * @return The path to the created file.
+     */
     private String get_source(Repository repo, String sha, String file_path, String file_name, String repo_name,
             String output) {
         try {
@@ -351,6 +403,13 @@ public class Extractor {
         }
     }
 
+
+    /** 
+    * Maps GumTree node types to numerical values.
+    *
+    * @param str The GumTree node type.
+    * @return The numerical value representing the node type.
+    */
     public static int getNodeNum(String str) {
         // on node types
         if (str.equals("delete-node")) {
