@@ -78,8 +78,8 @@ public class ConFix {
 
 	// TE
 	public static String poolSource;
-	public static List<File> cleanFiles = new ArrayList<File>(11);
-	public static List<File> buggyFiles = new ArrayList<File>(11);
+	public static List<File> cleanFiles = new ArrayList<File>();
+	public static List<File> buggyFiles = new ArrayList<File>();
 	public static String projectName;
 	public static String bugId;
 
@@ -714,11 +714,18 @@ public class ConFix {
 
 	public static void createFileLists(String projectName) {
 		File dir = new File(poolSource);
-		// File dir = new File("/home/aprweb/APR_Projects/APR/pool/las/data");
+		// File dir = new File("/home/aprweb/APR_Projects/APR/`pool/las/data");
 		File[] directoryListing = dir.listFiles();
-		//System.out.println("File list size: "+directoryListing.length()) ;
+		//System.out.println("File list size: "+directoryListing.length()) 
 
-		for(int i = 0; i<11 ; i++){
+
+		//initialize using the directory files, buggy and patched
+		if ( directoryListing.length%2 != 0 ) {
+			System.err.println("Wrong with Files");
+			System.exit(-1);
+		}
+
+		for(int i = 0; i < directoryListing.length/2 ; i++){
 			cleanFiles.add(null);
 			buggyFiles.add(null);
 		}
