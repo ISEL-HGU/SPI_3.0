@@ -106,6 +106,18 @@ public class App {
 
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
+        //Collect the 
+        ArrayList<String> gitProjectList = new ArrayList<>();
+
+        for (String[] line : stringListofCommitFile) {
+
+            String gitURL = line[4];
+            if (!gitProjectList.contains(gitURL)) {                
+                gitProjectList.add(gitURL);
+            }
+        }
+
+
         // retreive candidate source codes from each git repositories
         int counter = 0;
         for (String[] line : stringListofCommitFile) {
@@ -193,5 +205,12 @@ public class App {
             appLogger.fatal(ANSI_RED + "[fatal] > Exception : " + e.getMessage() + ANSI_RESET);
             return null;
         }
+    }
+
+    public boolean gitCloneUsingThread(ArrayList<String> gitURLList){
+        
+        
+
+        return true;
     }
 }
