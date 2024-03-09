@@ -6,8 +6,13 @@ package LCE;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
 
@@ -30,6 +35,7 @@ public class App {
     public static final String ANSI_WHITE = "\u001B[37m";
 
     static Logger appLogger = LogManager.getLogger(App.class.getName());
+
 
     /**
      * Initializes and runs the application, loading properties from the default or specified file.
@@ -106,17 +112,23 @@ public class App {
 
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
-        //Collect the 
-        ArrayList<String> gitProjectList = new ArrayList<>();
+        //Collect the identical path and clones
+        HashMap<String, String> gitProjectList = new HashMap<>();
 
         for (String[] line : stringListofCommitFile) {
-
             String gitURL = line[4];
-            if (!gitProjectList.contains(gitURL)) {                
-                gitProjectList.add(gitURL);
+            String gitProjectName =  Util.getRepoNameFromUrl(gitURL);
+            if (!gitProjectList.containsKey(gitProjectName)) {
+                gitProjectList.put(gitProjectName, gitURL);
             }
         }
 
+        appLogger.trace(ANSI_BLUE + "[status] > Collect Identical Git Project" + ANSI_RESET);
+
+        //clone projects at the same time
+        if (gitCloneUsingThread(gitProjectList, pool_dir) ) {
+            
+        }
 
         // retreive candidate source codes from each git repositories
         int counter = 0;
@@ -207,10 +219,44 @@ public class App {
         }
     }
 
-    public boolean gitCloneUsingThread(ArrayList<String> gitURLList){
-        
-        
+    public boolean gitCloneUsingThread(HashMap<String, String> gitURLList, String resultDir){
+
+        final int THREAD_POOL_SIZE = gitURLList.size();
+        final ExecutorService executorService;
+
+        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
+        for (String path : gitURLList.keySet()) {
+            executorService.execute(() -> cloneRepository(path, gitURLList.get(path), resultDir));
+        }
+
+        executorService.shutdown();
+
+        try {
+            // Wait for all tasks to complete or until timeout
+            if (!executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES)) {
+                // Handle if tasks didn't complete within the specified timeout
+                appLogger.error("Some tasks did not complete within the timeout");
+                return false;
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            appLogger.error("Thread interrupted while waiting for tasks to complete");
+            return false;
+        }
 
         return true;
+    }
+
+    private void cloneRepository(String path, String gitURL, String resultDir) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder();
+            pb.directory(new File(resultDir));
+            pb.command("git", "clone", gitURL, path);
+            Process p = pb.start();
+            p.waitFor();
+        } catch (Exception e) {
+            appLogger.error(App.ANSI_RED + "[error] > " + e.getMessage() + App.ANSI_RESET);
+        }
     }
 }
