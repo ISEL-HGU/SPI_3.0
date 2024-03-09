@@ -63,7 +63,7 @@ public class GitLoader {
     public void config(String url, String BIC, String FIC, String filepathBefore, String filepathAfter,
             String d4jName, int d4jNum) {
         this.url = url;
-        this.name = getRepoNameFromUrl(url);
+        this.name = Util.getRepoNameFromUrl(url);
         this.BIC = BIC;
         this.FIC = FIC;
         this.filepathBefore = filepathBefore;
@@ -109,22 +109,6 @@ public class GitLoader {
     }
 
     /**
-     * Extracts the repository name from a Git repository URL.
-     *
-     * @param url The Git repository URL.
-     * @return The repository name extracted from the URL.
-     */
-    private String getRepoNameFromUrl(String url) {
-        String[] url_split = url.split("/");
-        for (String split : url_split) {
-            if (split.contains(".git")) {
-                return split.replace(".git", "");
-            }
-        }
-        return url_split[url_split.length - 1];
-    }
-
-    /**
      * Extracts the file name from a given file path.
      *
      * @param filePath The file path.
@@ -148,6 +132,7 @@ public class GitLoader {
         gitLogger.trace(App.ANSI_BLUE + "[info] > candidate_dir : " + App.ANSI_YELLOW + candidateDir + App.ANSI_RESET);
     }
 
+    @Deprecated
     /**
      * Clones the Git repository into the specified directory.
      *
@@ -253,9 +238,6 @@ public class GitLoader {
         String path = resultDir + "/" + name; 
         try {
             if (set) {
-                gitLogger.trace(App.ANSI_BLUE + "[status] > cloning to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
-                if (!clone(path))
-                    return false;
                 gitLogger.trace(App.ANSI_BLUE + "[status] > checkout to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
                 if (!checkout(path))
                     return false;
