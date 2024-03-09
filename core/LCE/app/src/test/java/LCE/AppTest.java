@@ -9,12 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 class AppTest {
     @Test
-    void testApp() {
+    void testLCS() {
         int[] target = new int[] { 1, 3, 5, 1, 6 };
         int[] tester = new int[] { 1, 5, 3, 1, 4 };
         LCS lcs = new LCS();
@@ -63,6 +64,27 @@ class AppTest {
         if (!testFile.delete()) {
             System.out.println("Warning: Test properties file deletion failed.");
         }
+    }
+
+
+    @Test
+    void testGitCloneUsingThread() {
+        HashMap<String, String> gitURLList = new HashMap<>();
+        gitURLList.put("repo1", "https://github.com/apache/beam.git");
+        gitURLList.put("repo2", "https://github.com/apache/hadoop");
+        gitURLList.put("repo3", "https://github.com/apache/cassandra");
+        gitURLList.put("repo4", "https://github.com/apache/spark");
+        // Add more repositories as needed
+
+        String resultDir = "/data2/sechang/TestRepo";
+
+        App app = new App(); // Assuming the class containing gitCloneUsingThread is named GitCloner
+
+        boolean result = app.gitCloneUsingThread(gitURLList, resultDir);
+
+        assertTrue(result, "Git clone operation should be successful");
+
+        // Add more assertions or checks based on your requirements
     }
 
 
