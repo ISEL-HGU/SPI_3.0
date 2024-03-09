@@ -228,10 +228,12 @@ public class App {
      */
     public boolean gitCloneUsingThread(HashMap<String, String> gitURLList, String resultDir){
 
-        final int THREAD_POOL_SIZE = gitURLList.size();
         final ExecutorService executorService;
 
-        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        /* due to error <RPC failed; curl 56 GnuTLS>
+        2 concurrent git clone is adequate (Current target projects are too huge)
+        */
+        executorService = Executors.newFixedThreadPool(2);
 
         for (String path : gitURLList.keySet()) {
             executorService.execute(() -> cloneRepository(path, gitURLList.get(path), resultDir));
