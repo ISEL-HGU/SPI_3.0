@@ -127,7 +127,7 @@ public class App {
 
         //clone projects at the same time
         if (gitCloneUsingThread(gitProjectList, pool_dir) ) {
-            
+            appLogger.trace(ANSI_RED + "[status] > Error on git cloning");
         }
 
         // retreive candidate source codes from each git repositories
