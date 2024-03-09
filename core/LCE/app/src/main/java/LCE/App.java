@@ -219,6 +219,13 @@ public class App {
         }
     }
 
+    /**
+     * Concurrently clones multiple Git repositories using a thread pool.
+     *
+     * @param gitURLList A HashMap containing Git repository paths as keys and corresponding URLs as values.
+     * @param resultDir  The directory where the repositories will be cloned.
+     * @return True if the cloning process for all repositories is successful, false otherwise.
+     */
     public boolean gitCloneUsingThread(HashMap<String, String> gitURLList, String resultDir){
 
         final int THREAD_POOL_SIZE = gitURLList.size();
@@ -248,6 +255,13 @@ public class App {
         return true;
     }
 
+    /**
+     * Clones a Git repository using the given Git URL and destination path.
+     *
+     * @param path      The destination path for cloning the repository.
+     * @param gitURL    The URL of the Git repository to clone.
+     * @param resultDir The directory where the repository will be cloned.
+     */
     private void cloneRepository(String path, String gitURL, String resultDir) {
         try {
             ProcessBuilder pb = new ProcessBuilder();
