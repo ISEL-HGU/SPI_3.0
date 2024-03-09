@@ -11,6 +11,11 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.commons.io.FileUtils;
 import java.nio.file.Files;
 
+/**
+ * The GitLoader class facilitates the loading and manipulation of Git repositories
+ * to extract Bug Inducing File (BIC) and Fix Inducing File (FIC).
+ * It provides methods to configure, set directories, clone repositories, and handle file operations.
+ */
 public class GitLoader {
     private int counter = -1;
     private String url; // git url
