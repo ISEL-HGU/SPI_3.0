@@ -1,12 +1,9 @@
-import logging
 import os  # nope
 import sys
 import shutil
 import getopt
-import argparse
 import subprocess
 import configparser
-import platform
 import traceback
 
 def copy(source, destination):
@@ -55,7 +52,7 @@ def main(argv):
     perfect_faulty_class, _ = perfect_faulty_path.split(".")
     perfect_faulty_class = perfect_faulty_class.replace("/", ".")
 
-    target_root = os.path.join(project_info['Project']['byproduct_path'], hash_id)  # target_dir > target_root // Urgent fix! Should be fixed correctly later.
+    target_root = os.path.join(project_info['Project']['byproduct_path'], hash_id)  # target_dir > target_root 
     target_workspace = os.path.join(target_root, target_project_name) # (new) target_dir > target_workspace
     target_outputs = os.path.join(target_root, "outputs") # output_dir > target_outputs
 
@@ -186,15 +183,21 @@ def main(argv):
 
 
     if os.path.isfile(os.path.join(target_workspace, "patches", "0", perfect_faulty_path)):
+        
         with open(os.path.join(target_root, "diff_file.txt"), "w") as f:
             f.write(f"differences made in {perfect_faulty_path}:\n")
 
         # ! `git diff` might not be printed approopriatedly if `cwd` is not correctly set. Need more research about this later.
         with open(os.path.join(target_root, "diff_file.txt"), "a") as f:
-            subprocess.run(["git", "diff", os.path.join(target_workspace, perfect_faulty_path), os.path.join(target_workspace, "patches", "0", perfect_faulty_path)], cwd = os.path.expanduser('~'), stdout = f)
+
+            subprocess.run(["git", "diff", os.path.join(target_workspace, perfect_faulty_path), os.path.join(target_workspace, "patches", "0", perfect_faulty_path)], stdout=f, cwd = target_root)
+
+            print(target_workspace, perfect_faulty_path, perfect_faulty_path)
+            # subprocess.run(["git", "diff", os.path.join(target_workspace, perfect_faulty_path), os.path.join(target_workspace, "patches", "0", perfect_faulty_path)], cwd = os.path.expanduser('~'), stdout = f)
+            
+
     else:
         print("ConFix failed to generate plausible patch.")
-
     # # 패치의 path
     # /home/aprweb/APR_Projects/APR/target/Math/patches/0/org/apache/commons/math/stat/Frequency.java
 
