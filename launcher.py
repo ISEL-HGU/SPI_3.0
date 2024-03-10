@@ -511,8 +511,12 @@ def main(argv):
 
                     if not copy(os.path.join(case['target_dir'], case['identifier'],  "log.txt"), os.path.join(case['target_dir'], "logs", f"ConFix-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
                         raise RuntimeError("Failed to copy log.txt.")
-                    if not remove(os.path.join(case['target_dir'], case['identifier'])):
-                        raise RuntimeError("Failed to remove workspace folder.")
+                    
+                    # Make not to remove Defects4j Project
+                    # TODO: Need to eliminate on the release
+                    
+                    #if not remove(os.path.join(case['target_dir'], case['identifier'])):
+                        #raise RuntimeError("Failed to remove workspace folder.")
 
                     
                 except Exception as e:
