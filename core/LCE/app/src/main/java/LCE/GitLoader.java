@@ -148,12 +148,14 @@ public class GitLoader {
         gitLogger.trace(App.ANSI_BLUE + "[info] > candidate_dir : " + App.ANSI_YELLOW + candidateDir + App.ANSI_RESET);
     }
 
+    
     /**
      * Clones the Git repository into the specified directory.
      *
      * @param directory The directory where the repository will be cloned.
      * @return True if cloning is successful, false otherwise.
      */
+    @Deprecated
     public boolean clone(String directory) {
         try {
             if ( checkDirExists(directory) ) { //already exists
@@ -253,9 +255,6 @@ public class GitLoader {
         String path = resultDir + "/" + name; 
         try {
             if (set) {
-                gitLogger.trace(App.ANSI_BLUE + "[status] > cloning to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
-                if (!clone(path))
-                    return false;
                 gitLogger.trace(App.ANSI_BLUE + "[status] > checkout to " + App.ANSI_YELLOW + path + App.ANSI_RESET);
                 if (!checkout(path))
                     return false;
