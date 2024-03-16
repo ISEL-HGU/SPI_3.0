@@ -269,7 +269,8 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
         prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", "commit_file.csv")
 
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")
-        prop_LCE['pool.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "result")
+
+        prop_LCE['pool.dir'] = conf_SPI['stored_pool_dir']
         prop_LCE['candidates.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "candidates")
 
         prop_LCE['d4j_project_name'] = case['identifier']
@@ -278,7 +279,6 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
         with open(os.path.join(case['target_dir'], "properties", "LCE.properties"), "wb") as f:
             prop_LCE.store(f, encoding = "UTF-8")
 
-        os.makedirs(prop_LCE['pool.dir'].data)
         os.makedirs(prop_LCE['candidates.dir'].data)
 
         launch_command = ".\\app.bat" if platform.system() == "Windows" else "./app"
