@@ -5,6 +5,7 @@ import java.util.TreeMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -345,14 +346,18 @@ public class Extractor {
             int leftCandNum = nummax - resultPos;
             targetScore = scores.get(scorePos);
             
+            extractionLogger.info(App.ANSI_BLUE + "[status] Canddiate score = " + String.valueOf(targetScore) + "Size: " + simScoreMap.get(targetScore).size() + App.ANSI_RESET);
+            
             if (leftCandNum >= simScoreMap.get(targetScore).size() ) {
                 
                 for (int index : simScoreMap.get(targetScore)) {
+                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(storedPoolArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
                     result[resultPos++] = index;
                 }
                 scorePos++;
 
             } else {
+
                 
                 TreeMap<Integer, Integer> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
@@ -361,8 +366,10 @@ public class Extractor {
                 }
 
                 int breaker = leftCandNum;
+                extractionLogger.info("Vector size" + vectorLengthToIndex.values());
                 for (int index : vectorLengthToIndex.values()) {
                     result[resultPos++] = index;
+                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(storedPoolArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
                     if (--breaker == 0) break;
                 }
             }
