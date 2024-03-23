@@ -16,7 +16,7 @@ public class GitLoader {
     private String url; // git url
     private String name; // git repo name
     private String BIC; // bug inducing commit
-    private String FIC; // fix inducing commit
+    private String BFC; // bug fixing commit
     private String filepathBefore; // file path before
     private String filepathAfter; // file path (after)
     private String filename; // file name
@@ -38,7 +38,7 @@ public class GitLoader {
         this.url = "";
         this.name = "";
         this.BIC = "";
-        this.FIC = "";
+        this.BFC = "";
         this.filepathBefore = "";
         this.filepathAfter = "";
         this.filename = "";
@@ -54,18 +54,18 @@ public class GitLoader {
      *
      * @param url             The URL of the Git repository.
      * @param BIC             The commit ID associated with a bug-inducing commit.
-     * @param FIC             The commit ID associated with a fix-inducing commit.
+     * @param BFC             The commit ID associated with a fix-inducing commit.
      * @param filepathBefore  The file path before the changes.
      * @param filepathAfter   The file path after the changes.
      * @param d4jName         The name of the Defects4J project.
      * @param d4jNum          The number of the Defects4J project.
      */
-    public void config(String url, String BIC, String FIC, String filepathBefore, String filepathAfter,
+    public void config(String url, String BIC, String BFC, String filepathBefore, String filepathAfter,
             String d4jName, int d4jNum) {
         this.url = url;
         this.name = getRepoNameFromUrl(url);
         this.BIC = BIC;
-        this.FIC = FIC;
+        this.BFC = BFC;
         this.filepathBefore = filepathBefore;
         this.filepathAfter = filepathAfter;
         this.filename = getFileNameFromPath(filepathBefore);
@@ -142,7 +142,7 @@ public class GitLoader {
         gitLogger.trace(App.ANSI_BLUE + "[info] > url : " + App.ANSI_YELLOW + url + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > repo_name : " + App.ANSI_YELLOW + name + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > cid_before : " + App.ANSI_YELLOW + BIC + App.ANSI_RESET);
-        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_after : " + App.ANSI_YELLOW + FIC + App.ANSI_RESET);
+        gitLogger.trace(App.ANSI_BLUE + "[info] > cid_after : " + App.ANSI_YELLOW + BFC + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > file_name : " + App.ANSI_YELLOW + filename + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > result_dir : " + App.ANSI_YELLOW + resultDir + App.ANSI_RESET);
         gitLogger.trace(App.ANSI_BLUE + "[info] > candidate_dir : " + App.ANSI_YELLOW + candidateDir + App.ANSI_RESET);
@@ -220,7 +220,7 @@ public class GitLoader {
     }
 
     /**
-     * Checks out specific commits (BIC and FIC) in the Git repository located in the given directory.
+     * Checks out specific commits (BIC and BFC) in the Git repository located in the given directory.
      * Copies both the file before and after changes to candidate directories.
      *
      * @param directory The directory containing the Git repository.
@@ -235,7 +235,7 @@ public class GitLoader {
             return false;
         }
 
-        if (checkoutAndCopy(directory, FIC, false)){
+        if (checkoutAndCopy(directory, BFC, false)){
             gitLogger.trace(App.ANSI_GREEN + "[status] > copy success" + App.ANSI_RESET);
         } else {
             gitLogger.error(App.ANSI_RED + "[error] > copy failed" + App.ANSI_RESET);
