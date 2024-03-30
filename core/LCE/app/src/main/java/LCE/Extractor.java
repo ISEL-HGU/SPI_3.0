@@ -92,7 +92,7 @@ public class Extractor {
             }
 
             HashMap<Float, ArrayList<Integer> > simScoreMap = makeMapScoreToIndex(simScoreArray);
-            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax, storedPoolArray);
+            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax, cleanedGumTreeArray);
             
             extractionLogger.trace(
                     App.ANSI_BLUE + "[status] max_N_index_list size = " + maxNumberIndexList.length + App.ANSI_RESET);
@@ -327,10 +327,10 @@ public class Extractor {
      * 
      * @param simScoreMap Map of similarity scores to corresponding indices.
      * @param nummax      Maximum number of candidate patches to identify.
-     * @param storedPoolArray Array containing the original pool of source code.
+     * @param cleanedGumTreeArray Array containing the original pool of source code.
      * @return int[] Array of indices representing the identified candidate patches.
      */
-    public int[] indexOfCandidatePatches(HashMap<Float, ArrayList<Integer> > simScoreMap, int nummax, int[][] storedPoolArray) {
+    public int[] indexOfCandidatePatches(HashMap<Float, ArrayList<Integer> > simScoreMap, int nummax, int[][] cleanedGumTreeArray) {
         
         List<Float> scores = new ArrayList<>(simScoreMap.keySet());
         // sort from highest to lowsest
@@ -346,12 +346,12 @@ public class Extractor {
             int leftCandNum = nummax - resultPos;
             targetScore = scores.get(scorePos);
             
-            extractionLogger.info(App.ANSI_BLUE + "[status] Canddiate score = " + String.valueOf(targetScore) + "Size: " + simScoreMap.get(targetScore).size() + App.ANSI_RESET);
+            extractionLogger.info(App.ANSI_BLUE + "[status] Canddiate score = " + String.valueOf(targetScore) + " Size: " + simScoreMap.get(targetScore).size() + App.ANSI_RESET);
             
             if (leftCandNum >= simScoreMap.get(targetScore).size() ) {
                 
                 for (int index : simScoreMap.get(targetScore)) {
-                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(storedPoolArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
+                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(cleanedGumTreeArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
                     result[resultPos++] = index;
                 }
                 scorePos++;
@@ -362,14 +362,16 @@ public class Extractor {
                 TreeMap<Integer, Integer> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
                 for (int index : simScoreMap.get(targetScore)) {
-                    vectorLengthToIndex.put(storedPoolArray[index].length, index);
+                    vectorLengthToIndex.put(cleanedGumTreeArray[index].length, index);
                 }
 
                 int breaker = leftCandNum;
-                extractionLogger.info("Vector size" + vectorLengthToIndex.values());
+
+                extractionLogger.info("Vector size" + vectorLengthToIndex.size());
+
                 for (int index : vectorLengthToIndex.values()) {
                     result[resultPos++] = index;
-                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(storedPoolArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
+                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(cleanedGumTreeArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
                     if (--breaker == 0) break;
                 }
             }
