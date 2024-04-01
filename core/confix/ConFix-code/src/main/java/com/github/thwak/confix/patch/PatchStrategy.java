@@ -214,7 +214,8 @@ public class PatchStrategy {
 			return e.loc;
 		} else {
 			System.out.println("[Debug.log] line 216 of PatchStrategy.java : case else");
-			if (++currLineIndex < coveredLines.size()) {
+			if (1 + currLineIndex < coveredLines.size()) {
+				currLineIndex++;
 				locations.clear();
 				CoveredLine cl = coveredLines.get(currLineIndex);
 				if (!patcherMap.containsKey(cl.className)) {
@@ -256,7 +257,8 @@ public class PatchStrategy {
 			System.out.println("[Debug.log] line 256 of PatchStrategy.java : currLineIndex = "+currLineIndex);
 			System.out.println("[Debug.log] line 257 of PatchStrategy.java : coveredLines.size() = "+coveredLines.size());
 			System.out.println("[Debug.log] line 258 of PatchStrategy.java : ++currLineIndex < coveredLines.size() = "+((1+currLineIndex) < coveredLines.size()));
-			if (++currLineIndex < coveredLines.size()) {
+			if (1 + currLineIndex < coveredLines.size()) {
+				currLineIndex++;
 				locations.clear();
 				CoveredLine cl = coveredLines.get(currLineIndex);
 				if (!patcherMap.containsKey(cl.className)) {
