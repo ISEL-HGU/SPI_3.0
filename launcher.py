@@ -271,6 +271,7 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")
 
         prop_LCE['pool.dir'] = conf_SPI['stored_pool_dir']
+        prop_LCE['textSimPool.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "result")
         prop_LCE['candidates.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "candidates")
 
         prop_LCE['d4j_project_name'] = case['identifier']
