@@ -121,7 +121,7 @@ public class Extractor {
             /* example: [result] 113471d6457b4afa2523afc74b40be09935292d0,1925a50d860b7b8f8422f1c2f251d0ea11def736,
                 runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
                 runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
-                https://github.com/apache/beam.git,BEAM
+                https://github.com/apache/beam.git,BEAM,(BlameLineNumber),(FixLineNumber)
             */
             extractionLogger.trace(App.ANSI_BLUE + "[result] " + sourceFiles.get(i) + App.ANSI_RESET);
         }

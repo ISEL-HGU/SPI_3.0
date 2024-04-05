@@ -71,16 +71,23 @@ public class App {
         appLogger.trace(ANSI_BLUE + "[status] > running executor..." + ANSI_RESET);
         extractor.run();
         appLogger.trace(ANSI_GREEN + "[status] > extractor ready" + ANSI_RESET);
-        List<String> result = extractor.extract();
-        appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
-
-        // preprocess the results from extractor before next step
-        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(result);
-        appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
+        List<String> LCEResult = extractor.extract();
 
         // Pool Directory and Candidate Directory set
         String pool_dir = properties.getProperty("pool.dir");
+        String textSimPool_dir= properties.getProperty("textSimPool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
+
+        GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir);
+
+        List<String> textSimResult = gitFunctions.getTopCandidatesUsingTextSimimilarity(LCEResult);
+
+        appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
+
+        // preprocess the results from extractor before next step
+        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(textSimResult);
+        appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
+
 
         GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
@@ -158,7 +165,7 @@ public class App {
                 // System.out.println("[debug] line : " + line);
                 String[] line_split = line.split(",");
                 String[] selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
-                        line_split[4] };
+                        line_split[4], line_split[5], line_split[6] };
                 result_split.add(selection);
             }
         } catch (Exception e) {
