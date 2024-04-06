@@ -3,7 +3,12 @@ package LCE;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.File;
 
@@ -51,7 +56,7 @@ public class Util {
                 fileContents.append(System.lineSeparator());
             }
         } catch (IOException e) {
-            return "File not found.";
+            return null;
         }
         return fileContents.toString();
     }

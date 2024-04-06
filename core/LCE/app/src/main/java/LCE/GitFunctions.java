@@ -51,6 +51,8 @@ public class GitFunctions {
 
         for (String line : LCEcandidate) {
 
+            System.err.println(line);
+
             BBIC_dest = resultDir;
             BIC_dest = resultDir;
             BFC_dest = resultDir;
@@ -68,20 +70,23 @@ public class GitFunctions {
                 (BlameLineNumber),(FixLineNumber)
             */
 
-            String gitPath = gitDir + Util.getFileNameFromPath(csvValues[4]);
+            String gitPath = gitDir + "/" + Util.getFileNameFromPath(csvValues[4]);
 
             String diff[] = extract_diff(gitPath, csvValues[2], csvValues[0], Integer.parseInt(csvValues[7]), Integer.parseInt(csvValues[6])); // OldPath, BISha1, LineNumInPreFix, LineNumInBI
             
 
             String[] commitCollection = new String[6];
 
-            if (diff == null) continue;
+            if (diff == null) {
+                count += 1;
+                continue;
+            }
 
             for (int i = 0 ; i < 4 ; i++) {
                 commitCollection[i] = diff[i];
             }
-            commitCollection[4] = csvValues[3];
-            commitCollection[5] = csvValues[2];
+            commitCollection[4] = csvValues[1];
+            commitCollection[5] = csvValues[3];
 
             /* extract the BBIC commit id and file
             e.g)
@@ -93,24 +98,24 @@ public class GitFunctions {
             BFCFile: sdk/src/main/java/com/google/cloud/dataflow/sdk/util/ReduceFnRunner.java
             */
 
-            BBIC_dest += "result/BBIC_"+ Integer.toString(count) + ".java";
-            BIC_dest += "result/BIC_"+ Integer.toString(count) + ".java";
-            BFC_dest += "result/BFC_"+ Integer.toString(count) + ".java";
+            BBIC_dest += "/BBIC_"+ Integer.toString(count) + ".java";
+            BIC_dest += "/BIC_"+ Integer.toString(count) + ".java";
+            BFC_dest += "/BFC_"+ Integer.toString(count) + ".java";
             
             openLocalRepository(gitPath, commitCollection[0], commitCollection[1], BBIC_dest);
             openLocalRepository(gitPath, commitCollection[2], commitCollection[3], BIC_dest);
             openLocalRepository(gitPath, commitCollection[4], commitCollection[5], BFC_dest);
 
-            BBIC_BIC_diff += "result/BBIC-BIC" + Integer.toString(count) + ".txt";
-            BIC_BFC_diff += "result/BIC-BFC" + Integer.toString(count) + ".txt";
+            BBIC_BIC_diff += "/BBIC-BIC" + Integer.toString(count) + ".txt";
+            BIC_BFC_diff += "/BIC-BFC" + Integer.toString(count) + ".txt";
 
             diffTwoFiles(BBIC_dest, BIC_dest, BBIC_BIC_diff);
-            diffTwoFiles(BIC_dest, BFC_dest,  BIC_BFC_diff);
+            diffTwoFiles(BIC_dest, BFC_dest, BIC_BFC_diff);
 
-            count++;
+            count += 1;
         }
 
-        return null;
+        return LCEcandidate;
     }
 
 

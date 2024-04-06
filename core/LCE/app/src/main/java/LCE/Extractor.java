@@ -92,7 +92,7 @@ public class Extractor {
             }
 
             HashMap<Float, ArrayList<Integer> > simScoreMap = makeMapScoreToIndex(simScoreArray);
-            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax, cleanedGumTreeArray);
+            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, 10 , cleanedGumTreeArray); //TODO:magic number, need to fix
             
             extractionLogger.trace(
                     App.ANSI_BLUE + "[status] max_N_index_list size = " + maxNumberIndexList.length + App.ANSI_RESET);
