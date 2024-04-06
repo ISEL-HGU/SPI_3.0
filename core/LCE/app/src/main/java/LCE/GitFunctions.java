@@ -5,10 +5,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
+import java.util.*;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -19,28 +25,121 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
+
+import org.apache.logging.log4j.*;
+
 public class GitFunctions {
 
     private String resultDir;
     private String gitDir;
     private int count = 0;
+    private int nummax = 0;
+
+    static Logger gitFunctions = LogManager.getLogger(GitFunctions.class.getName());
 
 
-    public GitFunctions(String gitDir, String resultDir) {
+    public GitFunctions(String gitDir, String resultDir, int nummax) {
 
         this.gitDir = gitDir;
         this.resultDir = resultDir;
+        this.nummax = nummax;
 
         boolean success = Util.createDirectory(resultDir);
 
-        if (success) {
-            System.out.println("Directory created successfully.");
-        } else {
-            System.out.println("Failed to create directory.");
+        if (!success) {
+            gitFunctions.trace(App.ANSI_RED + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
         }
+
     }
 
-    public List<String> getTopCandidatesUsingTextSimimilarity(List<String> LCEcandidate){
+    public List<String> run(List<String> LCEcandidate) {
+
+        if (getDiffCandidates(LCEcandidate)) {
+            gitFunctions.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
+        } else {
+            gitFunctions.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
+        }
+
+        int[] topIndex = getTopCandidatesUsingTextSim();
+        List<String> result = new ArrayList<String>();
+
+        for (int index : topIndex){
+            result.add(LCEcandidate.get(index));
+        }
+
+        return result;
+    }
+
+     public int[] getTopCandidatesUsingTextSim() {
+    
+        String BBIC_BIC_diff;
+        String BIC_BFC_diff;
+
+        HashMap<Integer, Double> scoreCandidateMap = new HashMap<>();
+
+        for (int i = 0 ; i < count ; i++) {
+
+            BBIC_BIC_diff = resultDir;
+            BIC_BFC_diff = resultDir;
+                    
+            BBIC_BIC_diff += "/BBIC-BIC" + Integer.toString(i) + ".txt";
+            BIC_BFC_diff += "/BIC-BFC" + Integer.toString(i) + ".txt";
+            
+            String BBIC_BIC_diff_File = Util.readFile(BBIC_BIC_diff);
+            String BIC_BFC_diff_File = Util.readFile(BIC_BFC_diff);  
+
+            double cosineSim;
+
+            if (BBIC_BIC_diff_File == null || BIC_BFC_diff_File == null) {
+                cosineSim = 0;     
+            } else {
+
+                cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+            }
+
+            scoreCandidateMap.put(i, cosineSim);
+
+            gitFunctions.trace(App.ANSI_GREEN + "  cosine score: " + i + " " + cosineSim + App.ANSI_RESET);
+
+        }
+
+        // Create a list from the entries of the HashMap
+        List<Map.Entry<Integer, Double>> list = new LinkedList<>(scoreCandidateMap.entrySet());
+
+        // Sort the list based on values in descending order
+        Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {
+            @Override
+            public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2) {
+                return Double.compare(o2.getValue(), o1.getValue()); // Descending order
+            }
+        });
+
+        // Create a LinkedHashMap to store the sorted entries
+        LinkedHashMap<Integer, Double> sortedHashMap = new LinkedHashMap<>();
+        for (Map.Entry<Integer, Double> entry : list) {
+            sortedHashMap.put(entry.getKey(), entry.getValue());
+        }
+
+        int[] topTextSimCandidates = new int[nummax];
+        int i = 0;
+
+        for (Integer index : sortedHashMap.keySet()) {
+
+            topTextSimCandidates[i++] = index;
+
+            gitFunctions.trace(App.ANSI_GREEN + "[status] > selected index" + index + App.ANSI_RESET);
+
+            if (nummax == i+1) {
+                break;
+            }
+
+        }
+
+        return topTextSimCandidates;
+
+   }
+
+    public boolean getDiffCandidates(List<String> LCEcandidate){
 
         String BBIC_dest;
         String BIC_dest;
@@ -115,7 +214,7 @@ public class GitFunctions {
             count += 1;
         }
 
-        return LCEcandidate;
+        return true;
     }
 
 
@@ -369,7 +468,6 @@ public class GitFunctions {
     // @param new_cid : Fix Inducing Commit ID
     // @param old_cid : Commit ID before Fix Inducing Commit ID
     public String[] extract_diff(String repo_git, String file_name, String new_cid, String old_cid) {
-
 
         String[] result = new String[4];
         try {

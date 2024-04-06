@@ -78,12 +78,9 @@ public class App {
         String textSimPool_dir= properties.getProperty("textSimPool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
 
-        // GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
+        GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
 
-        GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir);
-        
-
-        List<String> textSimResult = gitFunctions.getTopCandidatesUsingTextSimimilarity(LCEResult);
+        List<String> textSimResult = gitFunctions.run(LCEResult);
 
         appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
 
