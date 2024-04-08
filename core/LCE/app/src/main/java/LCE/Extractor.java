@@ -33,6 +33,7 @@ public class Extractor {
     private List<List<String>> cleanedCommitList = new ArrayList<>();
     private int nummax;
     private int threshold;
+    private boolean textSimOrNot;
 
     static Logger extractionLogger = LogManager.getLogger(Extractor.class.getName());
     public Extractor() {}
@@ -53,6 +54,7 @@ public class Extractor {
                 : Integer.parseInt(argv.getProperty("candidate_number")); // nummax
         threshold = argv.getProperty("threshold").equals("") ? 1000
                 : Integer.parseInt(argv.getProperty("threshold")); // threshold
+        textSimOrNot = argv.getProperty("text_sim").equals("true") ? true : false ;
     }
     
 
@@ -92,7 +94,12 @@ public class Extractor {
             }
 
             HashMap<Float, ArrayList<Integer> > simScoreMap = makeMapScoreToIndex(simScoreArray);
-            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, 30 , cleanedGumTreeArray); //TODO:magic number, need to fix
+
+            if (textSimOrNot) {
+                maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax*3 , cleanedGumTreeArray); //TODO:magic number, need to fix
+            } else {
+                maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax , cleanedGumTreeArray); //TODO:magic number, need to fix
+            }
             
             extractionLogger.trace(
                     App.ANSI_BLUE + "[status] max_N_index_list size = " + maxNumberIndexList.length + App.ANSI_RESET);

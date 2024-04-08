@@ -77,15 +77,24 @@ public class App {
         String pool_dir = properties.getProperty("pool.dir");
         String textSimPool_dir= properties.getProperty("textSimPool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
+        String textSimOrNot = properties.getProperty("text_sim");
 
-        GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
+        List<String[]> stringListofCommitFile;
 
-        List<String> textSimResult = gitFunctions.run(LCEResult);
+        if (textSimOrNot.equals("true") || textSimOrNot.equals("t") ) {
+            GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
 
-        appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
+            List<String> textSimResult = gitFunctions.run(LCEResult);
+    
+            appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
+    
+            // preprocess the results from extractor before next step
+            stringListofCommitFile = commaSeperatedLineToStringArray(textSimResult);
+        } else {
+            stringListofCommitFile = commaSeperatedLineToStringArray(LCEResult);
+        }
 
-        // preprocess the results from extractor before next step
-        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(textSimResult);
+
         appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
 
 
