@@ -1,3 +1,8 @@
+/**
+ * This class provides functions to interact with a Git repository,
+ * including extracting source code differences between commits,
+ * retrieving commit hashes, performing blame operations, and more.
+ */
 package LCE;
 
 import java.io.BufferedReader;
@@ -26,6 +31,12 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 
+/**
+ * This class provides functions to interact with a Git repository,
+ * including extracting source code differences between commits,
+ * retrieving commit hashes, performing blame operations, and more.
+ */
+
 import org.apache.logging.log4j.*;
 
 public class GitFunctions {
@@ -37,6 +48,12 @@ public class GitFunctions {
 
     static Logger gitFunctions = LogManager.getLogger(GitFunctions.class.getName());
 
+    /**
+     * Constructor for GitFunctions class.
+     * @param gitDir Path to the Git repository directory.
+     * @param resultDir Path to the directory where results will be stored.
+     * @param nummax Maximum number of top candidates to retrieve.
+     */
 
     public GitFunctions(String gitDir, String resultDir, int nummax) {
 
@@ -52,6 +69,12 @@ public class GitFunctions {
 
     }
 
+
+    /**
+     * Runs the GitFunctions to process a list of LCE candidates.
+     * @param LCEcandidate List of LCE candidates.
+     * @return List of top candidates based on text similarity.
+     */
     public List<String> run(List<String> LCEcandidate) {
 
         if (getDiffCandidates(LCEcandidate)) {
@@ -70,6 +93,11 @@ public class GitFunctions {
         return result;
     }
 
+    /**
+     * This method retrieves the top candidates using text similarity.
+    *
+    * @return An array of integers representing the indices of the top candidates.
+    */ 
      public int[] getTopCandidatesUsingTextSim() {
     
         String BBIC_BIC_diff;
@@ -138,7 +166,13 @@ public class GitFunctions {
         return topTextSimCandidates;
 
    }
-
+     
+    /**
+     * This method retrieves differences for a list of candidate files.
+     *
+     * @param LCEcandidate A list of strings representing candidate file information.
+     * @return True if differences are successfully obtained, otherwise false.
+     */
     public boolean getDiffCandidates(List<String> LCEcandidate){
 
         String BBIC_dest;
@@ -196,7 +230,7 @@ public class GitFunctions {
             BFC: 91999bdc8e51a51bdd271862e23c6dc33f777bc1
             BFCFile: sdk/src/main/java/com/google/cloud/dataflow/sdk/util/ReduceFnRunner.java
             */
-
+        
             BBIC_dest += "/BBIC_"+ Integer.toString(count) + ".java";
             BIC_dest += "/BIC_"+ Integer.toString(count) + ".java";
             BFC_dest += "/BFC_"+ Integer.toString(count) + ".java";
@@ -217,7 +251,15 @@ public class GitFunctions {
         return true;
     }
 
-
+    /**
+     * Opens a local repository, checks out a specific commit, and copies a file from it.
+     *
+     * @param gitRepo          Path to the Git repository.
+     * @param commitId         Commit ID to checkout.
+     * @param fileName         Name of the file to copy.
+     * @param destinationPath  Path where the copied file will be saved.
+     * @return True if the operation is successful, otherwise false.
+     */
     private static boolean openLocalRepository(String gitRepo, String commitId, String fileName, String destinationPath) {
 
         try {
@@ -234,6 +276,13 @@ public class GitFunctions {
        return true;
    }
 
+    /**
+     * Copies a file from a source location to a destination location.
+     *
+     * @param repositoryPath  Path to the repository containing the file.
+     * @param filePath        Path to the file to be copied.
+     * @param destinationPath Destination path for the copied file.
+     */ 
    public static void copyFile(String repositoryPath, String filePath, String destinationPath) {
        try {
            // Locate the file in the repository
@@ -251,6 +300,15 @@ public class GitFunctions {
        }
    }
 
+
+    /**
+     * Computes the difference between two files and writes the output to a third file.
+     *
+     * @param file1Path Path to the first file.
+     * @param file2Path Path to the second file.
+     * @param outputPath Path to write the difference output.
+     * @return True if the difference computation is successful, otherwise false.
+     */
    public static boolean diffTwoFiles(String file1Path, String file2Path, String outputPath) {
 
          try {
@@ -278,8 +336,13 @@ public class GitFunctions {
        return true;
    }
 
-    // get commit id of head commit
-    // @param path : path of git repository
+
+  /**
+     * Retrieves the commit ID of the HEAD commit in the specified Git repository.
+     *
+     * @param path Path to the Git repository.
+     * @return The commit ID of the HEAD commit, or null if an error occurs.
+     */ 
     public String extract_head_commit_id(String path) {
         String commit_id = null;
         try {
@@ -295,10 +358,13 @@ public class GitFunctions {
         return commit_id;
     }
 
-    // get list of commit hashes from a git repository which certain file has been
-    // changed
-    // @param path : path of git repository
-    // @param file : file to check
+    /**
+     * Retrieves a list of commit hashes from a Git repository for a file that has been changed.
+     *
+     * @param repo_path   Path to the Git repository.
+     * @param file_name   Name of the file to check.
+     * @return A list of commit hashes, or null if an error occurs.
+     */
     public ArrayList<String> log(String repo_path, String file_name) {
 
         ArrayList<String> hashes = new ArrayList<>();
@@ -321,11 +387,15 @@ public class GitFunctions {
         return hashes;
     }
 
-    // execute git blame on the file and line within project directory and collect
-    // old, new cid
-    // @param project_dir: the directory of the Defects4J bug
-    // @param file : the file to be blamed
-    // @param line : the line to be blamed
+    /**
+     * Executes 'git blame' on a file and line within a project directory and collects old and new commit IDs.
+     *
+     * @param project_dir Directory of the Defects4J bug.
+     * @param file        The file to be blamed.
+     * @param lineBlame   The line to be blamed.
+     * @param lineFix     The line number to be fixed.
+     * @return An array containing the old and new commit IDs, or null if an error occurs.
+     */  
     public String[] blame(String project_dir, String file, int lineBlame, int lineFix) {
         String[] cid_set = new String[2]; // [0] old cid, [1] new cid
         String cid1; // new
@@ -375,6 +445,16 @@ public class GitFunctions {
         return cid_set;
     }
 
+    /**
+     * Retrieves the old commit ID (BBIC) for a given file, line, and new commit ID (BIC).
+     *
+     * @param project_dir Directory of the project.
+     * @param file        The file to be blamed.
+     * @param lineBlame   The line to be blamed.
+     * @param lineFix     The line number to be fixed.
+     * @param bic         The new commit ID.
+     * @return The old commit ID (BBIC), or null if an error occurs.
+     */
     public String blame(String project_dir, String file, int lineBlame, int lineFix, String bic) {
         String bbic = ""; // old
         int exit_code = -1;
@@ -417,11 +497,16 @@ public class GitFunctions {
         return bbic;
     }
 
-    // extract source code differences between a commit id and before of a certain
-    // source file
-    // @param repo_git : path of git repository
-    // @param file_name : file name to check
-    // @param new_cid : Bug Inducing Commit ID
+    /**
+     * Extracts source code differences between a commit ID and the version of a certain source file.
+     *
+     * @param repo_git  Path of the Git repository.
+     * @param file_name File name to check.
+     * @param new_cid   Bug Inducing Commit ID.
+     * @param lineFix   Line number to be fixed.
+     * @param lineBlame Line to be blamed.
+     * @return An array containing old and new commit IDs, or null if an error occurs.
+     */
     public String[] extract_diff(String repo_git, String file_name, String new_cid, int lineFix, int lineBlame) {
         
         String old_cid = null;
@@ -462,11 +547,15 @@ public class GitFunctions {
         return extract_diff(repo_git, file_name, new_cid, old_cid);
     }
 
-    // extract source code differences between two commit ids of a certain source
-    // @param repo_git : path of git repository
-    // @param file_name : file name to check
-    // @param new_cid : Fix Inducing Commit ID
-    // @param old_cid : Commit ID before Fix Inducing Commit ID
+    /**
+     * Extracts source code differences between two commit IDs of a certain source file.
+     *
+     * @param repo_git Path of the Git repository.
+     * @param file_name File name to check.
+     * @param new_cid Fix Inducing Commit ID.
+     * @param old_cid Commit ID before Fix Inducing Commit ID.
+     * @return An array containing old and new commit IDs, or null if an error occurs.
+     */
     public String[] extract_diff(String repo_git, String file_name, String new_cid, String old_cid) {
 
         String[] result = new String[4];
@@ -533,7 +622,14 @@ public class GitFunctions {
         return result;
     }
 
-    // check if given commit id is the initial commit or not
+
+    /**
+     * Checks if a given commit ID is the initial commit in the repository.
+     *
+     * @param repo_path Path of the Git repository.
+     * @param cid       The commit ID to check.
+     * @return True if the commit ID is the initial commit, otherwise false.
+     */    // check if given commit id is the initial commit or not
     public static boolean isInit(String repo_path, String cid) {
         try {
             Git git = Git.open(new File(repo_path));
