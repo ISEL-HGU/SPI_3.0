@@ -353,7 +353,7 @@ public class Extractor {
             int leftCandNum = nummax - resultPos;
             targetScore = scores.get(scorePos);
             
-            extractionLogger.info(App.ANSI_BLUE + "[status] Canddiate score = " + String.valueOf(targetScore) + " Size: " + simScoreMap.get(targetScore).size() + App.ANSI_RESET);
+            extractionLogger.info(App.ANSI_BLUE + "[status] Candidate score = " + String.valueOf(targetScore) + " Size: " + simScoreMap.get(targetScore).size() + App.ANSI_RESET);
             
             if (leftCandNum >= simScoreMap.get(targetScore).size() ) {
                 
