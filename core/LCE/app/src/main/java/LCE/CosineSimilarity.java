@@ -9,13 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -41,14 +34,14 @@ import org.apache.commons.text.similarity.CosineDistance;
 
 import org.apache.logging.log4j.*;
 
-public class GitFunctions {
+public class CosineSimilarity {
 
     private String resultDir;
     private String gitDir;
     private int count = 0;
     private int nummax = 0;
 
-    static Logger gitFunctions = LogManager.getLogger(GitFunctions.class.getName());
+    static Logger cosineSimLog = LogManager.getLogger(CosineSimilarity.class.getName());
 
     /**
      * Constructor for GitFunctions class.
@@ -57,7 +50,7 @@ public class GitFunctions {
      * @param nummax Maximum number of top candidates to retrieve.
      */
 
-    public GitFunctions(String gitDir, String resultDir, int nummax) {
+    public CosineSimilarity(String gitDir, String resultDir, int nummax) {
 
         this.gitDir = gitDir;
         this.resultDir = resultDir;
@@ -66,7 +59,7 @@ public class GitFunctions {
         boolean success = Util.createDirectory(resultDir);
 
         if (!success) {
-            gitFunctions.trace(App.ANSI_RED + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
+            cosineSimLog.trace(App.ANSI_RED + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
         }
 
     }
@@ -80,9 +73,9 @@ public class GitFunctions {
     public List<String> run(List<String> LCEcandidate) {
 
         if (getDiffCandidates(LCEcandidate)) {
-            gitFunctions.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
+            cosineSimLog.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
         } else {
-            gitFunctions.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
+            cosineSimLog.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
         }
 
         int[] topIndex = getTopCandidatesUsingTextSim();
@@ -124,13 +117,13 @@ public class GitFunctions {
             if (BBIC_BIC_diff_File == null || BIC_BFC_diff_File == null) {
                 cosineSim = 0;     
             } else {
-
-                cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                // cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
             }
 
             scoreCandidateMap.put(i, cosineSim);
 
-            gitFunctions.trace(App.ANSI_GREEN + "  cosine score: " + i + " " + cosineSim + App.ANSI_RESET);
+            cosineSimLog.trace(App.ANSI_GREEN + "  cosine score: " + i + " " + cosineSim + App.ANSI_RESET);
 
         }
 
@@ -158,7 +151,7 @@ public class GitFunctions {
 
             topTextSimCandidates[i++] = index;
 
-            gitFunctions.trace(App.ANSI_GREEN + "[status] > selected index" + index + App.ANSI_RESET);
+            cosineSimLog.trace(App.ANSI_GREEN + "[status] > selected index" + index + App.ANSI_RESET);
 
             if (nummax == i+1) {
                 break;

@@ -82,9 +82,9 @@ public class App {
         List<String[]> stringListofCommitFile;
 
         if (textSimOrNot.equals("true") || textSimOrNot.equals("t") ) {
-            GitFunctions gitFunctions = new GitFunctions(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
+            CosineSimilarity cosineSimilarity = new CosineSimilarity(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
 
-            List<String> textSimResult = gitFunctions.run(LCEResult);
+            List<String> textSimResult = cosineSimilarity.run(LCEResult);
     
             appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
     
