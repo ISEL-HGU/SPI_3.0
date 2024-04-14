@@ -30,6 +30,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 
+import org.apache.commons.text.*;
+import org.apache.commons.text.similarity.CosineDistance;
 
 /**
  * This class provides functions to interact with a Git repository,
@@ -99,7 +101,8 @@ public class GitFunctions {
     * @return An array of integers representing the indices of the top candidates.
     */ 
      public int[] getTopCandidatesUsingTextSim() {
-    
+        
+        CosineDistance cosineDistance = new CosineDistance();
         String BBIC_BIC_diff;
         String BIC_BFC_diff;
 
@@ -122,7 +125,7 @@ public class GitFunctions {
                 cosineSim = 0;     
             } else {
 
-                cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
             }
 
             scoreCandidateMap.put(i, cosineSim);
