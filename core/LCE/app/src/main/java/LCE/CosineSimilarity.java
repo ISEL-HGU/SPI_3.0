@@ -117,8 +117,8 @@ public class CosineSimilarity {
             if (BBIC_BIC_diff_File == null || BIC_BFC_diff_File == null) {
                 cosineSim = 0;     
             } else {
-                cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
-                // cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                // cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
             }
 
             scoreCandidateMap.put(i, cosineSim);
