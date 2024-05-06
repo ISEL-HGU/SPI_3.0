@@ -418,12 +418,15 @@ def main(argv):
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
             os.mkdir(settings['SimFix']['d4j_checkout_dir'])
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
-            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + settings['SPI']['identifier'])
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower)
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
+            print("=======> ")
             checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
-            mv_command = "mv /tmp/{}_{}_buggy d4j_checkout/{}/{}_{}_buggy"
+            mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
             os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
-            os.system(mv_command.format(identifierLower, bugId, identifierLower, identifierLower, bugId))
+            os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+            # print(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+            # print(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
         if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId):
             raise RuntimeError("Module 'ConFix' launch failed.")
         return
