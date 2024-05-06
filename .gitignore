@@ -208,7 +208,7 @@ venv3/
 !core/SimFix/d4j-info/failed_tests/*/*.txt
 !core/SimFix/d4j-info/failed_tests_ori/*/*.txt
 !core/SimFix/d4j-info/src_path/*/*.txt
-!core/SimFix/d4j-info/location/*/*.txt
+!core/SimFix/d4j-info/location/*/*/*.txt
 logs/
 
 # original files saved for developing
