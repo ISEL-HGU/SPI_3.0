@@ -204,6 +204,11 @@ venv3/
 
 # text files for logging and overall inputs
 *.txt
+!core/SimFix/d4j-info/all_tests/*/*.txt
+!core/SimFix/d4j-info/failed_tests/*/*.txt
+!core/SimFix/d4j-info/failed_tests_ori/*/*.txt
+!core/SimFix/d4j-info/src_path/*/*.txt
+!core/SimFix/d4j-info/location/*/*.txt
 logs/
 
 # original files saved for developing
@@ -246,4 +251,3 @@ core/SimFix/sbfl/analysis/pipeline-scripts/buggy-lines/*.lines
 core/SimFix/sbfl/analysis/pipeline-scripts/fixed-lines/*.lines
 core/SimFix/sbfl/data/
 core/SimFix/sbfl/spectra/
-!core/SimFix/d4j_info
