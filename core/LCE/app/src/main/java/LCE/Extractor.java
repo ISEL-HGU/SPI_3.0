@@ -33,6 +33,7 @@ public class Extractor {
     private List<List<String>> cleanedCommitList = new ArrayList<>();
     private int nummax;
     private int threshold;
+    private boolean textSimOrNot;
 
     static Logger extractionLogger = LogManager.getLogger(Extractor.class.getName());
     public Extractor() {}
@@ -53,6 +54,7 @@ public class Extractor {
                 : Integer.parseInt(argv.getProperty("candidate_number")); // nummax
         threshold = argv.getProperty("threshold").equals("") ? 1000
                 : Integer.parseInt(argv.getProperty("threshold")); // threshold
+        textSimOrNot = argv.getProperty("text_sim").equals("true") ? true : false ;
     }
     
 
@@ -92,7 +94,12 @@ public class Extractor {
             }
 
             HashMap<Float, ArrayList<Integer> > simScoreMap = makeMapScoreToIndex(simScoreArray);
-            maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax, cleanedGumTreeArray);
+
+            if (textSimOrNot) {
+                maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax*3 , cleanedGumTreeArray); //TODO:magic number, need to fix
+            } else {
+                maxNumberIndexList = indexOfCandidatePatches(simScoreMap, nummax , cleanedGumTreeArray); //TODO:magic number, need to fix
+            }
             
             extractionLogger.trace(
                     App.ANSI_BLUE + "[status] max_N_index_list size = " + maxNumberIndexList.length + App.ANSI_RESET);
@@ -121,7 +128,7 @@ public class Extractor {
             /* example: [result] 113471d6457b4afa2523afc74b40be09935292d0,1925a50d860b7b8f8422f1c2f251d0ea11def736,
                 runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
                 runners/spark/src/main/java/org/apache/beam/runners/spark/translation/streaming/StreamingTransformTranslator.java,
-                https://github.com/apache/beam.git,BEAM
+                https://github.com/apache/beam.git,BEAM,(BlameLineNumber),(FixLineNumber)
             */
             extractionLogger.trace(App.ANSI_BLUE + "[result] " + sourceFiles.get(i) + App.ANSI_RESET);
         }

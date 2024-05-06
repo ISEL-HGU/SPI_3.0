@@ -82,7 +82,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
     - [Keys to change for mode `defects4j-batch`](README.md#things-to-modify-at-spiini-additionally-with-mode-defects4j-batch)
     - [Keys to change for mode `github`](README.md#things-to-modify-at-spiini-additionally-with-mode-github)
 3. You can run SPI through command below at project root directory; however at first launch or after submodule changes, you need to rebuild submodules; Add option `-r` / `--rebuild` to do so.
-> `python3 launcher.py`
+> `python3.6 launcher.py`
 4. If finished, the result of the execution will be stored within the folder inside the path set by key `byproduct_path`.
     - If "diff.txt" is found within this path, it means the patch is found.
     - Otherwise it means that there is no patch found for the buggy file.
@@ -113,21 +113,6 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |**section**|**key**|**description**|**default value**|
 |:---|:---|:---|:---|
 |`SPI`|`batch_d4j_file`|Name of the file which contains names of Defects4J bugs|`d4j-batch.txt`|
-
-#### Things to modify at `SPI.ini` additionally with mode `github`
-|**section**|**key**|**description**|**default value**|
-|:---|:---|:---|:---|
-|`SPI`|`repository_url`|URL of GitHub project to look for a patch upon|None|
-|`SPI`|`commit_id`|Commit ID of GitHub project that produces a bug|None|
-|`SPI`|`source_path`|Source directory path (relative path from project root) for parsing buggy codes|None|
-|`SPI`|`target_path`|Relative path (from project root) for compiled .class files|None|
-|`SPI`|`test_list`|List of names of test classes that a project uses|None|
-|`SPI`|`test_class_path`|Classpath for test execution. Colon(`:`)-separated.|None|
-|`SPI`|`compile_class_path`|Classpath for candidate compilation. Colon(`:`)-separated.|None|
-|`SPI`|`build_tool`|How a project is built. Only tools `maven` and `gradle` are available|None|
-|`SPI`|`faulty_file`|Relative directory (from root of project) of a faulty file.|None|
-|`SPI`|`faulty_line_fix`|Line number of `faulty_file` to try modifying.|None|
-|`SPI`|`faulty_line_blame`|Line number of `faulty file` where the bug is made.|None|
 
 #### Arguments
 - `'-r', '--rebuild'` : Rebuild all submodules (ChangeCollector, LCE) on start of execution. In default, `launcher.py` does not rebuild each submodules on execution.
@@ -198,6 +183,8 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |`d4j_project_name`|no|*automatically set by launcher through `SPI`/`identifier`*|
 |`d4j_project_num`|no|*automatically set by launcher through `SPI`/`version`*|
 |`doClean`|no|whether to clean the output directory before recurrent execution with identical output directory|
+|`threshold`|no|eliminate the vector according to length of vector|
+|`text_sim`|**yes**|automatically set by launcher|
 
 ##### **ConFix**
 |**key**|**is_required**|**description**|
@@ -226,4 +213,4 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |`max.trials`|yes|define the threshold of patch generation trial|
 |`time.budget`|yes|define the time limit of ConFix execution|
 |`fl.metric`|yes|define how Fault Localization is done. default is perfect. only required for ConFix|
-|`d4j_checkout_dir`|yes| = /home/jun4161/data2/APR/SPI_3.0/core/SimFix/d4j_checkout/
+|`d4j_checkout_dir`|yes| = /home/jun4161/data2/APR/SPI_3.0/core/SimFix/d4j_checkout
