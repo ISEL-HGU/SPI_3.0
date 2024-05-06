@@ -25,6 +25,9 @@ def parse_argv() -> tuple:
     parser.add_argument("-r", "--rebuild",  action = "store_true",
                         help = "Rebuilds all SPI submodules if enabled.")
 
+    parser.add_argument("-A", "--APR",   type = str,     default = "ConFix",
+                        help = "Tells on what APR do you want to use.")
+    
     # parser.add_argument("-q", "--quiet",    action = 'store_true',
     #                     help = "Quiet output. Suppresses INFO messages, but errors and warnings will still be printed out.")
     # parser.add_argument("-v", "--verbose",  action = 'store_true',
@@ -37,6 +40,7 @@ def parse_argv() -> tuple:
     settings.read(args.config)
 
     settings['SPI']['debug'] = str(args.debug)
+    settings['SPI']['APR'] = str(args.APR)
 
     cases = list()
     if args.debug == True:
@@ -330,6 +334,35 @@ def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.Section
     else:
         return True
 
+def compile_SimFix(java7Home: str) -> bool:
+    try:
+        command = java7Home +  "/bin/javac \
+            -d bin \
+            -cp lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/commons-io-2.5.jar:lib/dom4j-2.0.0-RC1.jar:lib/json-simple-1.1.1.jar:lib/log4j-1.2.17.jar:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:lib/org.eclipse.text-3.5.101.jar \
+            $(find src -name '*.java')"
+        subprocess.run(command, shell=True)
+
+    except Exception as e:
+        traceback.print_exc()
+        return False
+    return True
+
+def run_SimFix(java7Home: str, d4j_checkout_dir: str, projectName: str, bugId: str) -> bool:
+    try:
+        command = java7Home + "/bin/java \
+            -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 \
+            -classpath bin:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:/Users/choejunhyeog/.p2/pool/plugins/org.junit_4.13.2.v20230809-1000.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest_2.2.0.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest.core_2.2.0.v20230809-1000.jar:lib/log4j-1.2.17.jar:lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/dom4j-2.0.0-RC1.jar:lib/commons-io-2.5.jar:lib/json-simple-1.1.1.jar \
+            cofix.main.Main \
+            --proj_home=" + d4j_checkout_dir + \
+            " --proj_name=" +  projectName +  \
+            " --bug_id=" + bugId
+
+        subprocess.run(command, shell=True)
+    except Exception as e:
+        traceback.print_exc()
+        return False
+    return True
+
 #######
 # Main
 #######
@@ -373,6 +406,27 @@ def main(argv):
 
     patch_abb = {"flfreq" : "ff", "tested-first" : "tf", "noctx" : "nc", "patch" : "pt"}
     concretization_abb = {"tcvfl" : "tv", "hash-match" : "hm", "neighbor" : "nb", "tc" : "tc"}
+    if settings['SPI']['APR'] == "SimFix":
+        os.chdir('core/SimFix')
+        identifierLower = settings['SimFix']['identifier'].lower()
+        bugId = settings['SimFix']['version']
+        if settings['SPI']['rebuild']:
+            if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
+                        raise RuntimeError("Module 'ConFix' launch failed.")
+            
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'])
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + settings['SimFix']['identifier'])
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
+            checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
+            mv_command = "mv /tmp/{}_{}_buggy d4j_checkout/{}/{}_{}_buggy"
+            os.system(checkout_command.format(settings['SimFix']['identifier'], bugId, identifierLower, bugId))
+            os.system(mv_command.format(identifierLower, bugId, identifierLower, identifierLower, bugId))
+        if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId):
+            raise RuntimeError("Module 'ConFix' launch failed.")
+        return
+        
 
     for patch_strategy in patch_strategies:
         for concretization_strategy in concretization_strategies:
@@ -557,6 +611,8 @@ def main(argv):
             print(f"| SPI  | Total Elapsed Time for strategy combination '{strategy_combination}': {whole_elapsed_time}")
             print(f"| SPI  | {len(succeeded)} succeeded, {len(failed)} failed.")
 
+def check_directory_existence(directory_path):
+    return os.path.exists(directory_path) and os.path.isdir(directory_path)
     
 
 
