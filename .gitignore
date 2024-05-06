@@ -244,3 +244,4 @@ core/SimFix/bin/
 core/SimFix/sbfl/analysis/pipeline-scripts/buggy-lines/*.lines
 core/SimFix/sbfl/analysis/pipeline-scripts/fixed-lines/*.lines
 core/SimFix/sbfl/data/
+core/SimFix/sbfl/spectra/
