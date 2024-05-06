@@ -408,8 +408,8 @@ def main(argv):
     concretization_abb = {"tcvfl" : "tv", "hash-match" : "hm", "neighbor" : "nb", "tc" : "tc"}
     if settings['SPI']['APR'] == "SimFix":
         os.chdir('core/SimFix')
-        identifierLower = settings['SimFix']['identifier'].lower()
-        bugId = settings['SimFix']['version']
+        identifierLower = settings['SPI']['identifier'].lower()
+        bugId = settings['SPI']['version']
         if settings['SPI']['rebuild']:
             if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
                         raise RuntimeError("Module 'ConFix' launch failed.")
@@ -417,11 +417,11 @@ def main(argv):
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
             os.mkdir(settings['SimFix']['d4j_checkout_dir'])
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
-            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + settings['SimFix']['identifier'])
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + settings['SPI']['identifier'])
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
             checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
             mv_command = "mv /tmp/{}_{}_buggy d4j_checkout/{}/{}_{}_buggy"
-            os.system(checkout_command.format(settings['SimFix']['identifier'], bugId, identifierLower, bugId))
+            os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
             os.system(mv_command.format(identifierLower, bugId, identifierLower, identifierLower, bugId))
         if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId):
             raise RuntimeError("Module 'ConFix' launch failed.")

@@ -1,6 +1,6 @@
 <Configuration status="info">
 	<Properties>
-		<Property name="projectRoot">/home/young170/SPI_3.0</Property>
+		<Property name="projectRoot">/data2/junhyeok/APR/SPI_3.0</Property>
 	</Properties>
 
 	<Appenders>
