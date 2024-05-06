@@ -155,7 +155,7 @@ public class Repair {
 				SimpleFilter simpleFilter = new SimpleFilter(oneBuggyBlock);
 				
 				// List<Pair<CodeBlock, Double>> candidates = simpleFilter.filter(src, 0.3);
-				String SPI_candidates_path = "/data2/sechang/final_result/batch_124667_Closure-" + _subject.getId() + "/outputs/LCE/candidates/" ;
+				String SPI_candidates_path = Constant.LCE_candidates_path ;
 				List<Pair<CodeBlock, Double>> candidates = simpleFilter.filter(SPI_candidates_path, 0.3);
 				candidates.addAll(simpleFilter.filter(src, 0.3));
 				List<String> source = null;
