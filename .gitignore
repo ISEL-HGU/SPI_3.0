@@ -234,3 +234,13 @@ SPI.ini
 
 # screen log
 d4j-batch_log
+
+# d4j chekcout
+core/SimFix/d4j_checkout/
+
+core/SimFix/patch/
+core/SimFix/log/
+core/SimFix/bin/
+core/SimFix/sbfl/analysis/pipeline-scripts/buggy-lines/*.lines
+core/SimFix/sbfl/analysis/pipeline-scripts/fixed-lines/*.lines
+core/SimFix/sbfl/data/
