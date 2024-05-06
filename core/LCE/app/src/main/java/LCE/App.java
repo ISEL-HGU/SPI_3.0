@@ -71,16 +71,32 @@ public class App {
         appLogger.trace(ANSI_BLUE + "[status] > running executor..." + ANSI_RESET);
         extractor.run();
         appLogger.trace(ANSI_GREEN + "[status] > extractor ready" + ANSI_RESET);
-        List<String> result = extractor.extract();
-        appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
-
-        // preprocess the results from extractor before next step
-        List<String[]> stringListofCommitFile = commaSeperatedLineToStringArray(result);
-        appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
+        List<String> LCEResult = extractor.extract();
 
         // Pool Directory and Candidate Directory set
         String pool_dir = properties.getProperty("pool.dir");
+        String textSimPool_dir= properties.getProperty("textSimPool.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
+        String textSimOrNot = properties.getProperty("text_sim");
+
+        List<String[]> stringListofCommitFile;
+
+        if (textSimOrNot.equals("true") || textSimOrNot.equals("t") ) {
+            CosineSimilarity cosineSimilarity = new CosineSimilarity(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
+
+            List<String> textSimResult = cosineSimilarity.run(LCEResult);
+    
+            appLogger.trace(ANSI_GREEN + "[status] > extraction done" + ANSI_RESET);
+    
+            // preprocess the results from extractor before next step
+            stringListofCommitFile = commaSeperatedLineToStringArray(textSimResult);
+        } else {
+            stringListofCommitFile = commaSeperatedLineToStringArray(LCEResult);
+        }
+
+
+        appLogger.trace(ANSI_GREEN + "[status] > preprocess success" + ANSI_RESET);
+
 
         GitLoader gitLoader = new GitLoader(); // GitLoader for loading source code from git
 
@@ -158,7 +174,8 @@ public class App {
                 // System.out.println("[debug] line : " + line);
                 String[] line_split = line.split(",");
                 String[] selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
-                        line_split[4] };
+                        line_split[4], line_split[5], line_split[6] }; //BBIC, BIC, BBIC_FILE, BIC_FILE, Github_link, Project_Name
+                        //example: 567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK,87,87
                 result_split.add(selection);
             }
         } catch (Exception e) {

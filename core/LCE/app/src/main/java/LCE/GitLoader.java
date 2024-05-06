@@ -68,7 +68,7 @@ public class GitLoader {
         this.BFC = BFC;
         this.filepathBefore = filepathBefore;
         this.filepathAfter = filepathAfter;
-        this.filename = getFileNameFromPath(filepathBefore);
+        this.filename = Util.getFileNameFromPath(filepathBefore);
         this.d4jProjectName = d4jName;
         this.d4jProjectNum = d4jNum;
     }
@@ -124,16 +124,6 @@ public class GitLoader {
         return url_split[url_split.length - 1];
     }
 
-    /**
-     * Extracts the file name from a given file path.
-     *
-     * @param filePath The file path.
-     * @return The file name extracted from the path.
-     */
-    private String getFileNameFromPath(String pathPath) {
-        String[] splittedPatchPath = pathPath.split("/");
-        return splittedPatchPath[splittedPatchPath.length - 1];
-    }
 
     /**
      * Prints debug information about the GitLoader configuration to the logging system.

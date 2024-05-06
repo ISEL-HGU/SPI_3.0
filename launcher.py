@@ -24,6 +24,8 @@ def parse_argv() -> tuple:
 
     parser.add_argument("-r", "--rebuild",  action = "store_true",
                         help = "Rebuilds all SPI submodules if enabled.")
+    
+    parser.add_argument("-t","--textsim", action = "store_true", help = "On and Off options to use text sim or not")
 
     # parser.add_argument("-q", "--quiet",    action = 'store_true',
     #                     help = "Quiet output. Suppresses INFO messages, but errors and warnings will still be printed out.")
@@ -88,6 +90,13 @@ def parse_argv() -> tuple:
     # settings['verbose'] = args.verbose
     # settings['quiet'] = False if args.verbose else args.quiet # suppresses quiet option if verbose option is given
     settings['SPI']['rebuild'] = str(args.rebuild)
+    
+    
+    if args.textsim == True:
+        settings['LCE']['text_sim'] = "true"
+    else:
+        settings['LCE']['text_sim'] = "false"
+
 
     return (cases, settings)
 
@@ -225,6 +234,7 @@ def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProx
         prop_CC['output_dir'] = conf_SPI['byproduct_path']
         prop_CC['JAVA_HOME.8'] = conf_SPI['JAVA_HOME_8']
 
+       
         # Explicitly tell 'target'
         # prop_CC['mode'] = case['mode']
         prop_CC['mode'] = 'defects4j'
@@ -271,6 +281,7 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")
 
         prop_LCE['pool.dir'] = conf_SPI['stored_pool_dir']
+        prop_LCE['textSimPool.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "result")
         prop_LCE['candidates.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "candidates")
 
         prop_LCE['d4j_project_name'] = case['identifier']
