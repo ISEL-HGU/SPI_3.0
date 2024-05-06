@@ -411,9 +411,10 @@ def main(argv):
         identifierLower = settings['SPI']['identifier'].lower()
         bugId = settings['SPI']['version']
         if settings['SPI']['rebuild']:
+            if not check_directory_existence("bin"):
+                os.mkdir("bin")
             if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
-                        raise RuntimeError("Module 'ConFix' launch failed.")
-            
+                        raise RuntimeError("Module 'ConFix' launch failed.")    
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
             os.mkdir(settings['SimFix']['d4j_checkout_dir'])
         if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
