@@ -169,6 +169,7 @@ fabric.properties
 !core/confix/ConFix-code/lib/org.jacoco.core-0.7.7.201606060606.jar
 !core/confix/ConFix-code/lib/jacocoagent.jar
 !core/confix/ConFix-code/lib/jcodelib.jar
+!core/SimFix/lib/*.jar
 *.war
 *.nar
 *.ear
@@ -245,3 +246,4 @@ core/SimFix/sbfl/analysis/pipeline-scripts/buggy-lines/*.lines
 core/SimFix/sbfl/analysis/pipeline-scripts/fixed-lines/*.lines
 core/SimFix/sbfl/data/
 core/SimFix/sbfl/spectra/
+!core/SimFix/d4j_info
