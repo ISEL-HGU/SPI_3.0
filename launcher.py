@@ -30,6 +30,8 @@ def parse_argv() -> tuple:
     parser.add_argument("-A", "--APR",   type = str,     default = "ConFix",
                         help = "Tells on what APR do you want to use.")
     
+    parser.add_argument("-p", "--pool", type = str, default = None, help="Use Predefined Patches")
+    
     # parser.add_argument("-q", "--quiet",    action = 'store_true',
     #                     help = "Quiet output. Suppresses INFO messages, but errors and warnings will still be printed out.")
     # parser.add_argument("-v", "--verbose",  action = 'store_true',
@@ -95,6 +97,10 @@ def parse_argv() -> tuple:
     # settings['quiet'] = False if args.verbose else args.quiet # suppresses quiet option if verbose option is given
     settings['SPI']['rebuild'] = str(args.rebuild)
     
+    if args.pool is not None:
+        settings['SPI']['with_predefined_pool'] = str(args.pool)
+    else:
+        settings['SPI']['with_predefined_pool'] = "False"
     
     if args.textsim == True:
         settings['LCE']['text_sim'] = "true"
@@ -227,6 +233,27 @@ def rebuild_all(SPI_root : str, JDK8_HOME : str):
 #######
 # Module launcher
 #######
+    
+def run_Pool_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_LCE : configparser.SectionProxy, path) -> bool:
+    try:
+        
+        prop_LCE = jproperties.Properties()
+        
+        prop_LCE['pool.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "result")
+        prop_LCE['candidates.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "candidates")
+        
+        os.makedirs(prop_LCE['pool.dir'].data)
+        os.makedirs(prop_LCE['candidates.dir'].data)
+        
+        for file in os.listdir(path):
+            print(file)
+            shutil.copy(os.path.join(path, file), os.path.join(case['target_dir'], "outputs", "LCE", "candidates"))
+        
+    except Exception as e:
+        traceback.print_exc()
+        return False
+    else:
+        return True
 
 def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_CC : configparser.SectionProxy) -> bool:
     try:
@@ -536,14 +563,20 @@ def main(argv):
                     outfile.write(f"       > Started at {each_start.strftime('%Y-%m-%d %H:%M:%S')}.\n")
 
                 try:
-                    if case['iteration'] == 1 or case['is_ConFix_ready'] == False:
-                        print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
-                        if not run_CC(case, is_defects4j, settings['SPI'], settings['CC']):
-                            raise RuntimeError("Module 'Change Collector' launch failed.")
+                    if case['iteration'] == 1 or case['is_ConFix_ready'] == False: #execute CC and LCE
+                    
+                        if settings['SPI']['with_predefined_pool'] == "False":
 
-                        print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
-                        if not run_LCE(case, is_defects4j, settings['SPI'], settings['LCE']):
-                            raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
+                            print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
+                            if not run_CC(case, is_defects4j, settings['SPI'], settings['CC']):
+                                raise RuntimeError("Module 'Change Collector' launch failed.")
+
+                            print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
+                            if not run_LCE(case, is_defects4j, settings['SPI'], settings['LCE']):
+                                raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
+                        else:
+                            if not run_Pool_LCE(case, is_defects4j, settings['SPI'], settings['LCE'], settings['SPI']['with_predefined_pool']): #because it has one more directory
+                                raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
 
                         case['is_ConFix_ready'] = True # Mark it True if those two CC and LCE has succeede in launch.
                     else:
