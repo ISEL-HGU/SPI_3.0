@@ -23,8 +23,9 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 ---
 
 ## Submodules (Projects included)
-**SPI = CC + LCE + ConFix**
+**SPI = CC + LCE + APR(ConFix or SimFix)**
 - [ConFix](https://github.com/thwak/confix) (Original Repository of ConFix)
+- [SimFix](https://github.com/xgdsmileboy/SimFix) (Original Repository of SimFix)
 - [ChangeCollector (CC)](https://github.com/ISEL-HGU/ChangeCollector)
 - [Longest Common sub-vector Extractor (LCE)](https://github.com/S0rrow/LCE)
 
@@ -36,6 +37,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 - JDK**s**
     - Oracle JDK 17 (Used to compile `ChangeCollector` and `Longest Common sub-vector Extractor`)
     - Oracle JDK 8 (Used by Defects4J)
+    - Oracle JDK 7 (Used by SimFix)
 - [Defects4J](https://github.com/rjust/defects4j)
     - See [requirements](https://github.com/rjust/defects4j#requirements)
 - Python
@@ -50,6 +52,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
     - [SDKMAN!](https://sdkman.io/)
         - JDK 17 : Used to compile `ChangeCollector` and `Longest Common sub-vector Extractor`
         - JDK 8 : Used by Defects4J Framework
+        - JDK 8 : Used by SimFix
         - Maven : Used by ConFix
         - Gradle : Used by `ChangeCollector`,`Longest Common sub-vector Extractor` and Defects4J Framework
 
@@ -89,6 +92,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |:---|:---|:---|:---|
 |`SPI`|`mode`|How `SPI` will be run. Can choose among those options:<br>- `defects4j` : Tells `SPI` to try finding a patch out of a `Defects4J` bug.<br>- `defects4j-batch` : Tells `SPI` to try finding a patch out of a `Defects4J` bug, but with a number of bugs given as a list.<br>- `github` : *Currently not fully implemented.* Tells `SPI` to try finding a patch out of a `GitHub` project with a bug.|-
 |`SPI`|`JAVA_HOME_8`|Absolute path of JDK 8|None, *Should be specified*|
+|`SPI`|`JAVA_HOME_7`|Absolute path of JDK 7|None, *Should be specified*|
 |`SPI`|`byproduct_path`|Directory which files and folders made during the progress of `SPI` should be stored into.|`{SPI_root_directory}/byproducts`|
 |`SPI`|`root`|Directory where `SPI` root directory is placed.|.|
 |`SPI`|`patch_strategy`|List of patch strategies (among `flfreq`, `tested-first`, `noctx`, `patch`) to run `SPI` with. Comma-separated.|`flfreq`|
@@ -128,6 +132,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 #### Arguments
 - `'-r', '--rebuild'` : Rebuild all submodules (ChangeCollector, LCE) on start of execution. In default, `launcher.py` does not rebuild each submodules on execution.
 - `'-d', '--debug'` : Execute single Defects4J project, `Closure-14` for testing a cycle of execution. Debug uses `flfreq` and `hash-match` strategies. SPI consists of three Java projects as submodules. Thus you may need to check if there is no compile error or wrong paths given through debug execution. If no problem occurs, you are clear to launch.
+- `'-A', '--APR'` : Choose APR tool between `ConFix` and `SimFix`. Default APR tool is `ConFix`.
 
 ### Upon Execution...
 #### "Notify me by Email"
@@ -157,6 +162,7 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |`faulty_line_fix`|In mode `github`|Line number of `faulty_file` to try modifying. *Automatically set when running `SPI` in mode `defects4j` / `defects4j-batch`*|
 |`faulty_line_blame`|In mode `github`|Line number of `faulty file` where the bug is made. *Automatically set when running `SPI` in mode `defects4j` / `defects4j-batch`*|
 |`JAVA_HOME_8`|**Yes**|Absolute path of JDK 8. Necessary to build and compile ConFix.|
+|`JAVA_HOME_7`|**Yes**|Absolute path of JDK 7. Necessary to build and compile SimFix.|
 |`byproduct_path`|No|Directory which files and folders made during the progress of `SPI` should be stored into. *Will make folder `byproducts` inside `root` by default.*|
 |`root`|No|Directory where `SPI` root directory is placed.|
 |`patch_strategy`|No|List of patch strategies (among `flfreq`, `tested-first`, `noctx`, `patch`) to run `SPI` with. Comma-separated.|
@@ -207,3 +213,17 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 |`patch.strategy`|no|*automatically set by launcher*|
 |`concretize.strategy`|no|*automatically set by launcher*|
 |`fl.metric`|yes|define how Fault Localization is done. default is perfect. only required for ConFix|
+
+##### **SimFix**
+|**key**|**is_required**|**description**|
+|:---|:---:|:---|
+|`jvm`|yes|*automatically set by launcher through `SPI`/`JAVA_HOME_8`*|
+|`version`|no|Version of JDK. *automatically set by launcher*|
+|`pool.path`|no|*automatically set by launcher*|
+|`cp.lib`|no|*automatically set by launcher*|
+|`patch.count`|yes|define the patch generation trial count. default is 200000|
+|`max.change.count`|yes|define the threshold of number of changes to use as patch material|
+|`max.trials`|yes|define the threshold of patch generation trial|
+|`time.budget`|yes|define the time limit of ConFix execution|
+|`fl.metric`|yes|define how Fault Localization is done. default is perfect. only required for ConFix|
+|`d4j_checkout_dir`|yes| = /home/jun4161/data2/APR/SPI_3.0/core/SimFix/d4j_checkout/
