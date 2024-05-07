@@ -13,6 +13,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import cofix.common.config.Constant;
 
 /**
  * @author Jiajun
@@ -26,6 +29,9 @@ public class Executor {
 		final List<String> message = new ArrayList<String>();
 		try {
 			ProcessBuilder builder = new ProcessBuilder(command);
+			Map<String, String> env = builder.environment();
+        	env.put("JAVA_HOME", Constant.JAVA_HOME_8);
+
 			builder.redirectErrorStream(true);
 			process = builder.start();
 			final InputStream inputStream = process.getInputStream();

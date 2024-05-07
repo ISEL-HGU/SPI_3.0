@@ -345,9 +345,9 @@ def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.Section
     else:
         return True
 
-def compile_SimFix(java7Home: str) -> bool:
+def compile_SimFix(JAVA_Home_7: str) -> bool:
     try:
-        command = java7Home +  "/bin/javac \
+        command = JAVA_Home_7 +  "/bin/javac \
             -d bin \
             -cp lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/commons-io-2.5.jar:lib/dom4j-2.0.0-RC1.jar:lib/json-simple-1.1.1.jar:lib/log4j-1.2.17.jar:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:lib/org.eclipse.text-3.5.101.jar \
             $(find src -name '*.java')"
@@ -358,15 +358,17 @@ def compile_SimFix(java7Home: str) -> bool:
         return False
     return True
 
-def run_SimFix(java7Home: str, d4j_checkout_dir: str, projectName: str, bugId: str) -> bool:
+def run_SimFix(JAVA_HOME_7: str, JAVA_HOME_8: str, d4j_checkout_dir: str, projectName: str, bugId: str, LCE_candidates_path: str) -> bool:
     try:
-        command = java7Home + "/bin/java \
+        command = JAVA_HOME_7 + "/bin/java \
             -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 \
             -classpath bin:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:/Users/choejunhyeog/.p2/pool/plugins/org.junit_4.13.2.v20230809-1000.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest_2.2.0.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest.core_2.2.0.v20230809-1000.jar:lib/log4j-1.2.17.jar:lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/dom4j-2.0.0-RC1.jar:lib/commons-io-2.5.jar:lib/json-simple-1.1.1.jar \
             cofix.main.Main \
             --proj_home=" + d4j_checkout_dir + \
             " --proj_name=" +  projectName +  \
-            " --bug_id=" + bugId
+            " --bug_id=" + bugId + \
+            " --LCE_candidates_path=" + LCE_candidates_path + \
+            " --JAVA_HOME_8=" + JAVA_HOME_8
 
         subprocess.run(command, shell=True)
     except Exception as e:
@@ -417,30 +419,32 @@ def main(argv):
 
     patch_abb = {"flfreq" : "ff", "tested-first" : "tf", "noctx" : "nc", "patch" : "pt"}
     concretization_abb = {"tcvfl" : "tv", "hash-match" : "hm", "neighbor" : "nb", "tc" : "tc"}
-    if settings['SPI']['APR'] == "SimFix":
-        os.chdir('core/SimFix')
-        identifierLower = settings['SPI']['identifier'].lower()
-        bugId = settings['SPI']['version']
-        if settings['SPI']['rebuild']:
-            if not check_directory_existence("bin"):
-                os.mkdir("bin")
-            if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
-                        raise RuntimeError("Module 'ConFix' launch failed.")    
-        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
-            os.mkdir(settings['SimFix']['d4j_checkout_dir'])
-        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
-            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower)
-        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
-            print("=======> ")
-            checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
-            mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
-            os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
-            os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
-            # print(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
-            # print(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
-        if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId):
-            raise RuntimeError("Module 'ConFix' launch failed.")
-        return
+
+    # if settings['SPI']['APR'] == "SimFix":
+    #     os.chdir('core/SimFix')
+    #     identifierLower = settings['SPI']['identifier'].lower()
+    #     bugId = settings['SPI']['version']
+    #     if settings['SPI']['rebuild']:
+    #         if not check_directory_existence("bin"):
+    #             os.mkdir("bin")
+    #         if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
+    #             raise RuntimeError("Module 'ConFix' launch failed.")    
+            
+    #     if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
+    #         os.mkdir(settings['SimFix']['d4j_checkout_dir'])
+    #     if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
+    #         os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower)
+    #     if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
+    #         print("=======> ")
+    #         checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
+    #         mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
+    #         os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+    #         os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+    #         # print(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+    #         # print(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+    #     if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId):
+    #         raise RuntimeError("Module 'ConFix' launch failed.")
+    #     return
         
 
     for patch_strategy in patch_strategies:
@@ -544,11 +548,39 @@ def main(argv):
                         print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
                         if not run_LCE(case, is_defects4j, settings['SPI'], settings['LCE']):
                             raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
-
                         case['is_ConFix_ready'] = True # Mark it True if those two CC and LCE has succeede in launch.
                     else:
                         print(f"| SPI  |    > {cursor_str} | Step 1 and Step 2 skipped.")
 
+                    print(f"| SPI  |    > {cursor_str} / Step 3. Running SimFix...")
+                    if settings['SPI']['APR'] == "SimFix":
+                        os.chdir('core/SimFix')
+                        identifierLower = settings['SPI']['identifier'].lower()
+                        bugId = settings['SPI']['version']
+                        if settings['SPI']['rebuild']:
+                            if not check_directory_existence("bin"):
+                                os.mkdir("bin")
+                            if not compile_SimFix(settings['SPI']['JAVA_HOME_7']):
+                                raise RuntimeError("Module 'ConFix' launch failed.")    
+                            
+                        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
+                            os.mkdir(settings['SimFix']['d4j_checkout_dir'])
+                        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
+                            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower)
+                        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
+                            
+                            checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
+                            mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
+                            os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+                            os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+                            # print(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+                            # print(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+
+                        LCE_candidates_path = case['target_dir'] + '/outputs/LCE/candidates'
+                        if not run_SimFix(settings['SPI']['JAVA_HOME_7'], settings['SPI']['JAVA_HOME_8'], settings['SimFix']['d4j_checkout_dir'], identifierLower, bugId, LCE_candidates_path):
+                            raise RuntimeError("Module 'ConFix' launch failed.")
+                        return
+                    
                     print(f"| SPI  |    > {cursor_str} / Step 3. Running ConFix...")
                     if not run_ConFix(case, is_defects4j, settings['SPI'], settings['ConFix']):
                         raise RuntimeError("Module 'ConFix' launch failed.")
