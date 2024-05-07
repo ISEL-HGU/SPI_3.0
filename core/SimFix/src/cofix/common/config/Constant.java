@@ -48,5 +48,6 @@ public class Constant {
 	public static String COMMAND_TIMEOUT = "/usr/bin/timeout ";
 	public static String COMMAND_D4J = null;
 	
-
+	public static String LCE_candidates_path;
+	public static String JAVA_HOME_8;
 }

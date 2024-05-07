@@ -119,6 +119,8 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 - `'-d', '--debug'` : Execute single Defects4J project, `Closure-14` for testing a cycle of execution. Debug uses `flfreq` and `hash-match` strategies. SPI consists of three Java projects as submodules. Thus you may need to check if there is no compile error or wrong paths given through debug execution. If no problem occurs, you are clear to launch.
 - `'-A', '--APR'` : Choose APR tool between `ConFix` and `SimFix`. Default APR tool is `ConFix`.
 - `'-p', '--pool'` : Optional, you can provide patches directly being used for ConFix. Patches should be a form of #_new.java. The number should be consecutive.
+- `'-t', '--textsim'` : Use Cosine Text Similarity to extract patches. It extracts 3 * candidate numbers using LCE and top candidate numbers using cosine similarity. 
+
 
 ### Upon Execution...
 #### "Notify me by Email"

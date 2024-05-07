@@ -183,6 +183,10 @@ public class Main {
 						idSet.add(id);
 					}
 				}
+			} else if(args[i].startsWith("--LCE_candidates_path=")) {
+				Constant.LCE_candidates_path = args[i].substring("--LCE_candidates_path=".length());
+			} else if(args[i].startsWith("--JAVA_HOME_8=")) {
+				Constant.JAVA_HOME_8 = args[i].substring("--JAVA_HOME_8=".length());
 			}
 		}
 		options.setFirst(projName);
