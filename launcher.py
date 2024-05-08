@@ -242,7 +242,10 @@ def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : confi
        
         # Explicitly tell 'target'
         prop_CC['mode'] = conf_SPI['mode']
-        # prop_CC['mode'] = 'defects4j'
+    
+        if conf_SPI['mode'] == 'defects4j-batch':
+            prop_CC['mode'] = 'defects4j'
+        
         prop_CC['hash_id'] = case['hash_id']
         if is_defects4j == True or is_vjbench == True:
             prop_CC['benchmark_name'] = case['identifier']
