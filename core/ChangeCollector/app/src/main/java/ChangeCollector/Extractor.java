@@ -151,9 +151,9 @@ public class Extractor {
 
                 Run.initGenerators();
                 // create bic and bbic java files
-                String src_byte = get_source(repository, commitBIC.getName(), pathBIC, "BIC.java", repo_name,
+                String src_byte = get_source(repository, commitBBIC.getName(), pathBBIC, "BBIC.java", repo_name,
                         output_dir);
-                String dst_byte = get_source(repository, commitBBIC.getName(), pathBBIC, "BBIC.java", repo_name,
+                String dst_byte = get_source(repository, commitBIC.getName(), pathBIC, "BIC.java", repo_name,
                         output_dir);
 
                 Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot();

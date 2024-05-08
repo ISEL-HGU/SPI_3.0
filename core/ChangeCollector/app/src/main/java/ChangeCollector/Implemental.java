@@ -29,7 +29,7 @@ public class Implemental {
     // if configured or not
     public boolean config_ready = false;
     // Defects4J bug information
-    public boolean d4j_ready = false;
+    public boolean bench_ready = false;
     public String faultyProject;
     public String faultyPath;
     public Integer faultyLineBlame;
@@ -140,6 +140,34 @@ public class Implemental {
         return last_exit_code == 0;
     }
 
+    public boolean parseBugsInfo(String repository_path) {
+        String project_dir = String.format("%s/%s", workspace_dir, name);
+        String info = String.format("%s/components/commit_collector/VJBench_bugs_info/%s.csv", project_root,
+                name);
+        try {
+            CSVReader reader = new CSVReader(new FileReader(info));
+            String[] nextLine;
+            while ((nextLine = reader.readNext()) != null) {
+		        logger.info(nextLine[0]);
+                if (nextLine[0].startsWith("VJBench"))
+                    continue;
+                if (Integer.parseInt(nextLine[0]) == identifier) {
+                    faultyProject = String.format("%s/%s", repository_path, name);
+                    faultyPath = nextLine[1];
+                    faultyLineBlame = Integer.parseInt(nextLine[2]);
+                    faultyLineFix = Integer.parseInt(nextLine[3]);
+                    bench_ready = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            logger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
+            return false;
+        }
+
+	    return bench_ready;
+    }
+
     /**
      * Parses the information of the given Defects4J bug with the provided name and identifier.
      *
@@ -160,7 +188,7 @@ public class Implemental {
                     faultyPath = nextLine[1];
                     faultyLineBlame = Integer.parseInt(nextLine[2]);
                     faultyLineFix = Integer.parseInt(nextLine[3]);
-                    d4j_ready = true;
+                    bench_ready = true;
                     break;
                 }
             }
@@ -168,6 +196,6 @@ public class Implemental {
             logger.error(App.ANSI_RED + "[error] > Exception : " + e.getMessage() + App.ANSI_RESET);
             return false;
         }
-        return d4j_ready;
+        return bench_ready;
     }
 }

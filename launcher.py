@@ -74,7 +74,7 @@ def parse_argv() -> tuple:
                     cases[-1]['iteration'] = 0
                     cases[-1]['is_ConFix_ready'] = False
                 
-        elif settings['SPI']['mode'] == 'vul4j':
+        elif settings['SPI']['mode'] == 'vjbench':
             cases.append(dict())
             cases[-1]['identifier'] = settings['SPI']['identifier']
             cases[-1]['version'] = settings['SPI']['version']
@@ -255,7 +255,7 @@ def run_Pool_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.Secti
     else:
         return True
 
-def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_CC : configparser.SectionProxy) -> bool:
+def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : configparser.SectionProxy, conf_CC : configparser.SectionProxy) -> bool:
     try:
         # copy .properties file
         prop_CC = jproperties.Properties()
@@ -264,15 +264,19 @@ def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProx
         prop_CC['project_root'] = conf_SPI['root']
         prop_CC['output_dir'] = conf_SPI['byproduct_path']
         prop_CC['JAVA_HOME.8'] = conf_SPI['JAVA_HOME_8']
+        prop_CC['repository_path'] = conf_SPI['repository_path']
 
        
         # Explicitly tell 'target'
-        # prop_CC['mode'] = case['mode']
-        prop_CC['mode'] = 'defects4j'
+        prop_CC['mode'] = conf_SPI['mode']
+    
+        if conf_SPI['mode'] == 'defects4j-batch':
+            prop_CC['mode'] = 'defects4j'
+        
         prop_CC['hash_id'] = case['hash_id']
-        if is_defects4j == True:
-            prop_CC['defects4j_name'] = case['identifier']
-            prop_CC['defects4j_id'] = case['version']
+        if is_defects4j == True or is_vjbench == True:
+            prop_CC['benchmark_name'] = case['identifier']
+            prop_CC['benchmark_id'] = case['version']
         else:
             if prop_CC['mode'] == "file":
                 pass
@@ -332,7 +336,7 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
     else:
         return True
 
-def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_ConFix : configparser.SectionProxy) -> bool:
+def run_ConFix(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : configparser.SectionProxy, conf_ConFix : configparser.SectionProxy) -> bool:
     try:
         conf_runner = configparser.ConfigParser()
         conf_runner.optionxform = str
@@ -358,6 +362,8 @@ def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.Section
 
         if is_defects4j == True:
             subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-d", "true", "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
+        elif is_vjbench == True:
+            subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-v", "true", "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
         else:
             subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
         # with open(os.path.join(case['target_dir'], "logs", "ConFix_runner.log"), "w") as f:
@@ -418,7 +424,7 @@ def main(argv):
 
     
     is_defects4j = settings['SPI']['mode'] in ("defects4j", "defects4j-batch")
-    is_vul4j = settings['SPI']['mode'] == 'vul4j'
+    is_vjbench = settings['SPI']['mode'] == 'vjbench'
     is_rebuild_required = (settings['SPI']['rebuild'] == "True")
 
 
@@ -541,13 +547,13 @@ def main(argv):
                                 settings['SPI']['faulty_line_fix'] = row['fix faulty line']
                                 settings['SPI']['faulty_line_blame'] = row['blame faulty line']
                                 break
-                elif is_vul4j:
+                elif is_vjbench:
                     settings['SPI']['identifier'] = case['identifier']
                     settings['SPI']['version'] = case['version']
-                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "Vul4J_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
+                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "VJBench_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
                         reader = csv.DictReader(d4j_meta_file)
                         for row in reader:
-                            if int(row['Vul4J ID']) == int(case['version']):
+                            if int(row['VJBench ID']) == int(case['version']):
                                 settings['SPI']['faulty_file'] = row['Faulty file path']
                                 settings['SPI']['faulty_line_fix'] = row['fix faulty line']
                                 settings['SPI']['faulty_line_blame'] = row['blame faulty line']
@@ -567,7 +573,6 @@ def main(argv):
                     outfile.write(f"       > Started at {each_start.strftime('%Y-%m-%d %H:%M:%S')}.\n")
 
                 try:
-
                     if case['iteration'] == 1 or case['is_ConFix_ready'] == False: #execute CC and LCE
                     
                         if settings['SPI']['with_predefined_pool'] == "False":
@@ -582,7 +587,7 @@ def main(argv):
                         else:
                             if not run_Pool_LCE(case, is_defects4j, settings['SPI'], settings['LCE'], settings['SPI']['with_predefined_pool']): #because it has one more directory
                                 raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
-                                
+                  
                         case['is_ConFix_ready'] = True # Mark it True if those two CC and LCE has succeede in launch.
                     else:
                         print(f"| SPI  |    > {cursor_str} | Step 1 and Step 2 skipped.")
@@ -617,7 +622,7 @@ def main(argv):
                         return
                     
                     print(f"| SPI  |    > {cursor_str} / Step 3. Running ConFix...")
-                    if not run_ConFix(case, is_defects4j, settings['SPI'], settings['ConFix']):
+                    if not run_ConFix(case, is_defects4j, is_vjbench, settings['SPI'], settings['ConFix']):
                         raise RuntimeError("Module 'ConFix' launch failed.")
 
 
