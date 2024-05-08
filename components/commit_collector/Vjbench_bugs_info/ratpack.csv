@@ -1,0 +1,2 @@
+VJBench ID,Faulty file path,fix faulty line,blame faulty line
+1,ratpack-core/src/main/java/ratpack/server/internal/NettyHandlerAdapter.java,159,159

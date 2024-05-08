@@ -1,0 +1,2 @@
+VJBench ID,Faulty file path,fix faulty line,blame faulty line
+1,core/src/main/java/com/opensymphony/xwork2/validator/validators/URLValidator.java,84,84
