@@ -41,6 +41,7 @@ public class App {
     private String commit_id;
     private String git_name;
     private String git_url;
+    private String repository_path;
     private String output_dir;
     private String workspace_dir;
     private boolean doClean;
@@ -75,6 +76,7 @@ public class App {
         commit_id = properties.getProperty("commit_id"); // commit id to extract change vector from
         git_name = properties.getProperty("git_name"); // repository name : unnecessary if url is given
         git_url = properties.getProperty("git_url"); // repository url
+        repository_path = properties.getProperty("repository_path"); // repository url
         output_dir = properties.getProperty("output_dir"); // output directory
         doClean = properties.getProperty("doClean").equals("true"); // a boolean trigger to determine whether to
                                                                             // clean output directory or not
@@ -212,7 +214,7 @@ public class App {
             logger.fatal(ANSI_RED + "[fatal] > Failed to parse defects4j" + ANSI_RESET);
             System.exit(1);
         }
-        if (implemental.d4j_ready) {
+        if (implemental.bench_ready) {
             cid_set = gitFunctions.blame(implemental.faultyProject, implemental.faultyPath,
                     implemental.faultyLineBlame,
                     implemental.faultyLineFix);
@@ -282,7 +284,9 @@ public class App {
         logger.info(ANSI_GREEN + "[info] > Successfully extracted change vector" + ANSI_RESET);
     }
 
-
+    /**
+     * Executes the change vector collection process for VJBench bugs.
+     */
     private void vjbenchChangeCollect() {
         String[] cid_set = new String[2]; // [0] old cid [1] new cid
 
@@ -307,11 +311,11 @@ public class App {
         //     System.exit(1);
         // }
 
-        if (!implemental.parseBugsInfo()) {
+        if (!implemental.parseBugsInfo(repository_path)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to parse vjbench" + ANSI_RESET);
             System.exit(1);
         }
-        if (implemental.vjbench_ready) {
+        if (implemental.bench_ready) {
             cid_set = gitFunctions.blame(implemental.faultyProject, implemental.faultyPath,
                     implemental.faultyLineBlame,
                     implemental.faultyLineFix);

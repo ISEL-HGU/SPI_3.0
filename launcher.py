@@ -237,6 +237,7 @@ def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : confi
         prop_CC['project_root'] = conf_SPI['root']
         prop_CC['output_dir'] = conf_SPI['byproduct_path']
         prop_CC['JAVA_HOME.8'] = conf_SPI['JAVA_HOME_8']
+        prop_CC['repository_path'] = conf_SPI['repository_path']
 
        
         # Explicitly tell 'target'
