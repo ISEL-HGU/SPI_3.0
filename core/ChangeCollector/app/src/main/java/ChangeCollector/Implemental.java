@@ -142,7 +142,7 @@ public class Implemental {
 
     public boolean parseBugsInfo(String repository_path) {
         String project_dir = String.format("%s/%s", workspace_dir, name);
-        String info = String.format("%s/components/commit_collector/Vjbench_bugs_info/%s.csv", project_root,
+        String info = String.format("%s/components/commit_collector/VJBench_bugs_info/%s.csv", project_root,
                 name);
         try {
             CSVReader reader = new CSVReader(new FileReader(info));
