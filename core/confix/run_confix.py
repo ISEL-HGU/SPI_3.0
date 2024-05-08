@@ -17,7 +17,7 @@ def copy(source, destination):
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv[1:], "d:i:h:f:", ["defects4J", "input", "hash"])
+        opts, args = getopt.getopt(argv[1:], "d:v:i:h:f:", ["defects4J", "vjbench", "input", "hash"])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
