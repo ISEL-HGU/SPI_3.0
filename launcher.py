@@ -72,7 +72,7 @@ def parse_argv() -> tuple:
                     cases[-1]['iteration'] = 0
                     cases[-1]['is_ConFix_ready'] = False
                 
-        elif settings['SPI']['mode'] == 'vul4j':
+        elif settings['SPI']['mode'] == 'vjbench':
             cases.append(dict())
             cases[-1]['identifier'] = settings['SPI']['identifier']
             cases[-1]['version'] = settings['SPI']['version']
@@ -228,7 +228,7 @@ def rebuild_all(SPI_root : str, JDK8_HOME : str):
 # Module launcher
 #######
 
-def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_CC : configparser.SectionProxy) -> bool:
+def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : configparser.SectionProxy, conf_CC : configparser.SectionProxy) -> bool:
     try:
         # copy .properties file
         prop_CC = jproperties.Properties()
@@ -240,12 +240,12 @@ def run_CC(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProx
 
        
         # Explicitly tell 'target'
-        # prop_CC['mode'] = case['mode']
-        prop_CC['mode'] = 'defects4j'
+        prop_CC['mode'] = case['mode']
+        # prop_CC['mode'] = 'defects4j'
         prop_CC['hash_id'] = case['hash_id']
-        if is_defects4j == True:
-            prop_CC['defects4j_name'] = case['identifier']
-            prop_CC['defects4j_id'] = case['version']
+        if is_defects4j == True or is_vjbench == True:
+            prop_CC['benchmark_name'] = case['identifier']
+            prop_CC['benchmark_id'] = case['version']
         else:
             if prop_CC['mode'] == "file":
                 pass
@@ -391,7 +391,7 @@ def main(argv):
 
     
     is_defects4j = settings['SPI']['mode'] in ("defects4j", "defects4j-batch")
-    is_vul4j = settings['SPI']['mode'] == 'vul4j'
+    is_vjbench = settings['SPI']['mode'] == 'vjbench'
     is_rebuild_required = (settings['SPI']['rebuild'] == "True")
 
 
@@ -514,13 +514,13 @@ def main(argv):
                                 settings['SPI']['faulty_line_fix'] = row['fix faulty line']
                                 settings['SPI']['faulty_line_blame'] = row['blame faulty line']
                                 break
-                elif is_vul4j:
+                elif is_vjbench:
                     settings['SPI']['identifier'] = case['identifier']
                     settings['SPI']['version'] = case['version']
-                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "Vul4J_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
+                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "VJBench_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
                         reader = csv.DictReader(d4j_meta_file)
                         for row in reader:
-                            if int(row['Vul4J ID']) == int(case['version']):
+                            if int(row['VJBench ID']) == int(case['version']):
                                 settings['SPI']['faulty_file'] = row['Faulty file path']
                                 settings['SPI']['faulty_line_fix'] = row['fix faulty line']
                                 settings['SPI']['faulty_line_blame'] = row['blame faulty line']
@@ -542,7 +542,7 @@ def main(argv):
                 try:
                     if case['iteration'] == 1 or case['is_ConFix_ready'] == False:
                         print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
-                        if not run_CC(case, is_defects4j, settings['SPI'], settings['CC']):
+                        if not run_CC(case, is_defects4j, is_vjbench, settings['SPI'], settings['CC']):
                             raise RuntimeError("Module 'Change Collector' launch failed.")
 
                         print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
