@@ -22,11 +22,14 @@ def main(argv):
         print(err)
         sys.exit(2)
     is_defects4j = False
+    is_vjbench = False
     hash_id = ""
     project_info_file = ""
     for o, a in opts:
         if o in ("-d", "--defects4J"):
             is_defects4j = True
+        elif o in ("-v", "--vjbench"):
+            is_vjbench = True
         elif o in ("-h", "--hash"):
             hash_id = a
         elif o in ("-f", "--file"): # Required.
@@ -102,6 +105,55 @@ def main(argv):
         else:
             print("| ConFix-runner    | Pre-launch configuration finished.")
         
+    elif is_vjbench == True:
+        # sourcePath = project_info['Project']['source_path']
+        # targetPath = project_info['Project']['target_path']
+        # testList = project_info['Project']['test_list']
+        # testClassPath = project_info['Project']['test_class_path']
+        # compileClassPath = project_info['Project']['compile_class_path']
+        # buildTool = project_info['Project']['build_tool']
+
+        try:
+            subprocess.run(["git", "clone", project_info['Project']['repository_url'], target_workspace], cwd = target_root, check = True)
+            subprocess.run(["git", "checkout", project_info['Project']['commit_id']], cwd = target_workspace, check = True)
+
+            if not copy(os.path.join(SPI_root, "core", "confix", "coverages", "math", "math1b", "coverage-info.obj"), target_workspace):
+                raise RuntimeError("Failed to copy coverage info.")
+            if not copy(os.path.join(target_root, "properties", "confix.properties"), target_workspace):
+                raise RuntimeError("Failed to bring confix.properties to workspace directory.")
+            
+            ### fill up the confix.property
+            with open(os.path.join(target_workspace, "confix.properties"), "a") as f:
+                # target_root, "properties"
+                f.write(f"src.dir={project_info['Project']['source_path']}\n")
+                f.write(f"target.dir={project_info['Project']['target_path']}\n")
+                f.write(f"cp.compile={project_info['Project']['compile_class_path']}\n")
+                f.write(f"cp.test={project_info['Project']['test_class_path']}\n")
+                f.write(f"projectName={target_project_name}\n")
+                f.write(f"pFaultyClass={perfect_faulty_class}\n")
+                f.write(f"pFaultyLine={perfect_faulty_line}\n")
+                f.write(f"pool.source={os.path.join(target_outputs, 'LCE', 'candidates')}\n")
+                # f.write(f"pool.source={os.path.join(SPI_root, 'core', 'confix', 'pool', 'ptlrh')},{os.path.join(SPI_root, 'core', 'confix', 'pool', 'plrt')}\n")
+            with open(os.path.join(target_workspace, "tests.all"), "w") as f:
+                f.write(project_info['Project']['test_list'])
+            with open(os.path.join(target_workspace, "tests.relevant"), "w") as f:
+                f.write(project_info['Project']['test_list'])
+            with open(os.path.join(target_workspace, "tests.trigger"), "w") as f:
+                f.write(project_info['Project']['test_list'])
+
+            jdk_env = os.environ.copy()
+            jdk_env['JAVA_HOME'] = project_info['Project']['JAVA_HOME_8']
+            # jdk_env['JAVA_HOME'] = "/home/young170/.sdkman/candidates/java/17.0.5-oracle"
+            # args_list = ["./gradlew", "build", "-x", "test", "--gradle-version=7.3", "--warning-mode", "all", "--stacktrace"] if project_info['Project']['build_tool'] in ("gradle", "Gradle") else ["mvn", "package", "-DskipTests"]
+            args_list = ["mvn", "package", "-DskipTests"]
+            # subprocess.run(args_list, cwd = target_workspace, env = jdk_env)
+
+        except Exception as e:
+            print("| ConFix-runner    | ! Failed to run pre-launch configuration.")
+            traceback.print_exc()
+            sys.exit(-1)
+        else:
+            print("| ConFix-runner    | Pre-launch configuration finished.")
 
     ### for non-D4J projects
     else:

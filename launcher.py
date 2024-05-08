@@ -306,7 +306,7 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
     else:
         return True
 
-def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionProxy, conf_ConFix : configparser.SectionProxy) -> bool:
+def run_ConFix(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : configparser.SectionProxy, conf_ConFix : configparser.SectionProxy) -> bool:
     try:
         conf_runner = configparser.ConfigParser()
         conf_runner.optionxform = str
@@ -332,6 +332,8 @@ def run_ConFix(case : dict, is_defects4j : bool, conf_SPI : configparser.Section
 
         if is_defects4j == True:
             subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-d", "true", "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
+        elif is_vjbench == True:
+            subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-v", "true", "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
         else:
             subprocess.run(["python3.6", os.path.join(conf_SPI['root'], "core", "confix", "run_confix.py"), "-h", case['hash_id'], "-f", os.path.join(case['target_dir'], "properties", "confix_runner.ini")], check = True)
         # with open(os.path.join(case['target_dir'], "logs", "ConFix_runner.log"), "w") as f:
@@ -583,7 +585,7 @@ def main(argv):
                         return
                     
                     print(f"| SPI  |    > {cursor_str} / Step 3. Running ConFix...")
-                    if not run_ConFix(case, is_defects4j, settings['SPI'], settings['ConFix']):
+                    if not run_ConFix(case, is_defects4j, is_vjbench, settings['SPI'], settings['ConFix']):
                         raise RuntimeError("Module 'ConFix' launch failed.")
 
 
