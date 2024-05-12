@@ -578,7 +578,7 @@ def main(argv):
                         if settings['SPI']['with_predefined_pool'] == "False":
 
                             print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
-                            if not run_CC(case, is_defects4j, settings['SPI'], settings['CC']):
+                            if not run_CC(case, is_defects4j, is_vjbench, settings['SPI'], settings['CC']):
                                 raise RuntimeError("Module 'Change Collector' launch failed.")
 
                             print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
