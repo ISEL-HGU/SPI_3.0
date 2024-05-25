@@ -718,6 +718,15 @@ public class ConFix {
 		File[] directoryListing = dir.listFiles();
 		//System.out.println("File list size: "+directoryListing.length()) 
 
+		if (directoryListing != null) {
+            // Sort by file name
+            Arrays.sort(directoryListing, (file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()));
+
+            // Print sorted file names
+            for (File file : directoryListing) {
+                System.out.println(file.getName());
+            }
+		}
 
 		//initialize using the directory files, buggy and patched
 		if ( directoryListing.length%2 != 0 ) {
@@ -725,6 +734,7 @@ public class ConFix {
 			System.exit(-1);
 		}
 
+		//instantiate the array
 		for(int i = 0; i < directoryListing.length/2 ; i++){
 			cleanFiles.add(null);
 			buggyFiles.add(null);
@@ -740,9 +750,9 @@ public class ConFix {
 					//System.out.println("Child path: " + child.getCanonicalPath()) ;
 					String[] childPath = child.getCanonicalPath().split("candidates/"); // "source/"" 뒤에는 파일 이름이 붙는다.
 					if (childPath[1].indexOf("new") > 0) {
-						cleanFiles.set(number, child);
+						cleanFiles.add(child);
 					} else {
-						buggyFiles.set(number, child);
+						buggyFiles.add(child);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
