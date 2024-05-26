@@ -37,6 +37,25 @@ class AppTest {
         assertArrayEquals(new String[] { "2", "Jane", "Smith", "25", "Female" }, result.get(1));
     }
 
+
+    @Test
+    void testcommaSeperatedLineToStringArray() {
+
+        App app = new App();
+
+        List<String> result = Arrays.asList("567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK");
+        List<String[]> return_split = app.commaSeperatedLineToStringArray(result);
+        assertEquals(1, return_split.size());
+        assertArrayEquals(new String[] { "567823eb81b7f253662e09a119175b75428abf19", "2f9c8ac25ba634affe366ce55eb3f9e969e71ae3", "launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java", "launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java", "https://github.com/apache/spark", "SPARK"}, return_split.get(0));
+
+        result = Arrays.asList("567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK,67,67");
+        return_split = app.commaSeperatedLineToStringArray(result);
+
+        assertEquals(1, return_split.size());
+        assertArrayEquals(new String[] { "567823eb81b7f253662e09a119175b75428abf19", "2f9c8ac25ba634affe366ce55eb3f9e969e71ae3", "launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java", "launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java", "https://github.com/apache/spark", "SPARK", "67", "67"}, return_split.get(0));
+
+    }
+
     @Test
     void testLoadProperties() {
         // Arrange

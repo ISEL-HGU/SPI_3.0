@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.checkerframework.checker.units.qual.s;
 
 /**
  * App.java is java file to select top candidates that have high LCS scores on BBIC to BIC GumTree Difference of given bug and provided pool
@@ -173,9 +174,18 @@ public class App {
             for (String line : result) {
                 // System.out.println("[debug] line : " + line);
                 String[] line_split = line.split(",");
-                String[] selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
-                        line_split[4], line_split[5], line_split[6] }; //BBIC, BIC, BBIC_FILE, BIC_FILE, Github_link, Project_Name
+                String[] selection = null;
+
+                if (line_split.length < 8) {
+                    selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
+                        line_split[4], line_split[5]}; //BBIC, BIC, BBIC_FILE, BIC_FILE, Github_link, Project_Name
+                        //example: 567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK
+                } else {
+                    selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
+                        line_split[4], line_split[5], line_split[6], line_split[7] }; //BBIC, BIC, BBIC_FILE, BIC_FILE, Github_link, Project_Name
                         //example: 567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK,87,87
+                }
+               
                 result_split.add(selection);
             }
         } catch (Exception e) {
