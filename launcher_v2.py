@@ -579,175 +579,220 @@ def run_ConFix(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : c
     else:
         return True
 
-def before_run_SimFix(time_hash, SPI_launch_result_str, log_file, is_defects4j, is_vjbench):
-    # Initializations before whole case-loop
-    failed = list()
-    succeeded = list()
 
-    # hash_prefix = f"batch_{time_hash}_{patch_abb[patch_strategy]}+{concretization_abb[concretization_strategy]}" if "batch" in settings['SPI']['mode'] else f"{time_hash}"
-    hash_prefix = f"batch_{time_hash}" if "batch" in settings['SPI']['mode'] else f"{time_hash}"
-    log_file = f"log_{hash_prefix}.txt"
+def before_run_SimFix(time_hash, SPI_launch_result_str, log_file, is_defects4j, is_vjbench) :
+    patch_strategies = ("flfreq", ) if (settings['SPI']['patch_strategy'] == "" or settings['SPI']['debug'] == "True") else tuple([each.strip() for each in settings['SPI']['patch_strategy'].split(',')])
+    concretization_strategies = ("hash-match", ) if (settings['SPI']['concretization_strategy'] == "" or settings['SPI']['debug'] == "True") else tuple([each.strip() for each in settings['SPI']['concretization_strategy'].split(',')])
+    print(f"| SPI  | SPI launching with patch strategies {patch_strategies}.")
+    print(f"| SPI  | SPI launching with concretization strategies {concretization_strategies}.")
 
-    whole_start = dt.datetime.now()
-    if not os.path.exists(os.path.join(settings['SPI']['root'], "logs")):
-        os.makedirs(os.path.join(settings['SPI']['root'], "logs"))
+    patch_abb = {"flfreq" : "ff", "tested-first" : "tf", "noctx" : "nc", "patch" : "pt"}
+    concretization_abb = {"tcvfl" : "tv", "hash-match" : "hm", "neighbor" : "nb", "tc" : "tc"}
 
-    if not os.path.isfile(os.path.join(settings['SPI']['root'], "logs", log_file)):
-        with open(os.path.join(settings['SPI']['root'], "logs", log_file), "x") as _:
-            pass # only make log file if it doesn't exist.
+    for patch_strategy in patch_strategies:
+        for concretization_strategy in concretization_strategies:
+            settings['ConFix']['patch.strategy'] = patch_strategy
+            settings['ConFix']['concretize.strategy'] = concretization_strategy
+            strategy_combination = f"{patch_strategy} + {concretization_strategy}"
+            print(f"\n| SPI  | Strategy combination '{strategy_combination}' set.")
 
-    for case_num, case in enumerate(cases, 1):
-        case['hash_id'] = f"{hash_prefix}_{case['project_name']}"
-        case['target_dir'] = os.path.join(settings['SPI']['byproduct_path'], case['hash_id'])
-        case['iteration'] += 1
-        cursor_str = f"Iteration #{case['iteration']} w/ Strategy / Case #{case_num}"
+            # Initializations before whole case-loop
+            failed = list()
+            succeeded = list()
 
-        print(f"| SPI  | {cursor_str} | Begins to look for patch for {case['project_name']}...")
-        case['hash_id'] = f"{hash_prefix}_{case['project_name']}"
-        case['target_dir'] = os.path.join(settings['SPI']['byproduct_path'], case['hash_id'])
-        case['iteration'] += 1
-        cursor_str = f"Iteration #{case['iteration']} w/ Strategy / Case #{case_num}"
 
-        print(f"| SPI  | {cursor_str} | Begins to look for patch for {case['project_name']}...")
-        if is_defects4j == True:
-            settings['SPI']['identifier'] = case['identifier']
-            settings['SPI']['version'] = case['version']
-            with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "Defects4J_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
-                reader = csv.DictReader(d4j_meta_file)
-                for row in reader:
-                    if int(row['Defects4J ID']) == int(case['version']):
-                        settings['SPI']['faulty_file'] = row['Faulty file path']
-                        settings['SPI']['faulty_line_fix'] = row['fix faulty line']
-                        settings['SPI']['faulty_line_blame'] = row['blame faulty line']
-                        break
-        elif is_vjbench:
-            settings['SPI']['identifier'] = case['identifier']
-            settings['SPI']['version'] = case['version']
-            with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "VJBench_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
-                reader = csv.DictReader(d4j_meta_file)
-                for row in reader:
-                    if int(row['VJBench ID']) == int(case['version']):
-                        settings['SPI']['faulty_file'] = row['Faulty file path']
-                        settings['SPI']['faulty_line_fix'] = row['fix faulty line']
-                        settings['SPI']['faulty_line_blame'] = row['blame faulty line']
-                        break
-        else: # GitHub not implemented fully.
-            # print("| SPI  | ! SPI currently works on defects4j bugs only. Cannot launch those on other projects. Aborting program.")
-            # sys.exit(0)
-            settings['SPI']['identifier'] = case['identifier']
-
-        ##########
-        # Modules launch
-        ##########
-
-        each_start = dt.datetime.now()
-        with open(os.path.join(settings['SPI']['root'], "logs", log_file), "a") as outfile:
-            outfile.write(f"    - Launching SPI upon {cursor_str}...\n")
-            outfile.write(f"       > Started at {each_start.strftime('%Y-%m-%d %H:%M:%S')}.\n")
-
-        try:
-            if case['iteration'] == 1 or case['is_ConFix_ready'] == False: #execute CC and LCE
+            # hash_prefix = f"batch_{time_hash}_{patch_abb[patch_strategy]}+{concretization_abb[concretization_strategy]}" if "batch" in settings['SPI']['mode'] else f"{time_hash}"
+            hash_prefix = f"batch_{time_hash}" if "batch" in settings['SPI']['mode'] else f"{time_hash}"
+            log_file = f"log_{hash_prefix}.txt"
             
-                if settings['SPI']['with_predefined_pool'] == "False":
+            ###
 
-                    print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
-                    if not run_CC(case, is_defects4j, is_vjbench, settings['SPI'], settings['CC']):
-                        raise RuntimeError("Module 'Change Collector' launch failed.")
+            whole_start = dt.datetime.now()
 
-                    print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
-                    if not run_LCE(case, is_defects4j, settings['SPI'], settings['LCE']):
-                        raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
-                else:
-                    if not run_Pool_LCE(case, is_defects4j, settings['SPI'], settings['LCE'], settings['SPI']['with_predefined_pool']): #because it has one more directory
-                        raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
+            if not os.path.exists(os.path.join(settings['SPI']['root'], "logs")):
+                os.makedirs(os.path.join(settings['SPI']['root'], "logs"))
+
+            if not os.path.isfile(os.path.join(settings['SPI']['root'], "logs", log_file)):
+                with open(os.path.join(settings['SPI']['root'], "logs", log_file), "x") as _:
+                    pass # only make log file if it doesn't exist.
             
-                case['is_ConFix_ready'] = True # Mark it True if those two CC and LCE has succeede in launch.
-            else:
-                print(f"| SPI  |    > {cursor_str} | Step 1 and Step 2 skipped.")
+            with open(os.path.join(settings['SPI']['root'], "logs", log_file), "a") as outfile:
+                outfile.write(f"Batch execution w/ Strategy '{strategy_combination}' commmenced in {whole_start}\n")
 
+            for case_num, case in enumerate(cases, 1):
+                ##########
+                # Pre-launch configuration
+                ##########
+
+                case['hash_id'] = f"{hash_prefix}_{case['project_name']}"
+                case['target_dir'] = os.path.join(settings['SPI']['byproduct_path'], case['hash_id'])
+                case['iteration'] += 1
+                cursor_str = f"Iteration #{case['iteration']} w/ Strategy '{strategy_combination} / Case #{case_num}"
+
+                print(f"| SPI  | {cursor_str} | Begins to look for patch for {case['project_name']}...")
+
+                # path preparation
+                if case['iteration'] == 1:
+                    os.makedirs(case['target_dir'])
+                    os.makedirs(os.path.join(case['target_dir'], "logs"))
+                    os.makedirs(os.path.join(case['target_dir'], "outputs"))
+                    os.makedirs(os.path.join(case['target_dir'], "properties"))
+
+                    print(f"| SPI  |    > {cursor_str} | Hash ID generated as {case['hash_id']}")
+                    print(f"| SPI  |    > {cursor_str} | byproducts made in directory {case['target_dir']}.")
+
+                """
+                Search in root/components/commit_collector/Defects4J_bugs_info/<project>.csv for the version
+                Then extract information of the bug: file, fix line, blame line
+                """
+                if is_defects4j == True:
+                    settings['SPI']['identifier'] = case['identifier']
+                    settings['SPI']['version'] = case['version']
+                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "Defects4J_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
+                        reader = csv.DictReader(d4j_meta_file)
+                        for row in reader:
+                            if int(row['Defects4J ID']) == int(case['version']):
+                                settings['SPI']['faulty_file'] = row['Faulty file path']
+                                settings['SPI']['faulty_line_fix'] = row['fix faulty line']
+                                settings['SPI']['faulty_line_blame'] = row['blame faulty line']
+                                break
+                elif is_vjbench:
+                    settings['SPI']['identifier'] = case['identifier']
+                    settings['SPI']['version'] = case['version']
+                    with open(os.path.join(settings['SPI']['root'], "components", "commit_collector", "VJBench_bugs_info", f"{case['identifier']}.csv"), "r", newline = "") as d4j_meta_file:
+                        reader = csv.DictReader(d4j_meta_file)
+                        for row in reader:
+                            if int(row['VJBench ID']) == int(case['version']):
+                                settings['SPI']['faulty_file'] = row['Faulty file path']
+                                settings['SPI']['faulty_line_fix'] = row['fix faulty line']
+                                settings['SPI']['faulty_line_blame'] = row['blame faulty line']
+                                break
+                else: # GitHub not implemented fully.
+                    # print("| SPI  | ! SPI currently works on defects4j bugs only. Cannot launch those on other projects. Aborting program.")
+                    # sys.exit(0)
+                    settings['SPI']['identifier'] = case['identifier']
+
+                ##########
+                # Modules launch
+                ##########
+
+                each_start = dt.datetime.now()
+                with open(os.path.join(settings['SPI']['root'], "logs", log_file), "a") as outfile:
+                    outfile.write(f"    - Launching SPI upon {cursor_str}...\n")
+                    outfile.write(f"       > Started at {each_start.strftime('%Y-%m-%d %H:%M:%S')}.\n")
+
+                try:
+                    if case['iteration'] == 1 or case['is_ConFix_ready'] == False: #execute CC and LCE
+                    
+                        if settings['SPI']['with_predefined_pool'] == "False":
+
+                            print(f"| SPI  |    > {cursor_str} | Step 1. Running Change Collector...")
+                            if not run_CC(case, is_defects4j, is_vjbench, settings['SPI'], settings['CC']):
+                                raise RuntimeError("Module 'Change Collector' launch failed.")
+
+                            print(f"| SPI  |    > {cursor_str} | Step 2. Running Longest Common subvector Extractor...")
+                            if not run_LCE(case, is_defects4j, settings['SPI'], settings['LCE']):
+                                raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
+                        else:
+                            if not run_Pool_LCE(case, is_defects4j, settings['SPI'], settings['LCE'], settings['SPI']['with_predefined_pool']): #because it has one more directory
+                                raise RuntimeError("Module 'Longest Common subvector Extractor' launch failed.")
+                  
+                        case['is_ConFix_ready'] = True # Mark it True if those two CC and LCE has succeede in launch.
+                    else:
+                        print(f"| SPI  |    > {cursor_str} | Step 1 and Step 2 skipped.")
+
+                        
+                    
+                    print(f"| SPI  |    > {cursor_str} / Step 3. Running SimFix...")
                 
-            
-            print(f"| SPI  |    > {cursor_str} / Step 3. Running ConFix...")
-            if not run_ConFix(case, is_defects4j, is_vjbench, settings['SPI'], settings['ConFix']):
-                raise RuntimeError("Module 'ConFix' launch failed.")
+                    subprocess.run("bash -c 'source set_java8.sh'", shell=True, check=True)
+                    if not compile_SimFix():
+                        raise RuntimeError("Module 'ConFix' launch failed.")
+                    LCE_candidates_path = settings['SPI']['root'] + case['target_dir'] + '/outputs/LCE/candidates'
+                    if not run_SimFix(cases[-1]['identifier'], cases[-1]['version'], LCE_candidates_path):
+                        raise RuntimeError("Module 'ConFix' launch failed.")
+                    subprocess.run("bash -c 'source ~/.bashrc'", shell=True, check=True)
+
+                    # Check for patch existence
+                    if os.path.isfile(os.path.join(case['target_dir'], "diff_file.txt")):
+                        print(f"\n| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation success")
+                        print(f"| SPI  |    > {cursor_str} | Finished, and found a patch!")
+                        print(f"| SPI  |    > {cursor_str} | === diff_file.txt starts ===")
+                        with open(os.path.join(case['target_dir'], "diff_file.txt"), "r") as f:
+                            content = f.read()
+                            print(content)
+                        print(f"| SPI  |    > {cursor_str} | === diff_file.txt ends ===")
+
+                        if not copy(os.path.join(case['target_dir'], "diff_file.txt"), os.path.join(case['target_dir'], f"diff_file-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
+                            raise RuntimeError("Failed to copy diff_file.txt.")
+                        if not remove(os.path.join(case['target_dir'], "diff_file.txt")):
+                            raise RuntimeError("Failed to remove diff_file.txt.")
+
+                        succeeded.append(case['project_name'])
+                        SPI_launch_result_str = "succeeded"
+                    else:
+                        print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
+                        print(f"\n| SPI  |    > {cursor_str} | Finished, but failed to find a patch.")
+
+                        failed.append(case['project_name'])
+                        SPI_launch_result_str = "failed"
+
+                    if not copy(os.path.join(case['target_dir'], case['identifier'],  "log.txt"), os.path.join(case['target_dir'], "logs", f"ConFix-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
+                        raise RuntimeError("Failed to copy log.txt.")
+                    
+                    # Make not to remove Defects4j Project
+                    # TODO: Need to eliminate on the release
+                    
+                    #if not remove(os.path.join(case['target_dir'], case['identifier'])):
+                        #raise RuntimeError("Failed to remove workspace folder.")
+
+                    
+                except Exception as e:
+                    print()
+                    print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
+                    print(f"| SPI  | !  > {cursor_str} | Aborted during progresses!")
+                    print(f"| SPI  | !  > {cursor_str} | Failed cause: {e}")
+                    traceback.print_exc()
+
+                    failed.append(case['project_name'])
+                    SPI_launch_result_str = "failure"
+                finally:
+                    each_end = dt.datetime.now()
+                    each_elapsed_time = (each_end - each_start)
+
+                    print(f"| SPI  |    > {cursor_str} | Elapsed Time : {each_elapsed_time}")
+
+                    with open(os.path.join("logs", log_file), "a") as outfile:
+                        outfile.write(f"       > Ended at {each_end.strftime('%Y-%m-%d %H:%M:%S')}.\n")
+                        outfile.write(f"       > Elapsed time: {each_elapsed_time}.\n")
+                        outfile.write(f"       > Patch generation: {SPI_launch_result_str}\n")
 
 
-            # Check for patch existence
-            if os.path.isfile(os.path.join(case['target_dir'], "diff_file.txt")):
-                print(f"\n| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation success")
-                print(f"| SPI  |    > {cursor_str} | Finished, and found a patch!")
-                print(f"| SPI  |    > {cursor_str} | === diff_file.txt starts ===")
-                with open(os.path.join(case['target_dir'], "diff_file.txt"), "r") as f:
-                    content = f.read()
-                    print(content)
-                print(f"| SPI  |    > {cursor_str} | === diff_file.txt ends ===")
+            whole_end = dt.datetime.now()
+            whole_elapsed_time = (whole_end - whole_start)
 
-                if not copy(os.path.join(case['target_dir'], "diff_file.txt"), os.path.join(case['target_dir'], f"diff_file-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
-                    raise RuntimeError("Failed to copy diff_file.txt.")
-                if not remove(os.path.join(case['target_dir'], "diff_file.txt")):
-                    raise RuntimeError("Failed to remove diff_file.txt.")
+            if "batch" in settings['SPI']['mode']:
+                with open(os.path.join("logs", log_file), "a") as outfile:
+                    outfile.write("\n")
+                    outfile.write(f"Batch execution w/ strategy '{strategy_combination}' finished at {whole_end}, after {whole_elapsed_time}, with {len(succeeded)} success(es) and {len(failed)} failure(s).\n")
+                    outfile.write(f"    - Succeeded case(s): {len(succeeded)}\n")
+                    for each in succeeded:
+                        outfile.write(f"        - {each}\n")
+                    outfile.write(f"    - Failed case(s): {len(failed)}\n")
+                    for each in failed:
+                        outfile.write(f"        - {each}\n")
 
-                succeeded.append(case['project_name'])
-                SPI_launch_result_str = "succeeded"
-            else:
-                print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
-                print(f"\n| SPI  |    > {cursor_str} | Finished, but failed to find a patch.")
-
-                failed.append(case['project_name'])
-                SPI_launch_result_str = "failed"
-
-            if not copy(os.path.join(case['target_dir'], case['identifier'],  "log.txt"), os.path.join(case['target_dir'], "logs", f"ConFix-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
-                raise RuntimeError("Failed to copy log.txt.")
-            
-            # Make not to remove Defects4j Project
-            # TODO: Need to eliminate on the release
-            
-            #if not remove(os.path.join(case['target_dir'], case['identifier'])):
-                #raise RuntimeError("Failed to remove workspace folder.")
-
-            
-        except Exception as e:
-            print()
-            print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
-            print(f"| SPI  | !  > {cursor_str} | Aborted during progresses!")
-            print(f"| SPI  | !  > {cursor_str} | Failed cause: {e}")
-            traceback.print_exc()
-
-            failed.append(case['project_name'])
-            SPI_launch_result_str = "failure"
-        finally:
-            each_end = dt.datetime.now()
-            each_elapsed_time = (each_end - each_start)
-
-            print(f"| SPI  |    > {cursor_str} | Elapsed Time : {each_elapsed_time}")
-
-            with open(os.path.join("logs", log_file), "a") as outfile:
-                outfile.write(f"       > Ended at {each_end.strftime('%Y-%m-%d %H:%M:%S')}.\n")
-                outfile.write(f"       > Elapsed time: {each_elapsed_time}.\n")
-                outfile.write(f"       > Patch generation: {SPI_launch_result_str}\n")
+            print(f"| SPI  | Total Elapsed Time for strategy combination '{strategy_combination}': {whole_elapsed_time}")
+            print(f"| SPI  | {len(succeeded)} succeeded, {len(failed)} failed.")
 
 
-    whole_end = dt.datetime.now()
-    whole_elapsed_time = (whole_end - whole_start)
 
-    if "batch" in settings['SPI']['mode']:
-        with open(os.path.join("logs", log_file), "a") as outfile:
-            outfile.write("\n")
-            outfile.write(f"Batch execution w/ finished at {whole_end}, after {whole_elapsed_time}, with {len(succeeded)} success(es) and {len(failed)} failure(s).\n")
-            outfile.write(f"    - Succeeded case(s): {len(succeeded)}\n")
-            for each in succeeded:
-                outfile.write(f"        - {each}\n")
-            outfile.write(f"    - Failed case(s): {len(failed)}\n")
-            for each in failed:
-                outfile.write(f"        - {each}\n")
-
-    print(f"| SPI  | Total Elapsed Time : {whole_elapsed_time}")
-    print(f"| SPI  | {len(succeeded)} succeeded, {len(failed)} failed.")
-
-
-def compile_SimFix(JAVA_Home_7: str) -> bool:
+def compile_SimFix() -> bool:
     try:
-        command = JAVA_Home_7 +  "/bin/javac \
+        os.chdir('core/SimFix')
+        if not check_directory_existence("bin"):
+            os.mkdir("bin")
+        command = settings['SPI']['JAVA_HOME_7'] +  "/bin/javac \
             -d bin \
             -cp lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/commons-io-2.5.jar:lib/dom4j-2.0.0-RC1.jar:lib/json-simple-1.1.1.jar:lib/log4j-1.2.17.jar:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:lib/org.eclipse.text-3.5.101.jar \
             $(find src -name '*.java')"
@@ -758,19 +803,33 @@ def compile_SimFix(JAVA_Home_7: str) -> bool:
         return False
     return True
 
-def run_SimFix(JAVA_HOME_7: str, JAVA_HOME_8: str, d4j_checkout_dir: str, projectName: str, bugId: str, LCE_candidates_path: str) -> bool:
+def run_SimFix(projectName: str, bugId: str, LCE_candidates_path: str) -> bool:
     try:
-        command = JAVA_HOME_7 + "/bin/java \
+        identifierLower = projectName.lower()
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir']):
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'])
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower):
+            os.mkdir(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower)
+        if not check_directory_existence(settings['SimFix']['d4j_checkout_dir'] + '/' + identifierLower + '/' +identifierLower + '_' + bugId + '_buggy'):
+            
+            checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
+            mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
+            os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+            os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
+        
+        command = settings['SPI']['JAVA_HOME_7'] + "/bin/java \
             -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 \
             -classpath bin:lib/org.eclipse.core.contenttype_3.5.0.v20150421-2214.jar:lib/org.eclipse.core.jobs_3.7.0.v20150330-2103.jar:lib/org.eclipse.core.resources_3.10.1.v20150725-1910.jar:lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar:lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar:lib/org.eclipse.equinox.preferences_3.5.300.v20150408-1437.jar:lib/org.eclipse.jdt.core_3.11.2.v20160128-0629.jar:lib/org.eclipse.osgi_3.10.102.v20160118-1700.jar:/Users/choejunhyeog/.p2/pool/plugins/org.junit_4.13.2.v20230809-1000.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest_2.2.0.jar:/Users/choejunhyeog/.p2/pool/plugins/org.hamcrest.core_2.2.0.v20230809-1000.jar:lib/log4j-1.2.17.jar:lib/com.gzoltar-0.1.1-jar-with-dependencies.jar:lib/dom4j-2.0.0-RC1.jar:lib/commons-io-2.5.jar:lib/json-simple-1.1.1.jar \
             cofix.main.Main \
-            --proj_home=" + d4j_checkout_dir + \
-            " --proj_name=" +  projectName +  \
+            --proj_home=" + settings['SimFix']['d4j_checkout_dir'] + \
+            " --proj_name=" +  identifierLower +  \
             " --bug_id=" + bugId + \
             " --LCE_candidates_path=" + LCE_candidates_path + \
-            " --JAVA_HOME_8=" + JAVA_HOME_8
+            " --JAVA_HOME_8=" + settings['SPI']['JAVA_HOME_8']
 
         subprocess.run(command, shell=True)
+        os.chdir(settings['SPI']['root'])
+
     except Exception as e:
         traceback.print_exc()
         return False
