@@ -707,15 +707,15 @@ def before_run_SimFix(time_hash, SPI_launch_result_str, log_file, is_defects4j, 
                 
                     subprocess.run("bash -c 'source set_java8.sh'", shell=True, check=True)
                     if not compile_SimFix():
-                        raise RuntimeError("Module 'ConFix' launch failed.")
+                        raise RuntimeError("Module 'SimFix' launch failed.")
                     LCE_candidates_path = settings['SPI']['root'] + case['target_dir'] + '/outputs/LCE/candidates'
-                    if not run_SimFix(cases[-1]['identifier'], cases[-1]['version'], LCE_candidates_path):
-                        raise RuntimeError("Module 'ConFix' launch failed.")
+                    if not run_SimFix(case['identifier'], case['version'], LCE_candidates_path):
+                        raise RuntimeError("Module 'SimFix' launch failed.")
                     subprocess.run("bash -c 'source ~/.bashrc'", shell=True, check=True)
 
                     # Check for patch existence
                     if os.path.isfile(os.path.join(case['target_dir'], "diff_file.txt")):
-                        print(f"\n| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation success")
+                        print(f"\n| SPI  | !  > {cursor_str} | [candidate metadata] > SimFix patch generation success")
                         print(f"| SPI  |    > {cursor_str} | Finished, and found a patch!")
                         print(f"| SPI  |    > {cursor_str} | === diff_file.txt starts ===")
                         with open(os.path.join(case['target_dir'], "diff_file.txt"), "r") as f:
@@ -731,14 +731,14 @@ def before_run_SimFix(time_hash, SPI_launch_result_str, log_file, is_defects4j, 
                         succeeded.append(case['project_name'])
                         SPI_launch_result_str = "succeeded"
                     else:
-                        print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
+                        print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > SimFix patch generation fail")
                         print(f"\n| SPI  |    > {cursor_str} | Finished, but failed to find a patch.")
 
                         failed.append(case['project_name'])
                         SPI_launch_result_str = "failed"
 
-                    if not copy(os.path.join(case['target_dir'], case['identifier'],  "log.txt"), os.path.join(case['target_dir'], "logs", f"ConFix-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
-                        raise RuntimeError("Failed to copy log.txt.")
+                    # if not copy(os.path.join(case['target_dir'], case['identifier'],  "log.txt"), os.path.join(case['target_dir'], "logs", f"SimFix-{patch_abb[patch_strategy]}{concretization_abb[concretization_strategy]}.txt")):
+                    #     raise RuntimeError("Failed to copy log.txt.")
                     
                     # Make not to remove Defects4j Project
                     # TODO: Need to eliminate on the release
@@ -749,7 +749,7 @@ def before_run_SimFix(time_hash, SPI_launch_result_str, log_file, is_defects4j, 
                     
                 except Exception as e:
                     print()
-                    print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > ConFix patch generation fail")
+                    print(f"| SPI  | !  > {cursor_str} | [candidate metadata] > SimFix patch generation fail")
                     print(f"| SPI  | !  > {cursor_str} | Aborted during progresses!")
                     print(f"| SPI  | !  > {cursor_str} | Failed cause: {e}")
                     traceback.print_exc()
@@ -814,7 +814,7 @@ def run_SimFix(projectName: str, bugId: str, LCE_candidates_path: str) -> bool:
             
             checkout_command = "defects4j checkout -p {} -v {}b -w /tmp/{}_{}_buggy"
             mv_command = "mv /tmp/{}_{}_buggy {}/{}/{}_{}_buggy"
-            os.system(checkout_command.format(settings['SPI']['identifier'], bugId, identifierLower, bugId))
+            os.system(checkout_command.format(projectName, bugId, identifierLower, bugId))
             os.system(mv_command.format(identifierLower, bugId, settings['SimFix']['d4j_checkout_dir'], identifierLower, identifierLower, bugId))
         
         command = settings['SPI']['JAVA_HOME_7'] + "/bin/java \
