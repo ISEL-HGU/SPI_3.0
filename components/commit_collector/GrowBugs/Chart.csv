@@ -1,0 +1,10 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+1,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/renderer/category/AbstractCategoryItemRenderer.java,1797,1797
+8,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/data/time/Week.java,175,175
+9,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/data/time/TimeSeries.java,944,944
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/imagemap/StandardToolTipTagFragmentGenerator.java,65,65
+11,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/util/ShapeUtilities.java,275,275
+12,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/plot/MultiplePiePlot.java,145,145
+13,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/block/BorderArrangement.java,455,455
+20,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/plot/ValueMarker.java,95,95
+24,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/source/org/jfree/chart/renderer/GrayPaintScale.java,126,126

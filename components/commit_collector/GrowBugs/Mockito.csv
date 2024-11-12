@@ -1,0 +1,8 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+5,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/verification/VerificationOverTimeImpl.java,91,91
+8,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/util/reflection/GenericMetadataSupport.java,79,79
+24,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/stubbing/defaultanswers/ReturnsEmptyValues.java,76,76
+26,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/util/Primitives.java,66,66
+29,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/matchers/Same.java,29,29
+34,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/invocation/InvocationMatcher.java,106,106
+38,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/org/mockito/internal/verification/argumentmatching/ArgumentMatchingTool.java,48,48

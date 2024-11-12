@@ -1,0 +1,2 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+4,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/aalto/in/Utf8Scanner.java,706,706

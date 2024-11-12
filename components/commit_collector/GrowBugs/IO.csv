@@ -1,0 +1,8 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+3,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/io/FileUtils.java,172,172
+6,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/io/FilenameUtils.java,981,981
+8,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/io/FileUtils.java,535,535
+11,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/io/input/SwappedDataInputStream.java,59,59
+17,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/io/FileSystemUtils.java,293,293
+18,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/io/input/BOMInputStream.java,287,287
+30,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/io/FileUtils.java,1220,1220

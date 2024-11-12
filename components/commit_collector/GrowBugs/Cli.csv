@@ -1,0 +1,8 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+7,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli2/builder/PatternBuilder.java,67,67
+8,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli/HelpFormatter.java,812,812
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli/Parser.java,46,46
+11,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli/HelpFormatter.java,632,632
+25,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli/HelpFormatter.java,825,825
+28,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/cli/Parser.java,290,290
+40,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/cli/TypeHandler.java,103,103

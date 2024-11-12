@@ -1,0 +1,8 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+2,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/codec/binary/Base64.java,446,446
+4,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/codec/binary/Base64.java,225,225
+7,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/codec/binary/Base64.java,670,670
+9,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/codec/binary/Base64.java,827,827
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/codec/language/Caverphone.java,76,76
+16,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/codec/binary/Base32.java,99,99
+18,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/codec/binary/StringUtils.java,81,81

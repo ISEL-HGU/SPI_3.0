@@ -1,0 +1,5 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+46,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/org/apache/shiro/session/mgt/SimpleSession.java,503,503
+98,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/org/apache/shiro/authz/permission/DomainPermission.java,58,58
+176,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/org/apache/shiro/authc/pam/FirstSuccessfulStrategy.java,60,60
+202,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/org/apache/shiro/authc/pam/FirstSuccessfulStrategy.java,67,67

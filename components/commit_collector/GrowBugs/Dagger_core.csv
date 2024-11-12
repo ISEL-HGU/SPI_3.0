@@ -1,0 +1,4 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/dagger/internal/FailoverLoader.java,54,54
+12,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/dagger/ObjectGraph.java,149,149
+20,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/src/main/java/dagger/ObjectGraph.java,188,188

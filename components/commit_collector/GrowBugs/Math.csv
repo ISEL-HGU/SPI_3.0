@@ -1,0 +1,9 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+2,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/distribution/HypergeometricDistribution.java,268,268
+5,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/complex/Complex.java,305,305
+11,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/distribution/MultivariateNormalDistribution.java,183,183
+27,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/fraction/Fraction.java,597,597
+30,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/stat/inference/MannWhitneyUTest.java,173,173
+32,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/geometry/euclidean/twod/PolygonsSet.java,136,136
+33,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/optimization/linear/SimplexTableau.java,338,338
+34,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/math3/genetics/ListPopulation.java,209,209

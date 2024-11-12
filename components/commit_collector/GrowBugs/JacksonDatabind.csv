@@ -1,0 +1,14 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+16,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/introspect/AnnotationMap.java,112,112
+17,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/ObjectMapper.java,180,180
+27,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializer.java,794,794
+34,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/ser/std/NumberSerializer.java,81,81
+37,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/type/SimpleType.java,135,135
+46,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/type/ReferenceType.java,156,156
+57,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/ObjectReader.java,1441,1441
+70,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/deser/impl/BeanPropertyMap.java,440,440
+71,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/deser/std/StdKeyDeserializer.java,75,75
+82,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/deser/BeanDeserializerFactory.java,495,495
+96,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/deser/BasicDeserializerFactory.java,735,735
+97,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/node/POJONode.java,114,114
+107,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/databind/jsontype/impl/TypeDeserializerBase.java,165,165

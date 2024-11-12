@@ -1,0 +1,7 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+7,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/request/resource/PackageResourceReference.java,176,176
+11,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/validation/validator/UrlValidator.java,118,118
+12,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/MarkupContainer.java,2099,2099
+15,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/validation/validator/CreditCardValidator.java,325,325
+17,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/Component.java,931,931
+18,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/wicket-core/src/main/java/org/apache/wicket/Application.java,175,175
