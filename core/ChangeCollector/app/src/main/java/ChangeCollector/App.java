@@ -52,6 +52,7 @@ public class App {
     private String benchmark_name;
     private String benchmark_id;
     private String hash_id;
+    private String code_differencing_tool;
 
 
     /**
@@ -94,6 +95,8 @@ public class App {
         // in case of hash id usage
         output_dir = String.format("%s/%s/%s", output_dir, hash_id, "outputs/ChangeCollector");
         workspace_dir = String.format("%s/%s", output_dir, hash_id);
+
+        code_differencing_tool = properties.getProperty("Differencing");
     }
 
     /**
@@ -167,14 +170,14 @@ public class App {
 
         // STEP 3 : extract change vector from diff and write it to a file
         String diff_path = output_dir + "/diff.txt";
-        if (!extractor.extract_gumtree_log(repo_git, diff_path, output_dir)) {
+        if (!extractor.extract_gumtree_log(repo_git, diff_path, output_dir, code_differencing_tool)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract gumtree log" + ANSI_RESET);
             System.exit(1);
         }
         logger.info(ANSI_GREEN + "[info] > Successfully extracted gumtree log" + ANSI_RESET);
 
         String gumtree_log = output_dir + "/gumtree_log.txt";
-        int cv_extraction_result = extractor.extract_vector(git_name, gumtree_log, output_dir);
+        int cv_extraction_result = extractor.extract_vector(git_name, gumtree_log, output_dir, code_differencing_tool);
         if (cv_extraction_result == -1) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract change vector due to exception" + ANSI_RESET);
             System.exit(1);
@@ -266,14 +269,14 @@ public class App {
 
         // STEP 3 : extract change vector from diff and write it to a file
         String diff_path = output_dir + "/diff.txt";
-        if (!extractor.extract_gumtree_log(implemental.faultyProject, diff_path, output_dir)) {
+        if (!extractor.extract_gumtree_log(implemental.faultyProject, diff_path, output_dir, code_differencing_tool)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract gumtree log" + ANSI_RESET);
             System.exit(1);
         }
         logger.info(ANSI_GREEN + "[info] > Successfully extracted gumtree log" + ANSI_RESET);
 
         String gumtree_log = output_dir + "/gumtree_log.txt";
-        int cv_extraction_result = extractor.extract_vector(benchmark_name, gumtree_log, output_dir);
+        int cv_extraction_result = extractor.extract_vector(benchmark_name, gumtree_log, output_dir, code_differencing_tool);
         if (cv_extraction_result == -1) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract change vector due to exception" + ANSI_RESET);
             System.exit(1);
@@ -368,14 +371,14 @@ public class App {
 
         // STEP 3 : extract change vector from diff and write it to a file
         String diff_path = output_dir + "/diff.txt";
-        if (!extractor.extract_gumtree_log(implemental.faultyProject, diff_path, output_dir)) {
+        if (!extractor.extract_gumtree_log(implemental.faultyProject, diff_path, output_dir, code_differencing_tool)) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract gumtree log" + ANSI_RESET);
             System.exit(1);
         }
         logger.info(ANSI_GREEN + "[info] > Successfully extracted gumtree log" + ANSI_RESET);
 
         String gumtree_log = output_dir + "/gumtree_log.txt";
-        int cv_extraction_result = extractor.extract_vector(benchmark_name, gumtree_log, output_dir);
+        int cv_extraction_result = extractor.extract_vector(benchmark_name, gumtree_log, output_dir, code_differencing_tool);
         if (cv_extraction_result == -1) {
             logger.fatal(ANSI_RED + "[fatal] > Failed to extract change vector due to exception" + ANSI_RESET);
             System.exit(1);

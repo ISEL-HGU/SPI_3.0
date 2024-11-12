@@ -347,6 +347,7 @@ public class Extractor {
        int scorePos = 0;
        float targetScore = 0;
        int[] result = new int[nummax];
+       int tieBreakingScore = 0;
 
         while (resultPos < nummax && !simScoreMap.isEmpty()) {
 
@@ -366,20 +367,34 @@ public class Extractor {
             } else {
 
                 
-                TreeMap<Integer, Integer> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
+                TreeMap<Integer, ArrayList<Integer>> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
                 for (int index : simScoreMap.get(targetScore)) {
-                    vectorLengthToIndex.put(cleanedGumTreeArray[index].length, index);
+                    tieBreakingScore = cleanedGumTreeArray[index].length;
+
+                    if (vectorLengthToIndex.containsKey(tieBreakingScore)) {
+                        
+                        vectorLengthToIndex.get(tieBreakingScore).add(index);
+
+                    } else {
+                        vectorLengthToIndex.put(tieBreakingScore, new ArrayList<>());
+                        vectorLengthToIndex.get(tieBreakingScore).add(index);
+                    }
                 }
 
                 int breaker = leftCandNum;
 
-                extractionLogger.info("Vector size" + vectorLengthToIndex.size());
+                extractionLogger.info("Vector size" + vectorLengthToIndex.size()); 
 
-                for (int index : vectorLengthToIndex.values()) {
-                    result[resultPos++] = index;
-                    extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(cleanedGumTreeArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
-                    if (--breaker == 0) break;
+                for (int key : vectorLengthToIndex.keySet()) {
+
+                    for (int index : vectorLengthToIndex.get(key)) {
+
+                        result[resultPos++] = index;
+                        extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(cleanedGumTreeArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
+                        if (--breaker == 0) return result;
+
+                    }
                 }
             }
         }

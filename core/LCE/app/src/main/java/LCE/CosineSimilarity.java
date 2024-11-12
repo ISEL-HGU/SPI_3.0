@@ -5,6 +5,20 @@
  */
 package LCE;
 
+import com.github.gumtreediff.actions.EditScript;
+import com.github.gumtreediff.actions.EditScriptGenerator;
+import com.github.gumtreediff.actions.SimplifiedChawatheScriptGenerator;
+import com.github.gumtreediff.client.Run;
+import com.github.gumtreediff.gen.TreeGenerators;
+import com.github.gumtreediff.matchers.MappingStore;
+import com.github.gumtreediff.matchers.Matcher;
+import com.github.gumtreediff.matchers.Matchers;
+import com.github.gumtreediff.tree.Tree;
+
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +26,14 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -38,6 +59,9 @@ public class CosineSimilarity {
 
     private String resultDir;
     private String gitDir;
+    private String targetDiffDir;
+    private String textSimTarget;
+    private boolean poolHasCommitId;
     private int count = 0;
     private int nummax = 0;
 
@@ -50,10 +74,13 @@ public class CosineSimilarity {
      * @param nummax Maximum number of top candidates to retrieve.
      */
 
-    public CosineSimilarity(String gitDir, String resultDir, int nummax) {
+    public CosineSimilarity(String gitDir, String resultDir, String targetDiffDir, String textSimTarget, boolean poolHasCommitId, int nummax) {
 
         this.gitDir = gitDir;
         this.resultDir = resultDir;
+        this.targetDiffDir = targetDiffDir;
+        this.textSimTarget = textSimTarget;
+        this.poolHasCommitId = poolHasCommitId;
         this.nummax = nummax;
 
         boolean success = Util.createDirectory(resultDir);
@@ -71,11 +98,18 @@ public class CosineSimilarity {
      * @return List of top candidates based on text similarity.
      */
     public List<String> run(List<String> LCEcandidate) {
-
-        if (getDiffCandidates(LCEcandidate)) {
-            cosineSimLog.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
-        } else {
-            cosineSimLog.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
+        if (poolHasCommitId) {
+            if (getDiffCandidates(LCEcandidate)) {
+                cosineSimLog.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
+            } else {
+                cosineSimLog.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
+            }
+        } else if (textSimTarget.equals("tree")) {
+            if (getDiffCandidatesNoCommitId(LCEcandidate)) {
+                cosineSimLog.trace(App.ANSI_GREEN + "[status] > copying BBIC, BIC, BFC" + App.ANSI_RESET);
+            } else {
+                cosineSimLog.error(App.ANSI_RED + "[status] > failed to copy BBIC, BIC, BFC" + App.ANSI_RESET);
+            }
         }
 
         int[] topIndex = getTopCandidatesUsingTextSim();
@@ -108,22 +142,46 @@ public class CosineSimilarity {
                     
             BBIC_BIC_diff += "/BBIC-BIC" + Integer.toString(i) + ".txt";
             BIC_BFC_diff += "/BIC-BFC" + Integer.toString(i) + ".txt";
-            
-            String BBIC_BIC_diff_File = Util.readFile(BBIC_BIC_diff);
-            String BIC_BFC_diff_File = Util.readFile(BIC_BFC_diff);  
 
-            double cosineSim;
+            double simScore = 0;
 
-            if (BBIC_BIC_diff_File == null || BIC_BFC_diff_File == null) {
-                cosineSim = 0;     
+            if (textSimTarget.equals("tree")) {
+                String targetDiff = targetDiffDir;
+                
+                // tokenize: candidateDiff & targetDiff
+                ArrayList<String> candidateDiffFile = gumtreeDiffTokenizer(BBIC_BIC_diff);
+                ArrayList<String> targetDiffFile = gumtreeDiffTokenizer(targetDiff);
+
+                double cosineSimScore;
+
+                if (candidateDiffFile == null) {
+                    simScore = 0;
+                } else {
+                    for (String targetChange : targetDiffFile) {
+                        for (String candidateChage : candidateDiffFile) {
+                            cosineSimScore = Util.getCosineSimilarity(candidateChage, targetChange);
+                            
+                            if (cosineSimScore > simScore) {
+                                simScore = cosineSimScore;
+                            }
+                        }
+                    }
+                }
             } else {
-                // cosineSim = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
-                cosineSim = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                String BBIC_BIC_diff_File = Util.readFile(BBIC_BIC_diff);
+                String BIC_BFC_diff_File = Util.readFile(BIC_BFC_diff);  
+
+                if (BBIC_BIC_diff_File == null || BIC_BFC_diff_File == null) {
+                    simScore = 0;     
+                } else {
+                    simScore = Util.getCosineSimilarity(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                    // simScore = cosineDistance.apply(BBIC_BIC_diff_File, BIC_BFC_diff_File);
+                }
             }
 
-            scoreCandidateMap.put(i, cosineSim);
+            scoreCandidateMap.put(i, simScore);
 
-            cosineSimLog.trace(App.ANSI_GREEN + "  cosine score: " + i + " " + cosineSim + App.ANSI_RESET);
+            cosineSimLog.trace(App.ANSI_GREEN + "  cosine score: " + i + " " + simScore + App.ANSI_RESET);
 
         }
 
@@ -162,6 +220,58 @@ public class CosineSimilarity {
         return topTextSimCandidates;
 
    }
+
+    public boolean getDiffCandidatesNoCommitId(List<String> LCEcandidate) {
+        String diffOutputDir;
+
+        for (String line : LCEcandidate) {
+
+            System.err.println(line);
+
+            /* example: [result] poolDir + Closure_67_b/src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java
+            ,poolDir + Closure_67_f/src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java
+            ,Closure
+            */
+            String[] csvValues = line.split(",");
+            String BBIC_dest = "";
+            String BIC_dest = "";
+            BBIC_dest += csvValues[1];
+            BIC_dest += csvValues[0];
+
+            diffOutputDir = resultDir;
+            diffOutputDir += "/BBIC-BIC" + Integer.toString(count) + ".txt";
+
+            try {
+                File diffOutputFile = new File(diffOutputDir);
+                BufferedWriter writer = new BufferedWriter(new FileWriter(diffOutputFile, false));
+
+                writer.write(BBIC_dest+"\n");
+                writer.write(BIC_dest+"\n");
+
+                Run.initGenerators();
+                // create bic and bbic java files
+
+                Tree src = TreeGenerators.getInstance().getTree(BBIC_dest).getRoot();
+                Tree dst = TreeGenerators.getInstance().getTree(BIC_dest).getRoot();
+
+                Matcher defaultMatcher = Matchers.getInstance().getMatcher();
+                MappingStore mappings = defaultMatcher.match(src, dst);
+                EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator();
+                EditScript actions = editScriptGenerator.computeActions(mappings);
+
+                String line_log = actions.asList().toString();
+                writer.write(line_log + "\n");
+
+                writer.close();
+            } catch (Exception e) {
+                // catch exception
+            }
+
+            count += 1;
+        }
+
+        return true;
+    }
      
     /**
      * This method retrieves differences for a list of candidate files.
@@ -245,6 +355,60 @@ public class CosineSimilarity {
         }
 
         return true;
+    }
+
+    public ArrayList<String> gumtreeDiffTokenizer(String gumtree) {
+        ArrayList<String> gumtreeTokens = new ArrayList<>();
+        StringBuilder tokens = new StringBuilder();
+        boolean startTokenizing = false;
+
+        try {
+            BufferedReader logReader = new BufferedReader(new FileReader(gumtree));
+            String line;
+
+            while ((line = logReader.readLine()) != null) {
+                // Skip lines until the first "===" is found
+                if (!startTokenizing) {
+                    if (line.contains("===")) {
+                        startTokenizing = true;
+                    }
+                    continue;
+                }
+
+                // Tokenize after the first "===" is found
+                StringTokenizer stringTokenizer = new StringTokenizer(line);
+                while (stringTokenizer.hasNext()) {
+                    String token = stringTokenizer.nextToken();
+                    
+                    // If "===" is encountered, save current tokens and reset for next set
+                    if (token.equals("===")) {
+                        if (tokens.length() > 0) {
+                            gumtreeTokens.add(tokens.toString().trim());
+                            tokens.setLength(0);  // Reset the tokens string builder
+                        }
+                        continue;
+                    }
+
+                    // Skip tokens matching the pattern "[<number>,<number>]"
+                    if (token.matches("\\[\\d+,\\d+\\]")) {
+                        continue;
+                    }
+
+                    tokens.append(token).append(" ");
+                }
+            }
+
+            // Add remaining tokens if any
+            if (tokens.length() > 0) {
+                gumtreeTokens.add(tokens.toString().trim());
+            }
+
+            logReader.close();
+        } catch (Exception e) {
+            return null;
+        }
+
+        return gumtreeTokens;
     }
 
     /**

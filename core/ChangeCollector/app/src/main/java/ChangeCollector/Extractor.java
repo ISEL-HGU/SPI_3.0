@@ -1,5 +1,7 @@
 package ChangeCollector;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.regex.*;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.FileUtils;
@@ -113,9 +116,10 @@ public class Extractor {
      * @param repo_path   The path to the Git repository.
      * @param diff_path   The path to the diff file.
      * @param output_dir  The output directory for storing the GumTree log.
+     * @param code_differencing_tool The name of the code differencing tool to be used.
      * @return True if the extraction is successful, false otherwise.
      */
-    public boolean extract_gumtree_log(String repo_path, String diff_path, String output_dir) {
+    public boolean extract_gumtree_log(String repo_path, String diff_path, String output_dir, String code_differencing_tool) {
         try {
             App.logger.trace(App.ANSI_BLUE + "[status] > extracting gumtree log from " + diff_path
                     + App.ANSI_RESET + " to " + App.ANSI_BLUE + output_dir + App.ANSI_RESET);
@@ -149,24 +153,45 @@ public class Extractor {
                 writer.write(file_information);
                 writer.write(file_information_before);
 
-                Run.initGenerators();
                 // create bic and bbic java files
                 String src_byte = get_source(repository, commitBBIC.getName(), pathBBIC, "BBIC.java", repo_name,
                         output_dir);
                 String dst_byte = get_source(repository, commitBIC.getName(), pathBIC, "BIC.java", repo_name,
                         output_dir);
 
-                Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot();
-                Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot();
+                if (code_differencing_tool.equals("LAS")) {
+                    File BBICFile = new File(output_dir + "/" + repo_name.substring(0, 1).toUpperCase() + repo_name.substring(1), "BBIC.java");
+                    File BICFile = new File(output_dir + "/" + repo_name.substring(0, 1).toUpperCase() + repo_name.substring(1), "BIC.java");
 
-                Matcher defaultMatcher = Matchers.getInstance().getMatcher();
-                MappingStore mappings = defaultMatcher.match(src, dst);
-                EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator();
-                EditScript actions = editScriptGenerator.computeActions(mappings);
+                    ProcessBuilder processBuilder = new ProcessBuilder(
+                        "java", "-cp", "/home/young170/SPI_3.0/core/ChangeCollector/las-1.0.0-SNAPSHOT-jar-with-dependencies.jar", "main.LAS", BBICFile.getPath(), BICFile.getPath()
+                    );
 
-                String line_log = actions.asList().toString();
+                    StringBuilder line_log = new StringBuilder();
+                    Process process = processBuilder.start();
+                    try (BufferedReader processReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        String processLine;
+                        while ((processLine = processReader.readLine()) != null) {
+                            line_log.append(processLine).append("\n");
+                        }
+                    }
 
-                writer.write(line_log + "\n");
+                    writer.write(line_log.toString());
+                    writer.write("\n");
+                } else if (code_differencing_tool.equals("GumTree4.0") || code_differencing_tool.equals("GumTree3.0")) {
+                    Run.initGenerators();
+                    Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot();
+                    Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot();
+
+                    Matcher defaultMatcher = Matchers.getInstance().getMatcher();
+                    MappingStore mappings = defaultMatcher.match(src, dst);
+                    EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator();
+                    EditScript actions = editScriptGenerator.computeActions(mappings);
+
+                    String line_log = actions.asList().toString();
+
+                    writer.write(line_log + "\n");
+                }
             }
             writer.close();
             walk.close();
@@ -262,8 +287,8 @@ public class Extractor {
      * @param result_path   The directory path for storing the result file.
      * @return 0 if change vectors are extracted successfully, 1 if no change is detected, -1 on failure.
      */
-    public int extract_vector(String repo_name, String gumtree_log, String result_path) {
-        return extract_vector(repo_name, gumtree_log, result_path, false);
+    public int extract_vector(String repo_name, String gumtree_log, String result_path, String code_differencing_tool) {
+        return extract_vector(repo_name, gumtree_log, result_path, code_differencing_tool, false);
     }
 
         /**
@@ -275,7 +300,7 @@ public class Extractor {
      * @param all_diffs     True to extract vectors for all diffs, false otherwise.
      * @return 0 if change vectors are extracted successfully, 1 if no change is detected, -1 on failure.
      */
-    public int extract_vector(String repo_name, String gumtree_log, String result_path, boolean all_diffs) {
+    public int extract_vector(String repo_name, String gumtree_log, String result_path, String code_differencing_tool, boolean all_diffs) {
         App.logger.trace(App.ANSI_BLUE + "[status] > extracting change vectors from " + gumtree_log
                 + App.ANSI_RESET + " to " + App.ANSI_BLUE + result_path + App.ANSI_RESET);
         File gumtree = new File(gumtree_log);
@@ -284,74 +309,100 @@ public class Extractor {
             result_dir.mkdir();
         }
         File vector_file = new File(result_dir.getAbsolutePath(), repo_name + "_gumtree_vector.csv");
-
-        String line = null;
+    
+        String line;
         boolean no_change = false;
         boolean add = false;
         int oper = -1;
+    
+        // Determine regex and node array based on code_differencing_tool
+        String tokenRegex = "";
+        if (code_differencing_tool.equals("LAS")) {
+            tokenRegex = "insert|delete|update|move|replace";
+        } else if (code_differencing_tool.equals("GumTree3.0") || code_differencing_tool.equals("GumTree4.0")) {
+            tokenRegex = "insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree";
+        }
+        String[] nodeArray = code_differencing_tool.equals("LAS") ? ChangeVector.las_nodes : ChangeVector.expanded_nodes;
+        int multiplier = nodeArray.length;
 
-        try {
-            BufferedWriter vector_writer = new BufferedWriter(new FileWriter(vector_file, true));
+        // FIX!!!
+        if (code_differencing_tool.equals("GumTree3.0") || code_differencing_tool.equals("GumTree4.0")) {
+            multiplier = 170;
+        }
+    
+        Pattern typePattern = Pattern.compile("^([A-Za-z]+)");
+    
+        try (BufferedWriter vector_writer = new BufferedWriter(new FileWriter(vector_file, true));
+                BufferedReader log_reader = new BufferedReader(new FileReader(gumtree))) {
             String write_line = "";
-
-            BufferedReader log_reader = new BufferedReader(new FileReader(gumtree));
-
+    
             while ((line = log_reader.readLine()) != null && (!no_change || all_diffs)) {
                 StringTokenizer st = new StringTokenizer(line);
                 write_line = "";
+    
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
                     if (token.equals("[]")) {
                         no_change = true;
                     }
-                    if (token.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
-                        if (AST_types.size() > 0 && oper != -1) {
-                            for (int i = 0; i < AST_types.size(); i++) {
-                                int val = 170 * oper + AST_types.get(i);
-                                write_line += val + ",";
+    
+                    if (token.matches(tokenRegex)) {
+                        if (!AST_types.isEmpty() && oper != -1) {
+                            for (int i : AST_types) {
+                                write_line += (multiplier * oper + i) + ",";
                             }
                         }
                         AST_types.clear();
                         oper = getNodeNum(token);
+
+                        if (code_differencing_tool.equals("LAS")) {
+                            add = true;
+                        }
                     }
-                    if (token.matches("---")) {
+    
+                    if (!code_differencing_tool.equals("LAS") && token.matches("---")) {
                         add = true;
                     }
-                    if (token.matches("===")) {
+                    if (!code_differencing_tool.equals("LAS") && token.matches("===")) {
                         add = false;
                     }
+    
                     if (add) {
-                        if (!Character.isAlphabetic(token.charAt(token.length() - 1)) && add) {
-                            token = token.substring(0, token.length() - 1);
-                        }
-                        for (int i = 0; i < ChangeVector.expanded_nodes.length; i++) {
-                            if (token.equals(ChangeVector.expanded_nodes[i])) {
-                                AST_types.add(i + 1);
+                        java.util.regex.Matcher matcher = typePattern.matcher(token);
+                        if (matcher.find()) {
+                            String baseType = matcher.group(1);
+                            for (int i = 0; i < nodeArray.length; i++) {
+                                if (baseType.equals(nodeArray[i])) {
+                                    AST_types.add(i + 1);
+                                }
                             }
                         }
                     }
                 }
+    
                 vector_writer.write(write_line);
-                if (!write_line.equals("") && all_diffs) {
+                if (!write_line.isEmpty() && all_diffs) {
                     vector_writer.newLine();
                 }
-            }
-            // write last line
-            if (AST_types.size() > 0 && oper != -1) {
-                for (int i = 0; i < AST_types.size(); i++) {
-                    int val = 170 * oper + AST_types.get(i);
 
-                    write_line += val + ",";
+                if (code_differencing_tool.equals("LAS")) {
+                    add = false;
+                }
+            }
+    
+            // Write last line if needed
+            if (!AST_types.isEmpty() && oper != -1) {
+                for (int i : AST_types) {
+                    write_line += (multiplier * oper + i) + ",";
                 }
                 AST_types.clear();
                 vector_writer.write(write_line);
             }
-            vector_writer.close();
-            log_reader.close();
         } catch (Exception e) {
             App.logger.error(App.ANSI_RED + "[error] Exception : " + e.getMessage() + App.ANSI_RESET);
             return -1;
         }
+
         int result = no_change ? 1 : 0;
         return all_diffs ? 0 : result;
     }
@@ -412,21 +463,21 @@ public class Extractor {
     */
     public static int getNodeNum(String str) {
         // on node types
-        if (str.equals("delete-node")) {
+        if (str.equals("delete-node") || str.equals("delete")) {
             return 0;
         }
-        if (str.equals("insert-node")) {
+        if (str.equals("insert-node") || str.equals("insert")) {
             return 1;
         }
-        if (str.equals("update-node")) {
+        if (str.equals("update-node") || str.equals("update")) {
             return 2;
         }
 
         // on tree types
-        if (str.equals("delete-tree")) {
+        if (str.equals("delete-tree") || str.equals("replace")) {
             return 3;
         }
-        if (str.equals("insert-tree")) {
+        if (str.equals("insert-tree") || str.equals("move")) {
             return 4;
         }
         if (str.equals("move-tree")) {
