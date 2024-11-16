@@ -104,7 +104,7 @@ public class GitLoader {
      *
      * @param counter The counter value to set.
      */
-    public void getCounter(int counter) {
+    public void setCounter(int counter) {
         this.counter = counter;
     }
 
