@@ -124,9 +124,10 @@ public class App {
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
         // retreive candidate source codes from each git repositories
+        gitLoader.setmaxCandidateNum(stringListofCommitFile.size());
         int counter = 0;
         for (String[] line : stringListofCommitFile) {
-            gitLoader.getCounter(counter);
+            gitLoader.setCounter(counter);
 
             String git_url = line[4];
             String cid_before = line[0];
