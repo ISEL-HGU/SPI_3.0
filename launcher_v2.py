@@ -28,7 +28,7 @@ def parse_argv() -> tuple:
                         help = "Rebuilds all SPI submodules if enabled.")
     
     parser.add_argument("-t","--textsim", type = str, default = "false",
-                        help = "Specifies target of text sim (diff, tree)")
+                        help = "Specifies target of text sim (diff, tree). 'tree' mode calculates simlarity based on the results of the AST-based code differencing tool results.")
 
     parser.add_argument("-A", "--APR",   type = str,     default = "ConFix",
                         help = "Tells on what APR do you want to use.")
