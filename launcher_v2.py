@@ -27,10 +27,17 @@ def parse_argv() -> tuple:
     parser.add_argument("-r", "--rebuild",  action = "store_true",
                         help = "Rebuilds all SPI submodules if enabled.")
     
-    parser.add_argument("-t","--textsim", action = "store_true", help = "On and Off options to use text sim or not")
+    parser.add_argument("-t","--textsim", type = str, default = "false",
+                        help = "Specifies target of text sim (diff, tree). 'tree' mode calculates simlarity based on the results of the AST-based code differencing tool results.")
 
     parser.add_argument("-A", "--APR",   type = str,     default = "ConFix",
                         help = "Tells on what APR do you want to use.")
+
+    parser.add_argument("-D", "--Differencing",   type = str,     default = "GumTree4.0",
+                        help = "Specifies code differencing tool to be used (GumTree3.0, GumTree4.0, and LAS).")
+
+    parser.add_argument("-S", "--Dataset",   type = str,     default = "Starred",
+                        help = "Specifies dataset to be used (Starred, GBR, Type).")
     
     parser.add_argument("-p", "--pool", type = str, default = None, help="Use Predefined Patches")
     
@@ -46,6 +53,8 @@ def parse_argv() -> tuple:
 
     settings['SPI']['debug'] = str(args.debug)
     settings['SPI']['APR'] = str(args.APR)
+    settings['SPI']['Differencing'] = str(args.Differencing)
+    settings['SPI']['Dataset'] = str(args.Dataset)
 
 
     if args.debug == True:
@@ -103,10 +112,7 @@ def parse_argv() -> tuple:
     else:
         settings['SPI']['with_predefined_pool'] = "False"
     
-    if args.textsim == True:
-        settings['LCE']['text_sim'] = "true"
-    else:
-        settings['LCE']['text_sim'] = "false"
+    settings['LCE']['text_sim'] = args.textsim
 
 
     return (cases, settings)
@@ -289,6 +295,9 @@ def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : confi
             prop_CC['lineFix'] = conf_SPI['faulty_line_fix']
             prop_CC['lineBlame'] = conf_SPI['faulty_line_blame']
 
+        prop_CC['Differencing'] = conf_SPI['Differencing']
+        prop_CC['Dataset'] = conf_SPI['Dataset']
+
         with open(os.path.join(case['target_dir'], "properties", "CC.properties"), "wb") as f:
             prop_CC.store(f, encoding = "UTF-8")
 
@@ -311,13 +320,18 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
 
         prop_LCE['SPI.dir'] = conf_SPI['root']
 
-        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", "gumtree_vector.csv")
-        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", "commit_file.csv")
+        lce_vector_file = "vector_file_{dataset}_{differencing}.csv".format(dataset =  settings['SPI']['Dataset'], differencing = settings['SPI']['Differencing'])
+        lce_commit_file = "commit_file_{dataset}.csv".format(dataset =  settings['SPI']['Dataset'])
 
+        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_vector_file)
+        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_commit_file)
+
+        prop_LCE['target_diff.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", "gumtree_log.txt")
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")
 
         prop_LCE['pool.dir'] = conf_SPI['stored_pool_dir']
         prop_LCE['textSimPool.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "result")
+        prop_LCE['text_sim'] = conf_LCE['text_sim']
         prop_LCE['candidates.dir'] = os.path.join(case['target_dir'], "outputs", "LCE", "candidates")
 
         prop_LCE['d4j_project_name'] = case['identifier']

@@ -1,0 +1,24 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+9,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Entities.java,38,38
+15,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/TreeBuilderState.java,283,283
+17,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/TreeBuilderState.java,1451,1451
+24,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/TokeniserState.java,558,558
+25,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/Tag.java,218,218
+29,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Document.java,69,69
+32,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Element.java,1138,1138
+34,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/CharacterReader.java,91,91
+37,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Element.java,1101,1101
+40,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/DocumentType.java,22,22
+41,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Element.java,1175,1175
+43,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Element.java,574,574
+45,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/HtmlTreeBuilder.java,394,394
+46,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Entities.java,118,118
+47,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Entities.java,122,122
+49,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Node.java,444,444
+51,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/CharacterReader.java,300,300
+61,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Element.java,1092,1092
+62,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java,764,764
+64,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/HtmlTreeBuilderState.java,1489,1489
+77,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/parser/XmlTreeBuilder.java,117,117
+86,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Comment.java,78,78
+88,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/jsoup/nodes/Attribute.java,80,80

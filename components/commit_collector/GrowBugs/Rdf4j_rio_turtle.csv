@@ -1,0 +1,2 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+6,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/core/rio/turtle/src/main/java/org/eclipse/rdf4j/rio/turtle/TurtleParser.java,168,168

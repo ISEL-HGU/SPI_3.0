@@ -164,6 +164,7 @@ fabric.properties
 
 # Package Files #
 *.jar
+!las-1.0.0-SNAPSHOT-jar-with-dependencies.jar
 !core/confix/lib/las.jar
 !core/confix/ConFix-code/lib/las.jar
 !core/confix/ConFix-code/lib/org.jacoco.core-0.7.7.201606060606.jar

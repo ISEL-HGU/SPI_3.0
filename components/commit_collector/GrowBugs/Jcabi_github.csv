@@ -1,0 +1,8 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+1,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkIssue.java,178,178
+3,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkGists.java,92,92
+4,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkGists.java,92,92
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/RtHook.java,78,78
+30,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkIssues.java,114,114
+42,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkIssues.java,114,114
+44,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jcabi/github/mock/MkReleases.java,128,128

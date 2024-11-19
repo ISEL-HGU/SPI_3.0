@@ -1,0 +1,5 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+4,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/joda/time/Partial.java,464,464
+7,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/joda/time/format/DateTimeFormatter.java,707,707
+16,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/joda/time/format/DateTimeFormatter.java,709,709
+19,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/joda/time/DateTimeZone.java,900,900

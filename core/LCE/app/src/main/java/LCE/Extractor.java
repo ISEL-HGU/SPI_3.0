@@ -370,6 +370,7 @@ public class Extractor {
                 TreeMap<Integer, ArrayList<Integer>> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
 
+
                 for (int index : simScoreMap.get(targetScore)) {
 
                     tieBreakingScore = cleanedGumTreeArray[index].length;
@@ -383,11 +384,13 @@ public class Extractor {
                         vectorLengthToIndex.get(tieBreakingScore).add(index);
                     }
 
+
                 }
 
                 int breaker = leftCandNum;
 
                 extractionLogger.info("Vector size" + vectorLengthToIndex.size()); 
+
 
                 for (int key : vectorLengthToIndex.keySet()) {
 

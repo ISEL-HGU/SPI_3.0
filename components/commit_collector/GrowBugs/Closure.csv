@@ -1,0 +1,24 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/NodeUtil.java,1417,1417
+13,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/PeepholeOptimizationsPass.java,126,126
+14,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/ControlFlowAnalysis.java,767,767
+18,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/Compiler.java,1288,1288
+31,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/Compiler.java,1285,1285
+38,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CodeConsumer.java,245,245
+52,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CodeGenerator.java,745,745
+57,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/ClosureCodingConvention.java,197,197
+62,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/LightweightMessageFormatter.java,98,98
+65,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CodeGenerator.java,1015,1015
+67,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java,318,318
+70,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/TypedScopeCreator.java,1745,1745
+71,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CheckAccessControls.java,416,416
+73,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CodeGenerator.java,1045,1045
+86,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/NodeUtil.java,2465,2465
+92,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/ProcessClosurePrimitives.java,789,789
+104,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/rhino/jstype/UnionType.java,291,291
+113,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/ProcessClosurePrimitives.java,329,329
+114,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/NameAnalyzer.java,578,578
+123,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CodeGenerator.java,285,285
+125,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/TypeCheck.java,1661,1661
+130,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/CollapseProperties.java,172,172
+168,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/com/google/javascript/jscomp/TypedScopeCreator.java,1996,1996

@@ -1,0 +1,3 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+7,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/tape/src/main/java/com/squareup/tape/QueueFile.java,250,250
+10,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/tape/src/main/java/com/squareup/tape/QueueFile.java,380,380

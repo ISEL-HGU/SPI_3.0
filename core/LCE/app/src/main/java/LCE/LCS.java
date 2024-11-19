@@ -145,7 +145,7 @@ public class LCS {
     private int calculateTotalIncorrectVectors(int[] sigma) {
         int incorrectVectorCount = 0;
 
-        for (int i = 1; i < sigma.length - 1; i++) {
+        for (int i = 0; i < sigma.length; i++) {
             incorrectVectorCount += sigma[i];
         }
 
@@ -166,6 +166,7 @@ public class LCS {
     public float scoreSimilarity(int[] poolVector, int[] givenBugVector) {
 
         float score = 1;
+        float weight = 1;
         int[] subSequence = backtrack(longestCommonSubsequenceOfIntegerArray(poolVector, givenBugVector));
 
         // Calculate the count of incorrect vectors in the pool for each element in the DP table
@@ -175,11 +176,10 @@ public class LCS {
         int incorrectVectorCount = calculateTotalIncorrectVectors(sigma);
 
         // Heuristic to give weight according to the incorrect vectors
-        if (poolVector.length != subSequence.length)
-            score = 1 - (float) incorrectVectorCount / (poolVector.length - subSequence.length);
+        weight = 1 - ((float) incorrectVectorCount / poolVector.length);
 
         // Adjust the score based on the length of the DP table
-        score = score * ((float) subSequence.length / givenBugVector.length);
+        score = weight * ((float) subSequence.length / givenBugVector.length);
 
         return score;
     }

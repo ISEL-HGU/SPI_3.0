@@ -1,0 +1,4 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+19,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.java,259,259
+23,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/compress/archivers/sevenz/Coders.java,112,112
+38,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveEntry.java,859,859

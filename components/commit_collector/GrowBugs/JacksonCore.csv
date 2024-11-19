@@ -1,0 +1,6 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+5,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/core/JsonPointer.java,193,193
+8,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/core/util/TextBuffer.java,307,307
+25,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/core/json/ReaderBasedJsonParser.java,1963,1963
+29,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/core/JsonFactory.java,293,293
+30,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/fasterxml/jackson/core/json/UTF8StreamJsonParser.java,1524,1524

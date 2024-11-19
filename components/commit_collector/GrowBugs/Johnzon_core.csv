@@ -1,0 +1,4 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+1,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/johnzon-core/src/main/java/org/apache/johnzon/core/JsonStreamParserImpl.java,251,251
+6,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/johnzon-core/src/main/java/org/apache/johnzon/core/JsonObjectImpl.java,57,57
+9,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/johnzon-core/src/main/java/org/apache/johnzon/core/JsonGeneratorImpl.java,358,358

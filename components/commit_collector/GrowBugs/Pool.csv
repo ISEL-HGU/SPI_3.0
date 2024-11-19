@@ -1,0 +1,4 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+1,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/pool/impl/GenericKeyedObjectPool.java,315,315
+13,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/pool2/impl/GenericKeyedObjectPool.java,113,113
+24,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/pool2/impl/GenericObjectPool.java,890,890

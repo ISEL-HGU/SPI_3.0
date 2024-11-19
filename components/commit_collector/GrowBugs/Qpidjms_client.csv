@@ -1,0 +1,2 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+3,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/client/src/main/java/org/apache/qpid/client/BrokerDetails.java,562,562

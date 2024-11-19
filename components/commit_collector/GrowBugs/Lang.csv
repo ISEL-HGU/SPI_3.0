@@ -1,0 +1,11 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+6,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/text/translate/CharSequenceTranslator.java,95,95
+16,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/math/NumberUtils.java,458,458
+21,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/time/DateUtils.java,265,265
+24,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/math/NumberUtils.java,1413,1413
+26,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/time/FastDateFormat.java,820,820
+29,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/SystemUtils.java,1672,1672
+33,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/lang3/ClassUtils.java,910,910
+57,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/lang/LocaleUtils.java,223,223
+59,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/lang/text/StrBuilder.java,884,884
+61,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/java/org/apache/commons/lang/text/StrBuilder.java,1776,1776

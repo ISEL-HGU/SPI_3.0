@@ -1,0 +1,2 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+1,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/environments/se/core/src/main/java/org/jboss/weld/environment/se/Weld.java,88,88

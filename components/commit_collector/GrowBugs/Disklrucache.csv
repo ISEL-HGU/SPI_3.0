@@ -1,0 +1,2 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+5,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/com/jakewharton/disklrucache/DiskLruCache.java,589,589

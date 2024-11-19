@@ -30,6 +30,8 @@ public class App {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
+    private boolean poolHasCommitId = true;
+
     static Logger appLogger = LogManager.getLogger(App.class.getName());
 
     /**
@@ -76,14 +78,17 @@ public class App {
 
         // Pool Directory and Candidate Directory set
         String pool_dir = properties.getProperty("pool.dir");
-        String textSimPool_dir= properties.getProperty("textSimPool.dir");
+        String textSimPool_dir = properties.getProperty("textSimPool.dir");
+        String targetDiff_dir = properties.getProperty("target_diff.dir");
         String candidates_dir = properties.getProperty("candidates.dir");
         String textSimOrNot = properties.getProperty("text_sim");
 
         List<String[]> stringListofCommitFile;
 
-        if (textSimOrNot.equals("true") || textSimOrNot.equals("t") ) {
-            CosineSimilarity cosineSimilarity = new CosineSimilarity(pool_dir, textSimPool_dir, Integer.parseInt(properties.getProperty("candidate_number")));
+        if (textSimOrNot.equals("false")) {
+            stringListofCommitFile = commaSeperatedLineToStringArray(LCEResult);
+        } else {
+            CosineSimilarity cosineSimilarity = new CosineSimilarity(pool_dir, textSimPool_dir, targetDiff_dir, textSimOrNot, false, Integer.parseInt(properties.getProperty("candidate_number")));
 
             List<String> textSimResult = cosineSimilarity.run(LCEResult);
     
@@ -91,8 +96,6 @@ public class App {
     
             // preprocess the results from extractor before next step
             stringListofCommitFile = commaSeperatedLineToStringArray(textSimResult);
-        } else {
-            stringListofCommitFile = commaSeperatedLineToStringArray(LCEResult);
         }
 
 
@@ -124,34 +127,66 @@ public class App {
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
         // retreive candidate source codes from each git repositories
-        gitLoader.setmaxCandidateNum(stringListofCommitFile.size());
+        int paddingLength = String.valueOf(stringListofCommitFile.size()).length();
+        gitLoader.setmaxCandidateNum(paddingLength);
         int counter = 0;
         for (String[] line : stringListofCommitFile) {
             gitLoader.setCounter(counter);
 
-            String git_url = line[4];
-            String cid_before = line[0];
-            String cid_after = line[1];
-            String filepath_before = line[2];
-            String filepath_after = line[3];
-            String d4jName = properties.getProperty("d4j_project_name");
-            int d4jNum = Integer.parseInt(properties.getProperty("d4j_project_num"));
+            if (!poolHasCommitId) {
+                String d4jName = properties.getProperty("d4j_project_name");
+                int d4jNum = Integer.parseInt(properties.getProperty("d4j_project_num"));
+                String project = d4jName + "-" + d4jNum;
 
-            appLogger.trace(ANSI_GREEN + "[candidate metadata] > filepath after : " + filepath_after
-                    + ", git repository url : " + git_url + ", defects4j project : " + d4jName + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
+                String gbrProjectAndId = line[0].substring(line[0].indexOf("checkout/") + "checkout/".length());
+                String gbrProject = gbrProjectAndId.substring(0, gbrProjectAndId.indexOf('_'));
+                String gbrProjectId = gbrProjectAndId.substring(gbrProjectAndId.indexOf('_') + 1, gbrProjectAndId.indexOf('_', gbrProjectAndId.indexOf('_') + 1));
 
-            gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4jName, d4jNum);
-            gitLoader.logGitCloneStatus();
-
-            try {
-                if (gitLoader.load()) {
-                    appLogger.trace(ANSI_GREEN + "[status] > gitLoader load success" + ANSI_RESET);
-                } else {
-                    appLogger.fatal(ANSI_RED + "[fatal] > gitLoader load failed" + ANSI_RESET);
+                if (gbrProject.equals("Math")) {
+                    gbrProjectId = gbrProjectAndId.split("_")[2];
                 }
-            } catch (Exception e) {
-                appLogger.fatal(ANSI_RED + "[fatal] > Exception :" + e.getMessage() + ANSI_RESET);
+
+                appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + d4jName + " - " + String.valueOf(d4jNum) + ANSI_RESET);
+                appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + gbrProject + " - " + gbrProjectId + ANSI_RESET);
+
+                // does not copy to the directory
+                if (d4jName.equals(gbrProject) && gbrProjectId.equals(String.valueOf(d4jNum))) {
+                    appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + "remove cheating" + ANSI_RESET);
+                    
+                    counter++;
+                    continue;
+                }
+
+                String paddedCounter = String.format("%0" + paddingLength + "d", counter);
+
+                gitLoader.copy(line[0], candidates_dir + "/" + project + "_rank-" + paddedCounter + "_old.java"); // buggy file
+                gitLoader.copy(line[1], candidates_dir + "/" + project + "_rank-" + paddedCounter + "_new.java"); // fixed file
+            } else {
+                String git_url = line[4];
+                String cid_before = line[0];
+                String cid_after = line[1];
+                String filepath_before = line[2];
+                String filepath_after = line[3];
+                String d4jName = properties.getProperty("d4j_project_name");
+                int d4jNum = Integer.parseInt(properties.getProperty("d4j_project_num"));
+
+                appLogger.trace(ANSI_GREEN + "[candidate metadata] > filepath after : " + filepath_after
+                        + ", git repository url : " + git_url + ", defects4j project : " + d4jName + "-" + properties.getProperty("d4j_project_num") + ANSI_RESET);
+
+                gitLoader.config(git_url, cid_before, cid_after, filepath_before, filepath_after, d4jName, d4jNum);
+                gitLoader.logGitCloneStatus();
+
+                try {
+                    if (gitLoader.load()) {
+                        appLogger.trace(ANSI_GREEN + "[status] > gitLoader load success" + ANSI_RESET);
+                    } else {
+                        appLogger.fatal(ANSI_RED + "[fatal] > gitLoader load failed" + ANSI_RESET);
+                    }
+                } catch (Exception e) {
+                    appLogger.fatal(ANSI_RED + "[fatal] > Exception :" + e.getMessage() + ANSI_RESET);
+                }
             }
+            
             counter++;
         }
 
@@ -177,7 +212,10 @@ public class App {
                 String[] line_split = line.split(",");
                 String[] selection = null;
 
-                if (line_split.length < 8) {
+                if (line_split.length < 6) {
+                    selection = new String[] { line_split[0], line_split[1], line_split[2]}; //BIC_FILE, BFC_FILE, Project_Name
+                    poolHasCommitId = false;
+                } else if (line_split.length < 8) {
                     selection = new String[] { line_split[0], line_split[1], line_split[2], line_split[3],
                         line_split[4], line_split[5]}; //BBIC, BIC, BBIC_FILE, BIC_FILE, Github_link, Project_Name
                         //example: 567823eb81b7f253662e09a119175b75428abf19,2f9c8ac25ba634affe366ce55eb3f9e969e71ae3,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,launcher/src/test/java/org/apache/spark/launcher/SparkSubmitCommandBuilderSuite.java,https://github.com/apache/spark,SPARK

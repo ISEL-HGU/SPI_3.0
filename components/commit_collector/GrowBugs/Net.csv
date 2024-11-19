@@ -1,0 +1,4 @@
+Defects4J ID,Faulty file path,fix faulty line,blame faulty line
+15,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/net/ftp/parser/NTFTPEntryParser.java,79,79
+17,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/net/io/Util.java,288,288
+25,/home/young170/SPI_3.0/components/commit_collector/GrowBugs/tmp/buggy/src/main/java/org/apache/commons/net/ftp/parser/MVSFTPEntryParser.java,70,70
