@@ -415,7 +415,7 @@ public class ConFix {
 		// We load new Changepool for each run
 		ChangePoolGenerator changePoolGenerator = new ChangePoolGenerator();
 		String[] sourcePathEntry = new String[]{sourceDir};
-		changePoolGenerator.collect(buggyFiles,cleanFiles, compileClassPathEntries, sourcePathEntry);
+		changePoolGenerator.collect(buggyFiles, cleanFiles, compileClassPathEntries, sourcePathEntry);
 		pool = changePoolGenerator.pool;
 		pool.poolName = "SimFinPool";
 		pool.maxLoadCount = maxPoolLoad;
