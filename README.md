@@ -119,8 +119,9 @@ Inspired by _**Automated Patch Generation with Context-based Change Application*
 - `'-d', '--debug'` : Execute single Defects4J project, `Closure-14` for testing a cycle of execution. Debug uses `flfreq` and `hash-match` strategies. SPI consists of three Java projects as submodules. Thus you may need to check if there is no compile error or wrong paths given through debug execution. If no problem occurs, you are clear to launch.
 - `'-A', '--APR'` : Choose APR tool between `ConFix` and `SimFix`. Default APR tool is `ConFix`.
 - `'-p', '--pool'` : Optional, you can provide patches directly being used for ConFix. Patches should be a form of #_new.java. The number should be consecutive.
-- `'-t', '--textsim'` : Use Cosine Text Similarity to extract patches. It extracts 3 * candidate numbers using LCE and top candidate numbers using cosine similarity. 
-
+- `'-t', '--textsim'` : Use Cosine Text Similarity to extract patches. It extracts 3 * candidate numbers using LCE and top candidate numbers using cosine similarity. Giving it the value `tree`, the text similarity is evaluated based on the result of the code differencing.
+- `'-D', '--Differencing'` : Choose the code differencing tool to be used during the `ChangeCollector` stage. Options include: `GumTree3.0`, `Gumtree4.0`, and `LAS`.
+- `'-S', '--Dataset'` : Choose the pool dataset SPI searches. Options include: `Starred`, `GBR`, and `Type`. `Starred` is based on the most starred Apache Java projects. `GBR` is based on an open source bug repository, [GrowingBugRepository](https://github.com/liuhuigmail/GrowingBugRepository). `Type` chooses projects that are of similar 'type', from [Awesome Java](https://java.libhunt.com/).
 
 ### Upon Execution...
 #### "Notify me by Email"
