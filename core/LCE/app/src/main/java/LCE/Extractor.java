@@ -370,6 +370,7 @@ public class Extractor {
                 TreeMap<Integer, ArrayList<Integer>> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
 
+
                 for (int index : simScoreMap.get(targetScore)) {
 
                     tieBreakingScore = cleanedGumTreeArray[index].length;
@@ -390,10 +391,11 @@ public class Extractor {
 
                 extractionLogger.info("Vector size" + vectorLengthToIndex.size()); 
 
+
                 for (int key : vectorLengthToIndex.keySet()) {
 
                     for (int index : vectorLengthToIndex.get(key)) {
-
+                        
                         result[resultPos++] = index;
                         extractionLogger.info(App.ANSI_BLUE + "[status] LCS = " + Arrays.toString(cleanedGumTreeArray[index]) + " index: " + Integer.toString(index) + App.ANSI_RESET);
                         if (--breaker == 0) return result;
