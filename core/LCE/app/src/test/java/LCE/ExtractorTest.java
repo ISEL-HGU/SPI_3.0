@@ -91,6 +91,49 @@ public class ExtractorTest {
         assertArrayEquals(expectedIndexes, actualIndexes, "Indexes of Candidate Patches should match");
     }
 
-    
+    @Test
+    void testIndexOfCandidatePatches3() {
+        // Assuming you have sample input data for testing
+        HashMap<Float, ArrayList<Integer>> testScoreMap = new HashMap<>();
+        testScoreMap.put(0.8f, new ArrayList<>(List.of(0, 2, 5, 6)));
+        testScoreMap.put(0.5f, new ArrayList<>(List.of(1, 4, 11, 12, 13)));
+        testScoreMap.put(0.7f, new ArrayList<>(List.of(3, 7, 8, 9, 10)));
+
+        int nummax = 3;
+        int[][] testStoredPoolArray = {
+                {1, 2, 3},
+                {4, 5, 6, 7},
+                {8, 9, 10, 11, 12},
+                {13, 14, 15},
+                {16, 17, 18, 19, 20},
+                {1, 2, 3},
+                {1, 2, 3}, 
+                {1, 2, 3},
+                {4, 5, 6, 7},
+                {8, 9, 10, 11, 12},
+                {13, 14, 15},
+                {16, 17, 18, 19, 20},
+                {1, 2, 3},
+                {1, 2, 3}
+        };
+
+        int[] expectedIndexes = {0, 5, 6};
+
+        // Create the Extractor instance and call the method
+        Extractor extractor = new Extractor();
+        int[] actualIndexes = extractor.indexOfCandidatePatches(testScoreMap, nummax, testStoredPoolArray);
+
+        // Validate the results
+        assertArrayEquals(expectedIndexes, actualIndexes, "Indexes of Candidate Patches should match");
+
+        nummax = 5;
+        int[] expectedIndexes2 = {0, 2, 5, 6, 3};
+
+        actualIndexes = extractor.indexOfCandidatePatches(testScoreMap, nummax, testStoredPoolArray);
+
+        // Validate the results
+        assertArrayEquals(expectedIndexes2, actualIndexes, "Indexes of Candidate Patches should match");
+
+    }
     
 }
