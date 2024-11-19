@@ -35,6 +35,9 @@ def parse_argv() -> tuple:
 
     parser.add_argument("-D", "--Differencing",   type = str,     default = "GumTree4.0",
                         help = "Specifies code differencing tool to be used (GumTree3.0, GumTree4.0, and LAS).")
+
+    parser.add_argument("-S", "--Dataset",   type = str,     default = "Starred",
+                        help = "Specifies dataset to be used (Starred, GBR, Type).")
     
     parser.add_argument("-p", "--pool", type = str, default = None, help="Use Predefined Patches")
     
@@ -51,6 +54,7 @@ def parse_argv() -> tuple:
     settings['SPI']['debug'] = str(args.debug)
     settings['SPI']['APR'] = str(args.APR)
     settings['SPI']['Differencing'] = str(args.Differencing)
+    settings['SPI']['Dataset'] = str(args.Dataset)
 
 
     if args.debug == True:
@@ -292,6 +296,7 @@ def run_CC(case : dict, is_defects4j : bool, is_vjbench : bool, conf_SPI : confi
             prop_CC['lineBlame'] = conf_SPI['faulty_line_blame']
 
         prop_CC['Differencing'] = conf_SPI['Differencing']
+        prop_CC['Dataset'] = conf_SPI['Dataset']
 
         with open(os.path.join(case['target_dir'], "properties", "CC.properties"), "wb") as f:
             prop_CC.store(f, encoding = "UTF-8")
@@ -315,8 +320,11 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
 
         prop_LCE['SPI.dir'] = conf_SPI['root']
 
-        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", "las_vector_GBR.csv")
-        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", "commit_file_GBR_4.0.csv")
+        lce_commit_file = "commit_file_{dataset}.csv".format(dataset =  settings['SPI']['Dataset']])
+        lce_vector_file = "vector_file_{dataset}_{differencing}.csv".format(dataset =  settings['SPI']['Dataset'], differencing = settings['SPI']['Differencing'])
+
+        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_commit_file)
+        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_vector_file)
 
         prop_LCE['target_diff.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", "gumtree_log.txt")
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")
