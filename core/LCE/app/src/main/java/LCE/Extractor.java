@@ -369,17 +369,21 @@ public class Extractor {
                 
                 TreeMap<Integer, ArrayList<Integer>> vectorLengthToIndex = new TreeMap<>(Comparator.naturalOrder());
 
-                for (int index : simScoreMap.get(targetScore)) {
-                    tieBreakingScore = cleanedGumTreeArray[index].length;
 
+                for (int index : simScoreMap.get(targetScore)) {
+
+                    tieBreakingScore = cleanedGumTreeArray[index].length;
+                    
                     if (vectorLengthToIndex.containsKey(tieBreakingScore)) {
-                        
+
                         vectorLengthToIndex.get(tieBreakingScore).add(index);
 
                     } else {
                         vectorLengthToIndex.put(tieBreakingScore, new ArrayList<>());
                         vectorLengthToIndex.get(tieBreakingScore).add(index);
                     }
+
+
                 }
 
                 int breaker = leftCandNum;
@@ -395,6 +399,7 @@ public class Extractor {
                         if (--breaker == 0) return result;
 
                     }
+
                 }
             }
         }
