@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Arrays ;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -67,17 +69,22 @@ public class ChangePoolGenerator {
 	}
 
 	public void collect(List<File> bugFiles, List<File> cleanFiles, String[] compileClassPathEntries, String[] sourcePath, boolean discardDelMov) {
-
 		System.out.println("[Debug.log] line 72 of ChangePoolGenerator.java: bugFiles size: "+bugFiles.size());
 		System.out.println("[Debug.log] line 73 of ChangePoolGenerator.java: cleanFiles size: "+cleanFiles.size());
+
+		if (bugFiles.isEmpty() || cleanFiles.isEmpty()) {
+			System.out.println("[Debug.log] line 77 of ChangePoolGenerator.java: buggy or clean files empty");
+			return;
+		}
+
 		try {
 			for (int i = 0; i < bugFiles.size(); i++) {
 
 				if(bugFiles.get(i) == null || cleanFiles.get(i) == null)
 					continue;
 
-				System.out.println("[Debug.log] line 80 of ChangePoolGenerator.java: buggy file : "+bugFiles.get(i).getName());
-				System.out.println("[Debug.log] line 81 of ChangePoolGenerator.java: clean file : "+cleanFiles.get(i).getName());
+				System.out.println("[Debug.log] line 88 of ChangePoolGenerator.java: buggy file : "+bugFiles.get(i).getName());
+				System.out.println("[Debug.log] line 89 of ChangePoolGenerator.java: clean file : "+cleanFiles.get(i).getName());
 
 				// Generate EditScript from before and after.
 				String oldCode = IOUtils.readFile(bugFiles.get(i));
@@ -85,7 +92,7 @@ public class ChangePoolGenerator {
 				Tree before = TreeBuilder.buildTreeFromFile(bugFiles.get(i),compileClassPathEntries,sourcePath);
 				Tree after = TreeBuilder.buildTreeFromFile(cleanFiles.get(i),compileClassPathEntries,sourcePath);
 				EditScript editScript = ScriptGenerator.generateScript(before, after);
-				System.out.println("[Debug.log] line 95 of ChangePoolGenerator: generated script difference between before and after tree through LAS :: editScript = "+editScript.toString());
+				System.out.println("[Debug.log] line 97 of ChangePoolGenerator: generated script difference between before and after tree through LAS :: editScript = "+editScript.toString());
 				// Convert EditScript to Script.
 				editScript = Converter.filter(editScript);
 				EditScript combined = Converter.combineEditOps(editScript, discardDelMov);
