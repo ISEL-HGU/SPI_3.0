@@ -127,9 +127,11 @@ public class App {
         appLogger.trace(ANSI_BLUE + "[status] > Initiating gitLoader" + ANSI_RESET);
 
         // retreive candidate source codes from each git repositories
+        int paddingLength = String.valueOf(stringListofCommitFile.size()).length();
+        gitLoader.setmaxCandidateNum(paddingLength);
         int counter = 0;
         for (String[] line : stringListofCommitFile) {
-            gitLoader.getCounter(counter);
+            gitLoader.setCounter(counter);
 
             if (!poolHasCommitId) {
                 String d4jName = properties.getProperty("d4j_project_name");
@@ -147,6 +149,7 @@ public class App {
                 appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + d4jName + " - " + String.valueOf(d4jNum) + ANSI_RESET);
                 appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + gbrProject + " - " + gbrProjectId + ANSI_RESET);
 
+                // does not copy to the directory
                 if (d4jName.equals(gbrProject) && gbrProjectId.equals(String.valueOf(d4jNum))) {
                     appLogger.trace(ANSI_GREEN + "[candidate metadata] > " + "remove cheating" + ANSI_RESET);
                     
@@ -154,8 +157,10 @@ public class App {
                     continue;
                 }
 
-                gitLoader.copy(line[0], candidates_dir + "/" + project + "_rank-" + counter + "_old.java"); // buggy file
-                gitLoader.copy(line[1], candidates_dir + "/" + project + "_rank-" + counter + "_new.java"); // fixed file
+                String paddedCounter = String.format("%0" + paddingLength + "d", counter);
+
+                gitLoader.copy(line[0], candidates_dir + "/" + project + "_rank-" + paddedCounter + "_old.java"); // buggy file
+                gitLoader.copy(line[1], candidates_dir + "/" + project + "_rank-" + paddedCounter + "_new.java"); // fixed file
             } else {
                 String git_url = line[4];
                 String cid_before = line[0];

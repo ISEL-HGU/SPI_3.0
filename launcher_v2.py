@@ -320,11 +320,11 @@ def run_LCE(case : dict, is_defects4j : bool, conf_SPI : configparser.SectionPro
 
         prop_LCE['SPI.dir'] = conf_SPI['root']
 
-        lce_commit_file = "commit_file_{dataset}.csv".format(dataset =  settings['SPI']['Dataset']])
         lce_vector_file = "vector_file_{dataset}_{differencing}.csv".format(dataset =  settings['SPI']['Dataset'], differencing = settings['SPI']['Differencing'])
+        lce_commit_file = "commit_file_{dataset}.csv".format(dataset =  settings['SPI']['Dataset'])
 
-        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_commit_file)
-        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_vector_file)
+        prop_LCE['pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_vector_file)
+        prop_LCE['meta_pool_file.dir'] = os.path.join(conf_SPI['root'], "components", "LCE", lce_commit_file)
 
         prop_LCE['target_diff.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", "gumtree_log.txt")
         prop_LCE['target_vector.dir'] = os.path.join(case['target_dir'], "outputs", "ChangeCollector", f"{case['identifier']}_gumtree_vector.csv")

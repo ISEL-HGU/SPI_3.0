@@ -119,7 +119,7 @@ public class Extractor {
      * @param code_differencing_tool The name of the code differencing tool to be used.
      * @return True if the extraction is successful, false otherwise.
      */
-    public boolean extract_gumtree_log(String repo_path, String diff_path, String output_dir, String code_differencing_tool) {
+    public boolean extract_gumtree_log(String repo_path, String diff_path, String output_dir, String project_root, String code_differencing_tool) {
         try {
             App.logger.trace(App.ANSI_BLUE + "[status] > extracting gumtree log from " + diff_path
                     + App.ANSI_RESET + " to " + App.ANSI_BLUE + output_dir + App.ANSI_RESET);
@@ -164,7 +164,7 @@ public class Extractor {
                     File BICFile = new File(output_dir + "/" + repo_name.substring(0, 1).toUpperCase() + repo_name.substring(1), "BIC.java");
 
                     ProcessBuilder processBuilder = new ProcessBuilder(
-                        "java", "-cp", "/home/young170/SPI_3.0/core/ChangeCollector/las-1.0.0-SNAPSHOT-jar-with-dependencies.jar", "main.LAS", BBICFile.getPath(), BICFile.getPath()
+                        "java", "-cp", project_root+"/las-1.0.0-SNAPSHOT-jar-with-dependencies.jar", "main.LAS", BBICFile.getPath(), BICFile.getPath()
                     );
 
                     StringBuilder line_log = new StringBuilder();
@@ -178,7 +178,7 @@ public class Extractor {
 
                     writer.write(line_log.toString());
                     writer.write("\n");
-                } else if (code_differencing_tool.equals("GumTree4.0") || code_differencing_tool.equals("GumTree3.0")) {
+                } else if (code_differencing_tool.contains("GumTree")) {
                     Run.initGenerators();
                     Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot();
                     Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot();
@@ -319,14 +319,14 @@ public class Extractor {
         String tokenRegex = "";
         if (code_differencing_tool.equals("LAS")) {
             tokenRegex = "insert|delete|update|move|replace";
-        } else if (code_differencing_tool.equals("GumTree3.0") || code_differencing_tool.equals("GumTree4.0")) {
+        } else if (code_differencing_tool.contains("GumTree")) {
             tokenRegex = "insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree";
         }
         String[] nodeArray = code_differencing_tool.equals("LAS") ? ChangeVector.las_nodes : ChangeVector.expanded_nodes;
         int multiplier = nodeArray.length;
 
         // FIX!!!
-        if (code_differencing_tool.equals("GumTree3.0") || code_differencing_tool.equals("GumTree4.0")) {
+        if (code_differencing_tool.contains("GumTree")) {
             multiplier = 170;
         }
     

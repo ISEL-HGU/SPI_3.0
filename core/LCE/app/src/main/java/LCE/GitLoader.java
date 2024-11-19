@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import java.nio.file.Files;
 
 public class GitLoader {
+    private int maxCandidateNum = -1;
     private int counter = -1;
     private String url; // git url
     private String name; // git repo name
@@ -104,8 +105,17 @@ public class GitLoader {
      *
      * @param counter The counter value to set.
      */
-    public void getCounter(int counter) {
+    public void setCounter(int counter) {
         this.counter = counter;
+    }
+
+    /**
+     * Sets the maximum number of candidates to track
+     *
+     * @param maxCandidateNum The maxCandidateNum value to set.
+     */
+    public void setmaxCandidateNum(int maxCandidateNum) {
+        this.maxCandidateNum = maxCandidateNum;
     }
 
     /**
@@ -187,16 +197,19 @@ public class GitLoader {
             Process p = pb.start();
             p.waitFor();
             gitLogger.trace(App.ANSI_GREEN + "[status] > git checkout success" + App.ANSI_RESET);
+
+            int paddingLength = String.valueOf(maxCandidateNum).length();
+            String paddedCounter = String.format("%0" + paddingLength + "d", counter);
             
             if (oldFile) {
                 if (copy(directory + "/" + filepathBefore,
-                        candidateDir + "/" + project + "_rank-" + counter + "_old.java"))
+                        candidateDir + "/" + project + "_rank-" + paddedCounter + "_old.java"))
                     return true;
                 else 
                     return false;
             } else {
                 if (copy(directory + "/" + filepathAfter,
-                        candidateDir + "/" + project + "_rank-" + counter + "_new.java"))
+                        candidateDir + "/" + project + "_rank-" + paddedCounter + "_new.java"))
                     return true;
                 else
                     return false;
